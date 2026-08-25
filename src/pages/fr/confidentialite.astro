@@ -1,0 +1,132 @@
+---
+/*
+ * POLITIQUE DE CONFIDENTIALITÉ ET COOKIES (français).
+ *
+ * ⚠️ AVANT LA MISE EN LIGNE — ceci est un bon brouillon de départ, fidèle à ce
+ * que la page fait réellement (transfert WhatsApp, envoi d'email via Web3Forms,
+ * tag Google Ads + Consent Mode). Ce N'EST PAS un conseil juridique. Il faut :
+ *   1. Compléter les champs [PLACEHOLDER] ci-dessous — raison sociale, adresse, TVA, DPO/email.
+ *   2. Faire relire ce texte par une personne qualifiée en droit applicable (RGPD).
+ * Les trois tiers cités (Google, Web3Forms, Meta/WhatsApp) sont les seuls
+ * destinataires de données utilisés par cette page — à tenir à jour si cela change.
+ */
+import Layout from '../../layouts/Layout.astro'
+import { CONTACT, OFFER } from '../../config'
+
+const updated = 'Août 2026'
+---
+
+<Layout
+    title={`Politique de Confidentialité | ${OFFER.company}`}
+    description="Politique de confidentialité et de cookies : comment nous traitons les données collectées via ce site."
+    lang="fr"
+    ogLocale="fr_FR"
+    tripName={`Safari de lune de miel en Tanzanie de ${OFFER.tripLengthDays} jours`}>
+    <main class="mx-auto max-w-3xl px-6 py-16 lg:py-20">
+        <a href="/fr" class="text-sm font-medium text-primary hover:underline">&larr; Retour à la page principale</a>
+        <h1 class="mt-4 text-3xl font-bold md:text-4xl">Politique de Confidentialité et de Cookies</h1>
+        <p class="mt-2 text-sm text-gray-500">Dernière mise à jour : {updated}</p>
+
+        <div class="mt-8 space-y-8 leading-relaxed text-gray-700">
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">1. Responsable du traitement</h2>
+                <p>
+                    Le responsable du traitement des données collectées via ce site est
+                    <strong>[RAISON SOCIALE — ex. African Polecat Safaris]</strong>,
+                    dont le siège se trouve à <strong>[ADRESSE COMPLÈTE]</strong>
+                    (<strong>[numéro d'immatriculation / TVA]</strong>).
+                    Pour toute demande relative à vos données, vous pouvez nous écrire à
+                    <a href={`mailto:${CONTACT.email}`} class="text-primary underline underline-offset-2">{CONTACT.email}</a>.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">2. Quelles données nous collectons</h2>
+                <ul class="list-disc space-y-1 pl-5">
+                    <li><strong>Données du formulaire de demande :</strong> prénom et nom, adresse email, mois de voyage, nombre de voyageurs et toute note que vous nous fournissez volontairement.</li>
+                    <li><strong>Données de communication :</strong> si vous nous contactez par WhatsApp ou email, le contenu des messages et les coordonnées associées.</li>
+                    <li><strong>Données de navigation et cookies :</strong> avec votre consentement, identifiants et données collectées par les tags publicitaires de Google pour la mesure des campagnes (voir §5).</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">3. Finalités et bases juridiques</h2>
+                <ul class="list-disc space-y-1 pl-5">
+                    <li><strong>Répondre aux demandes et préparer des devis</strong> — base juridique : exécution de mesures précontractuelles à votre demande (art. 6.1.b RGPD).</li>
+                    <li><strong>Mesure et optimisation publicitaire</strong> via les cookies Google — base juridique : votre consentement (art. 6.1.a RGPD), révocable à tout moment.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">4. Comment nous traitons les demandes du formulaire</h2>
+                <p>
+                    Lorsque vous envoyez le formulaire, les données sont transmises à notre boîte email via
+                    <strong>Web3Forms</strong> (Reslancer LLP) et, si vous choisissez de continuer, ouvrent une
+                    conversation sur <strong>WhatsApp</strong>. Nous ne stockons pas les données dans une base de
+                    données sur ce site : nous les recevons par email pour pouvoir vous répondre.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">5. Cookies et technologies de suivi</h2>
+                <p>
+                    Nous utilisons le <strong>tag Google (Google Ads)</strong> pour mesurer les conversions de nos
+                    campagnes publicitaires. Nous adoptons le <strong>mode de consentement (Consent Mode)</strong> :
+                    les cookies publicitaires et de mesure restent <strong>désactivés par défaut</strong> et ne
+                    s'activent qu'après votre consentement via la bannière. Si vous refusez, aucun cookie de ce type
+                    n'est déposé. Vous pouvez modifier votre choix en supprimant les données du site depuis votre
+                    navigateur : la bannière réapparaîtra.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">6. Destinataires des données</h2>
+                <p>Nous ne partageons les données qu'avec les prestataires nécessaires à la fourniture du service :</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5">
+                    <li><strong>Google Ireland Ltd.</strong> — tag publicitaire et mesure des conversions.</li>
+                    <li><strong>Web3Forms (Reslancer LLP)</strong> — transmission par email des formulaires.</li>
+                    <li><strong>Meta Platforms Ireland Ltd. (WhatsApp)</strong> — si vous nous contactez via WhatsApp.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">7. Transferts hors UE/EEE</h2>
+                <p>
+                    Certains prestataires peuvent traiter les données en dehors de l'Espace Économique Européen. Dans
+                    ce cas, le transfert repose sur les garanties prévues par le RGPD (ex. clauses contractuelles
+                    types de la Commission européenne).
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">8. Durée de conservation</h2>
+                <p>
+                    Nous conservons les données des demandes le temps nécessaire à leur traitement et aux échanges
+                    qui en découlent, et en tout cas pas au-delà de ce que prévoit la réglementation applicable. Les
+                    données collectées via les cookies sont conservées selon les durées indiquées par les
+                    prestataires respectifs.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">9. Vos droits</h2>
+                <p>
+                    Vous avez le droit d'accéder à vos données, de les rectifier, de les supprimer, d'en limiter ou
+                    de vous opposer au traitement, à la portabilité et de retirer votre consentement à tout moment
+                    (art. 15–22 RGPD). Pour les exercer, écrivez à
+                    <a href={`mailto:${CONTACT.email}`} class="text-primary underline underline-offset-2">{CONTACT.email}</a>.
+                    Vous avez également le droit d'introduire une réclamation auprès de l'autorité de contrôle
+                    compétente en matière de protection des données.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">10. Contact</h2>
+                <p>
+                    {OFFER.company} · WhatsApp {CONTACT.whatsappDisplay} ·
+                    <a href={`mailto:${CONTACT.email}`} class="text-primary underline underline-offset-2">{CONTACT.email}</a>
+                </p>
+            </section>
+        </div>
+    </main>
+</Layout>

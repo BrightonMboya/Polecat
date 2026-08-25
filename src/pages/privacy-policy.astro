@@ -1,0 +1,132 @@
+---
+/*
+ * PRIVACY & COOKIES POLICY (English).
+ *
+ * ⚠️ BEFORE GOING LIVE — this is a solid starting draft, faithful to what the
+ * page actually does (WhatsApp handoff, email via Web3Forms, Google Ads tag +
+ * Consent Mode). This is NOT legal advice. Still needed:
+ *   1. Fill in the [PLACEHOLDER] fields below — legal name, address, VAT/tax ID, DPO/email.
+ *   2. Have this text reviewed by someone qualified in the applicable law (e.g. GDPR).
+ * The three third parties named (Google, Web3Forms, Meta/WhatsApp) are the
+ * only data recipients used by this page — keep this current if that changes.
+ */
+import Layout from '../layouts/Layout.astro'
+import { CONTACT, OFFER } from '../config'
+
+const updated = 'August 2026'
+---
+
+<Layout
+    title={`Privacy Policy | ${OFFER.company}`}
+    description="Privacy and cookies policy: how we handle data collected through this site."
+    lang="en"
+    ogLocale="en_US"
+    tripName={`${OFFER.tripLengthDays}-day Tanzania honeymoon safari`}>
+    <main class="mx-auto max-w-3xl px-6 py-16 lg:py-20">
+        <a href="/" class="text-sm font-medium text-primary hover:underline">&larr; Back to main page</a>
+        <h1 class="mt-4 text-3xl font-bold md:text-4xl">Privacy & Cookies Policy</h1>
+        <p class="mt-2 text-sm text-gray-500">Last updated: {updated}</p>
+
+        <div class="mt-8 space-y-8 leading-relaxed text-gray-700">
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">1. Data Controller</h2>
+                <p>
+                    The controller responsible for data collected through this site is
+                    <strong>[LEGAL NAME — e.g. African Polecat Safaris]</strong>,
+                    registered at <strong>[FULL ADDRESS]</strong>
+                    (<strong>[registration / VAT number]</strong>).
+                    For any request relating to your data, you can write to us at
+                    <a href={`mailto:${CONTACT.email}`} class="text-primary underline underline-offset-2">{CONTACT.email}</a>.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">2. What Data We Collect</h2>
+                <ul class="list-disc space-y-1 pl-5">
+                    <li><strong>Inquiry form data:</strong> full name, email address, travel month, number of travellers and any note you voluntarily provide.</li>
+                    <li><strong>Communication data:</strong> if you contact us via WhatsApp or email, the content of those messages and associated contact details.</li>
+                    <li><strong>Browsing and cookie data:</strong> with your consent, identifiers and data collected by Google's advertising tags for campaign measurement (see §5).</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">3. Purposes and Legal Bases</h2>
+                <ul class="list-disc space-y-1 pl-5">
+                    <li><strong>Responding to inquiries and preparing quotes</strong> — legal basis: steps taken at your request prior to entering a contract (GDPR art. 6.1.b).</li>
+                    <li><strong>Advertising measurement and optimization</strong> via Google cookies — legal basis: your consent (GDPR art. 6.1.a), revocable at any time.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">4. How We Handle Form Submissions</h2>
+                <p>
+                    When you submit the form, the data is sent to our inbox via
+                    <strong>Web3Forms</strong> (Reslancer LLP) and, if you choose to continue, opens a
+                    conversation on <strong>WhatsApp</strong>. We do not store the data in a database on
+                    this site: we receive it by email so we can reply to you.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">5. Cookies and Tracking Technologies</h2>
+                <p>
+                    We use the <strong>Google tag (Google Ads)</strong> to measure conversions from our
+                    advertising campaigns. We use <strong>Consent Mode</strong>: advertising and
+                    measurement cookies remain <strong>disabled by default</strong> and only activate
+                    after your consent via the banner. If you decline, no such cookie is set. You can
+                    change your choice by clearing this site's data in your browser: the banner will
+                    reappear.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">6. Data Recipients</h2>
+                <p>We only share data with the providers necessary to deliver the service:</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5">
+                    <li><strong>Google Ireland Ltd.</strong> — advertising tag and conversion measurement.</li>
+                    <li><strong>Web3Forms (Reslancer LLP)</strong> — email delivery of form submissions.</li>
+                    <li><strong>Meta Platforms Ireland Ltd. (WhatsApp)</strong> — if you contact us via WhatsApp.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">7. Transfers Outside the EU/EEA</h2>
+                <p>
+                    Some providers may process data outside the European Economic Area. In that case,
+                    the transfer relies on the safeguards provided under GDPR (e.g. the European
+                    Commission's standard contractual clauses).
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">8. Retention Period</h2>
+                <p>
+                    We retain inquiry data for as long as needed to process it and any resulting
+                    correspondence, and in any case no longer than applicable regulations require. Data
+                    collected via cookies is retained according to the periods set by the respective
+                    providers.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">9. Your Rights</h2>
+                <p>
+                    You have the right to access, rectify, or delete your data, to restrict or object to
+                    its processing, to data portability, and to withdraw your consent at any time
+                    (GDPR art. 15–22). To exercise these rights, write to
+                    <a href={`mailto:${CONTACT.email}`} class="text-primary underline underline-offset-2">{CONTACT.email}</a>.
+                    You also have the right to lodge a complaint with the competent data protection
+                    supervisory authority.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="mb-2 text-xl font-semibold text-gray-900">10. Contact</h2>
+                <p>
+                    {OFFER.company} · WhatsApp {CONTACT.whatsappDisplay} ·
+                    <a href={`mailto:${CONTACT.email}`} class="text-primary underline underline-offset-2">{CONTACT.email}</a>
+                </p>
+            </section>
+        </div>
+    </main>
+</Layout>

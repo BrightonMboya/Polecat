@@ -1,0 +1,92 @@
+---
+import '../styles/global.css'
+import { OFFER, IMAGES, GOOGLE_ADS } from '../config'
+
+interface Props {
+    title: string
+    description: string
+    faqs?: { question: string; answer: string }[]
+    /** Locale for the <html lang>, driven by the calling page's copy file. */
+    lang: 'en' | 'fr'
+    /** e.g. "en_US" / "fr_FR", for og:locale. */
+    ogLocale: string
+    /** Locale-specific trip name for the TouristTrip schema. */
+    tripName: string
+}
+
+const { title, description, faqs = [], lang, ogLocale, tripName } = Astro.props
+
+const schema: object[] = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'TouristTrip',
+        name: tripName,
+        description,
+        offers: {
+            '@type': 'Offer',
+            price: OFFER.pricePerPerson,
+            priceCurrency: 'USD',
+        },
+    },
+]
+
+if (faqs.length) {
+    schema.push({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((f) => ({
+            '@type': 'Question',
+            name: f.question,
+            acceptedAnswer: { '@type': 'Answer', text: f.answer },
+        })),
+    })
+}
+---
+
+<!doctype html>
+<html lang={lang}>
+    <head>
+        {/* Google tag (gtag.js) — Google Ads conversion tracking. `is:inline`
+            keeps Astro from bundling it so it loads exactly as Google expects,
+            as high in <head> as possible. The form-submit conversion event
+            lives in InquiryForm.astro. TODO: GOOGLE_ADS.id in config.ts must be
+            set to Polecat Safaris' real account id before this fires for real. */}
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS.id}`}></script>
+        <script is:inline define:vars={{ gadsId: GOOGLE_ADS.id }}>
+            window.dataLayer = window.dataLayer || []
+            function gtag() { dataLayer.push(arguments) }
+            gtag('js', new Date())
+            gtag('config', gadsId)
+        </script>
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* Real Polecat Safaris brand mark, pulled from africanpolecatsafaris.com. */}
+        <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/favicon-512.png" sizes="512x512" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="generator" content={Astro.generator} />
+
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        {/* Paid-ads landing page — keep it out of the organic index. */}
+        <meta name="robots" content="noindex, nofollow" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={IMAGES.hero} />
+        <meta property="og:locale" content={ogLocale} />
+
+        {/* Preload the LCP hero image for a faster paint. */}
+        <link rel="preload" as="image" href={IMAGES.hero} fetchpriority="high" />
+
+        <script
+            type="application/ld+json"
+            set:html={JSON.stringify(schema)}
+        />
+    </head>
+    <body class="bg-background text-gray-900">
+        <slot />
+    </body>
+</html>

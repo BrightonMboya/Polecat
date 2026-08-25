@@ -1,0 +1,365 @@
+---
+/*
+ * Shared landing-page body for every locale. src/pages/index.astro (English)
+ * and src/pages/fr/index.astro (French) both render this with their own
+ * `copy` object (src/content/en.ts / fr.ts) — the markup and behavior stay
+ * identical, only the text differs.
+ */
+import Layout from '../layouts/Layout.astro'
+import Icon from '../components/Icon.astro'
+import InquiryForm from '../components/InquiryForm.astro'
+import { CONTACT, OFFER, IMAGES, TRIPADVISOR, usd, whatsappLink } from '../config'
+import type { LandingCopy } from '../content/types'
+
+interface Props {
+    copy: LandingCopy
+}
+
+const { copy } = Astro.props
+
+const priceLabel = usd(OFFER.pricePerPerson)
+const title = copy.metaTitle(priceLabel)
+const description = copy.metaDescription(priceLabel)
+const heroWhatsapp = whatsappLink(copy.whatsappGreeting)
+
+// The section renders once the TripAdvisor rating/count are set (config.ts) —
+// the aggregate badge alone is enough to show, it doesn't need quote cards.
+// Individual testimonials (copy.testimonials, per locale) are a separate,
+// optional addition: real quotes only, never fabricated.
+const hasRatingBadge = TRIPADVISOR.rating !== null && TRIPADVISOR.reviewCount !== null
+const hasTestimonials = copy.testimonials.length > 0
+---
+
+<Layout title={title} description={description} faqs={copy.faqs} lang={copy.lang} ogLocale={copy.ogLocale} tripName={copy.schemaTripName}>
+    {/* ================= STICKY MOBILE CTA ================= */}
+    <div id="sticky-cta" class="fixed inset-x-0 bottom-0 z-50 hidden border-t border-gray-200 bg-white p-3 shadow-lg lg:hidden">
+        <div class="flex gap-2">
+            <a href="#bottom-form" class="flex-1">
+                <span class="flex w-full items-center justify-center rounded-full bg-primary py-3 text-base font-semibold text-white">
+                    {copy.stickyCtaLabel}
+                </span>
+            </a>
+            <a href={heroWhatsapp} target="_blank" rel="noopener noreferrer"
+                class="flex items-center justify-center rounded-full bg-green-600 px-5 text-white transition-colors hover:bg-green-700" aria-label={copy.whatsappCtaLabel}>
+                <Icon name="messageCircle" class="h-5 w-5" />
+            </a>
+        </div>
+    </div>
+
+    <main class="min-h-screen bg-background">
+        {/* ============================================================
+            SECTION 1 — HERO + FORM
+            ============================================================ */}
+        <section id="top" class="relative min-h-[92vh] lg:min-h-screen">
+            <div class="absolute inset-0">
+                <img src={IMAGES.hero} alt={copy.heroImageAlt} class="h-full w-full object-cover" fetchpriority="high" />
+                <div class="absolute inset-0 bg-black/70"></div>
+            </div>
+
+            <div class="relative z-10 mx-auto flex max-w-7xl flex-col gap-8 px-5 pt-16 pb-12 sm:px-8 lg:flex-row lg:items-center lg:gap-12 lg:pt-20 lg:pb-16">
+                {/* Left: copy */}
+                <div class="flex-1 lg:pr-4">
+                    <img src={IMAGES.logoWhite} alt={OFFER.company} class="mb-6 h-8 w-auto sm:h-9" width="900" height="390" />
+
+                    <div class="mb-5 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
+                        <Icon name="heart" class="h-4 w-4 fill-accent text-accent" />
+                        {copy.heroBadge}
+                    </div>
+
+                    <h1 class="mb-5 text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.25rem]">
+                        {copy.heroHeadline}
+                    </h1>
+
+                    <p class="mb-2 max-w-xl text-lg leading-relaxed text-white/90 md:text-xl">
+                        {copy.heroSubtitle(priceLabel)}
+                    </p>
+                    <p class="mb-6 text-sm text-white/60">
+                        {copy.heroZanzibarPrefix}
+                        {' '}
+                        <a href="#bottom-form" class="underline underline-offset-2 hover:text-white/90">{copy.heroZanzibarLinkText}</a>
+                    </p>
+
+                    <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                        <a href={heroWhatsapp} target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center justify-center gap-2 rounded-full bg-green-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-700">
+                            <Icon name="messageCircle" class="h-5 w-5" />
+                            {copy.whatsappCtaLabel}
+                        </a>
+                    </div>
+                </div>
+
+                {/* Right: form */}
+                <div class="w-full shrink-0 lg:w-[420px]">
+                    <div class="rounded-2xl border border-white/10 bg-white p-6 shadow-2xl md:p-8">
+                        <h2 class="mb-1 text-xl font-bold text-gray-900">{copy.formHeading}</h2>
+                        <p class="mb-5 text-sm text-gray-500">{copy.formSubheading}</p>
+                        <InquiryForm id="hero-form" copy={copy.form} privacyPath={copy.privacyPath} />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 2 — TRUST SIGNALS
+            ============================================================ */}
+        <section class="border-b bg-white py-6">
+            <div class="mx-auto grid max-w-5xl grid-cols-2 gap-4 px-6 sm:grid-cols-3 lg:grid-cols-5">
+                {copy.trustSignals.map((item) => (
+                    <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                        <Icon name={item.icon as any} class="h-5 w-5 text-primary" />
+                        <span>{item.text}</span>
+                    </div>
+                ))}
+            </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 3 — ITINERARY
+            ============================================================ */}
+        <section id="itineraire" class="py-16 lg:py-20">
+            <div class="mx-auto max-w-4xl px-6">
+                <h2 class="mb-3 text-3xl font-bold md:text-4xl">{copy.itineraryHeading}</h2>
+                <p class="mb-10 text-lg text-gray-600">{copy.itinerarySubheading}</p>
+                <div class="space-y-0">
+                    {copy.itinerary.map((day, index) => (
+                        <div class="relative flex gap-4 pb-8 last:pb-0">
+                            {index < copy.itinerary.length - 1 && (
+                                <div class="absolute left-5 top-10 h-full w-px bg-primary/20"></div>
+                            )}
+                            <div class="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                                {index + 1}
+                            </div>
+                            <div class="flex-1 rounded-xl border bg-white p-5 shadow-sm">
+                                <h3 class="mb-1 text-lg font-semibold">{`${copy.dayLabel(index + 1)}: ${day.name}`}</h3>
+                                <p class="leading-relaxed text-gray-600">{day.description}</p>
+                                <div class="mt-3 flex items-center gap-2 border-t border-gray-100 pt-3 text-sm">
+                                    <Icon name="bed" class="h-4 w-4 shrink-0 text-primary" />
+                                    {day.lodge ? (
+                                        <span class="text-gray-700">
+                                            {copy.overnightLabel}: <span class="font-semibold text-gray-900">{day.lodge.name}</span>
+                                            <span class="text-gray-500"> · {day.lodge.area}</span>
+                                        </span>
+                                    ) : (
+                                        <span class="text-gray-500">{copy.departureDayLabel}</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 4 — PRICE
+            Price for two, all-inclusive. No group-size tiers: this page
+            targets honeymooners, one couple at a time.
+            ============================================================ */}
+        <section id="prix" class="bg-gray-50 py-16 lg:py-20">
+            <div class="mx-auto max-w-2xl px-6 text-center">
+                <h2 class="mb-3 text-3xl font-bold md:text-4xl">{copy.priceHeading}</h2>
+                <p class="mx-auto mb-10 max-w-xl text-lg text-gray-600">{copy.priceSubheading}</p>
+
+                <div class="mx-auto max-w-sm overflow-hidden rounded-2xl border bg-white shadow-sm">
+                    <div class="border-b bg-primary/5 px-6 py-3 text-sm font-semibold text-primary">
+                        {copy.priceBadge}
+                    </div>
+                    <div class="px-6 py-8">
+                        <div class="text-4xl font-bold text-gray-900">{priceLabel}</div>
+                        <div class="mt-1 text-sm text-gray-500">{copy.perPersonLabel}</div>
+                        <p class="mt-4 text-xs text-gray-500">{copy.priceValidity}</p>
+                    </div>
+                </div>
+
+                <p class="mt-4 text-sm text-gray-500">{copy.priceFootnote}</p>
+
+                <div class="mt-8">
+                    <a href="#bottom-form"
+                        class="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-primary-dark">
+                        {copy.priceCtaLabel}
+                    </a>
+                    <p class="mt-3 text-sm text-gray-500">{copy.priceCtaSubfootnote}</p>
+                </div>
+            </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 5 — WHAT'S INCLUDED
+            ============================================================ */}
+        <section id="inclus" class="py-16 lg:py-20">
+            <div class="mx-auto max-w-6xl px-6">
+                <div class="mb-4 text-center">
+                    <h2 class="mb-3 text-3xl font-bold md:text-4xl">{copy.includedHeading}</h2>
+                    <p class="mx-auto max-w-2xl text-lg text-gray-600">{copy.includedSubheading}</p>
+                </div>
+                <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {copy.included.map((item) => (
+                        <div class="rounded-xl border bg-white p-6 shadow-sm">
+                            <div class="mb-3 flex items-center justify-between">
+                                <Icon name={item.icon as any} class="h-6 w-6 text-primary" />
+                                {item.value && (
+                                    <span class="rounded-full bg-sand px-3 py-1 text-xs font-semibold text-brown">{item.value}</span>
+                                )}
+                            </div>
+                            <h3 class="mb-2 text-lg font-semibold">{item.title}</h3>
+                            <p class="text-sm leading-relaxed text-gray-600">{item.desc}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 6 — REVIEWS
+            The rating badge renders as soon as TRIPADVISOR.rating/reviewCount
+            (config.ts) are set — it doesn't need quote cards to be useful.
+            The quote grid below it is a separate, optional layer: it only
+            renders once copy.testimonials (per locale) has real entries.
+            No fabricated rating or quote either way.
+            ============================================================ */}
+        {hasRatingBadge && (
+            <section id="avis" class="bg-gray-50 py-16 lg:py-20">
+                <div class="mx-auto max-w-5xl px-6">
+                    <h2 class="mb-3 text-center text-3xl font-bold md:text-4xl">{copy.reviewsHeading}</h2>
+                    <p class={`text-center text-lg text-gray-600 ${hasTestimonials ? 'mb-6' : 'mb-10'}`}>{copy.reviewsSubheading}</p>
+
+                    <a href={TRIPADVISOR.url} target="_blank" rel="noopener noreferrer"
+                        class={`mx-auto flex w-fit items-center gap-3 rounded-full border bg-white px-5 py-2.5 shadow-sm transition-shadow hover:shadow-md ${hasTestimonials ? 'mb-10' : ''}`}>
+                        <span class="flex items-center gap-1">
+                            {[...Array(5)].map(() => <Icon name="star" class="h-4 w-4 fill-[#00aa6c] text-[#00aa6c]" />)}
+                        </span>
+                        <span class="text-sm font-semibold text-gray-900">{TRIPADVISOR.rating} {copy.reviewsRatingSuffix}</span>
+                        <span class="text-sm text-gray-500">·</span>
+                        <span class="text-sm text-gray-600">{TRIPADVISOR.reviewCount}+ {copy.reviewsCountSuffix}</span>
+                    </a>
+
+                    {hasTestimonials && (
+                        <div class={`mx-auto grid max-w-4xl gap-6 ${copy.testimonials.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
+                            {copy.testimonials.map((t) => (
+                                <div class="rounded-xl border bg-white p-6 shadow-sm">
+                                    <div class="mb-3 flex items-center gap-1">
+                                        {[...Array(5)].map(() => <Icon name="star" class="h-4 w-4 fill-accent text-accent" />)}
+                                    </div>
+                                    <h3 class="mb-2 font-semibold text-gray-900">{t.title}</h3>
+                                    <p class="mb-4 leading-relaxed text-gray-600">{t.text}</p>
+                                    <div class="flex items-center gap-3">
+                                        {t.avatar ? (
+                                            <img src={t.avatar} alt={t.name} loading="lazy" class="h-10 w-10 shrink-0 rounded-full object-cover" />
+                                        ) : (
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                                                {t.initials}
+                                            </div>
+                                        )}
+                                        <div>
+                                            <p class="font-semibold">{t.name}</p>
+                                            <p class="text-sm text-gray-500">{t.location}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </section>
+        )}
+
+        {/* ============================================================
+            SECTION 7 — WHY BOOK WITH POLECAT SAFARIS
+            ============================================================ */}
+        <section class="py-16 lg:py-20">
+            <div class="mx-auto max-w-4xl px-6">
+                <h2 class="mb-10 text-center text-3xl font-bold md:text-4xl">{copy.whyBookHeading}</h2>
+                <div class="grid gap-8 md:grid-cols-2">
+                    {copy.whyBook.map((item) => (
+                        <div class="flex gap-4">
+                            <Icon name="check" class="mt-1 h-6 w-6 shrink-0 text-primary" />
+                            <div>
+                                <h3 class="mb-1 text-lg font-semibold">{item.title}</h3>
+                                <p class="leading-relaxed text-gray-600">{item.desc}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        {/* ============================================================
+            SECTION 8 — SECOND FORM + CONTACT
+            ============================================================ */}
+        <section id="bottom-form" class="bg-gray-900 py-16 lg:py-20">
+            <div class="mx-auto max-w-xl px-6">
+                <div class="mb-8 text-center">
+                    <h2 class="mb-3 text-3xl font-bold text-white md:text-4xl">{copy.bottomFormHeading}</h2>
+                    <p class="text-lg text-gray-300">{copy.bottomFormSubheading}</p>
+                </div>
+                <div class="rounded-2xl border border-gray-700 bg-white p-6 shadow-xl md:p-8">
+                    <InquiryForm id="bottom-inquiry" copy={copy.form} privacyPath={copy.privacyPath} submitLabel={copy.bottomFormSubmitLabel} />
+                </div>
+                <div class="mt-8 text-center">
+                    <p class="mb-4 text-sm text-gray-400">{copy.contactPrompt}</p>
+                    <div class="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                        <a href={heroWhatsapp} target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 rounded-full bg-green-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-green-700">
+                            <Icon name="messageCircle" class="h-5 w-5" />
+                            {copy.whatsappLabel}
+                        </a>
+                        <a href={`mailto:${CONTACT.email}`}
+                            class="inline-flex items-center gap-2 rounded-full border border-gray-600 px-6 py-3 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800">
+                            {CONTACT.email}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {/* ============================================================
+            FAQ
+            ============================================================ */}
+        <section class="bg-white py-16 lg:py-20">
+            <div class="mx-auto max-w-3xl px-6">
+                <h2 class="mb-10 text-center text-3xl font-bold md:text-4xl">{copy.faqHeading}</h2>
+                <div class="divide-y divide-gray-200 rounded-xl border">
+                    {copy.faqs.map((f) => (
+                        <details class="group px-6">
+                            <summary class="flex cursor-pointer items-center justify-between py-5 text-left text-lg font-semibold [&::-webkit-details-marker]:hidden">
+                                {f.question}
+                                <svg class="h-5 w-5 shrink-0 text-primary transition-transform group-open:rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            </summary>
+                            <p class="pb-5 leading-relaxed text-gray-600">{f.answer}</p>
+                        </details>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        {/* ============================================================
+            FOOTER
+            ============================================================ */}
+        <footer class="border-t bg-white py-8">
+            <div class="mx-auto max-w-6xl px-6 text-center text-sm text-gray-500">
+                <img src={IMAGES.logoColor} alt={OFFER.company} class="mx-auto mb-3 h-7 w-auto" width="900" height="390" />
+                <p class="mt-1">
+                    <a href={heroWhatsapp} target="_blank" rel="noopener noreferrer" class="hover:text-primary">WhatsApp {CONTACT.whatsappDisplay}</a>
+                    <span class="mx-2">·</span>
+                    <a href={`mailto:${CONTACT.email}`} class="hover:text-primary">{CONTACT.email}</a>
+                </p>
+                <p class="mt-2">
+                    <a href={copy.privacyPath} class="hover:text-primary">{copy.privacyLinkLabel}</a>
+                </p>
+                <p class="mt-3 text-xs text-gray-400">© {new Date().getFullYear()} {OFFER.company}. {copy.footerTagline}</p>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Reveals the fixed mobile CTA once the visitor has scrolled past the hero.
+        const cta = document.getElementById('sticky-cta')
+        if (cta) {
+            const onScroll = () => {
+                cta.classList.toggle('hidden', window.scrollY <= 600)
+            }
+            window.addEventListener('scroll', onScroll, { passive: true })
+            onScroll()
+        }
+    </script>
+</Layout>

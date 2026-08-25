@@ -1,0 +1,208 @@
+---
+/*
+ * Inquiry form — WhatsApp-only lead capture. On submit it composes a message
+ * from the field values and opens wa.me/<number> with everything pre-filled, so
+ * the visitor lands in a chat and the lead arrives in your WhatsApp inbox.
+ * No backend required. The <script> is scoped per-instance via a unique id.
+ *
+ * All visitor-facing labels come from `copy` (src/content/en.ts / fr.ts) so
+ * this component works unchanged for both locales — see LandingPage.astro.
+ */
+import { CONTACT, WEB3FORMS, GOOGLE_ADS } from '../config'
+import type { FormCopy } from '../content/types'
+
+interface Props {
+    id?: string
+    copy: FormCopy
+    privacyPath: string
+    submitLabel?: string
+}
+
+const { id = 'inquiry', copy, privacyPath, submitLabel = copy.submitLabelDefault } = Astro.props
+
+// Current year + the next two, so travellers booking well ahead can still pick
+// a year — plus "Flexible" to match the month field's fallback option.
+const currentYear = new Date().getFullYear()
+const years = [currentYear, currentYear + 1, currentYear + 2, 'Flexible']
+
+// Passed to the client script as JSON so it can build the WhatsApp message
+// without re-implementing per-locale copy in JS.
+const monthsJson = JSON.stringify(copy.months)
+const waCopyJson = JSON.stringify({ intro: copy.waIntro, labels: copy.waLabels })
+---
+
+<form id={id} class="space-y-4" data-wa-number={CONTACT.whatsappNumber} data-w3f-key={WEB3FORMS.accessKey} data-gads-conversion={GOOGLE_ADS.conversionSendTo} data-months={monthsJson} data-wa-copy={waCopyJson} novalidate>
+    {/* Honeypot — hidden from people, tempting to bots. Web3Forms drops any
+        submission where this is filled, so the public key doesn't invite spam. */}
+    <input type="text" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" />
+    <div class="flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-sm">
+        <svg class="h-4 w-4 shrink-0 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        <span class="text-gray-700">{copy.badgeText}</span>
+    </div>
+
+    <div>
+        <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-name`}>{copy.nameLabel}</label>
+        <input id={`${id}-name`} name="name" type="text" required placeholder={copy.namePlaceholder}
+            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30" />
+    </div>
+
+    <div>
+        <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-email`}>{copy.emailLabel}</label>
+        <input id={`${id}-email`} name="email" type="email" required placeholder={copy.emailPlaceholder}
+            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30" />
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+        <div>
+            <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-month`}>{copy.monthLabel}</label>
+            <select id={`${id}-month`} name="month" required
+                class="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30">
+                <option value="">{copy.monthPlaceholder}</option>
+                {copy.months.map((m) => <option value={m}>{m}</option>)}
+            </select>
+        </div>
+        <div>
+            <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-year`}>{copy.yearLabel}</label>
+            <select id={`${id}-year`} name="year" required
+                class="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30">
+                <option value="">{copy.yearPlaceholder}</option>
+                {years.map((y) => <option value={y}>{y}</option>)}
+            </select>
+        </div>
+    </div>
+
+    <div>
+        <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-travellers`}>{copy.travellersLabel}</label>
+        <input id={`${id}-travellers`} name="travellers" type="number" min="1" max="20" value="2"
+            class="h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30" />
+    </div>
+
+    <div>
+        <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-message`}>
+            {copy.messageLabel} <span class="font-normal text-gray-500">{copy.messageOptional}</span>
+        </label>
+        <textarea id={`${id}-message`} name="message" placeholder={copy.messagePlaceholder}
+            class="min-h-[70px] w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"></textarea>
+    </div>
+
+    <button type="submit"
+        class="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-base font-semibold text-white transition-colors hover:bg-primary-dark">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        {submitLabel}
+    </button>
+    <p class="text-center text-xs text-gray-500">
+        {copy.disclaimerPrefix}
+        {' '}
+        <a href={privacyPath} class="underline underline-offset-2 hover:text-primary">{copy.disclaimerLinkText}</a>.
+    </p>
+
+    {/* Shown after submit — guarantees feedback even if the WhatsApp tab was
+        blocked, and offers a manual link as a fallback. */}
+    <div data-wa-success class="hidden rounded-lg border border-green-200 bg-green-50 p-4 text-center text-sm">
+        <p class="font-semibold text-green-800">{copy.successHeading}</p>
+        <p class="mt-1 text-gray-600">
+            {copy.successBody}
+            {' '}
+            <a data-wa-link href="#" target="_blank" rel="noopener noreferrer" class="font-medium text-green-700 underline underline-offset-2">{copy.successLinkText}</a>.
+        </p>
+    </div>
+</form>
+
+<script>
+    // On submit we do two independent things so a lead is never lost:
+    //   1. Open WhatsApp — the primary, instant path.
+    //   2. Email the lead via Web3Forms — a capture that survives even if the
+    //      visitor never sends the WhatsApp message.
+    // Neither can break the other: WhatsApp opens synchronously (so a popup
+    // blocker can't eat the user-gesture), and the email POST is best-effort.
+    //
+    // The visitor's month selection is in their page's language; the lead
+    // email goes to an English-speaking team, so it's translated to English
+    // for the email only (using the month's position in data-months, which
+    // matches src/content/en.ts's month order). WhatsApp stays in the
+    // visitor's language.
+    const MONTHS_EN = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December', 'Flexible',
+    ]
+
+    document.querySelectorAll<HTMLFormElement>('form[data-wa-number]').forEach((form) => {
+        const localeMonths: string[] = JSON.parse(form.dataset.months ?? '[]')
+        const waCopy: { intro: string; labels: Record<string, string> } = JSON.parse(form.dataset.waCopy ?? '{}')
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault()
+            if (!form.reportValidity()) return
+
+            const number = form.dataset.waNumber
+            const w3fKey = form.dataset.w3fKey
+            const get = (n: string) =>
+                (form.elements.namedItem(n) as HTMLInputElement | null)?.value?.trim() ?? ''
+
+            // Google Ads conversion — fired first so nothing downstream can stop it.
+            const sendTo = form.dataset.gadsConversion
+            const gtag = (window as any).gtag
+            if (sendTo && typeof gtag === 'function') {
+                gtag('event', 'conversion', { send_to: sendTo })
+            }
+
+            const name = get('name')
+            const email = get('email')
+            const month = get('month')
+            const year = get('year')
+            const travellers = get('travellers')
+            const note = get('message')
+
+            const monthIndex = localeMonths.indexOf(month)
+            const monthEn = monthIndex >= 0 ? MONTHS_EN[monthIndex] : month
+
+            // 1) WhatsApp — synchronous, so the click gesture isn't lost.
+            const waLines = [
+                waCopy.intro,
+                '',
+                `${waCopy.labels.name}: ${name}`,
+                `${waCopy.labels.email}: ${email}`,
+                `${waCopy.labels.month}: ${month}`,
+                `${waCopy.labels.year}: ${year}`,
+                `${waCopy.labels.travellers}: ${travellers}`,
+            ]
+            if (note) waLines.push(`${waCopy.labels.notes}: ${note}`)
+            const waUrl = `https://wa.me/${number}?text=${encodeURIComponent(waLines.join('\n'))}`
+            window.open(waUrl, '_blank', 'noopener')
+
+            // 2) Email via Web3Forms — parallel, best-effort. `keepalive` lets it
+            //    finish even if the tab is closed right after. Skipped (no error)
+            //    until an access key is set in config.ts.
+            if (w3fKey) {
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    keepalive: true,
+                    body: JSON.stringify({
+                        access_key: w3fKey,
+                        subject: `New honeymoon safari lead — ${name || 'no name'} (${travellers || '?'} pax · ${monthEn || 'flexible dates'} ${year || ''})`,
+                        from_name: 'Tanzania Honeymoon Safari Landing',
+                        replyto: email,
+                        botcheck: get('botcheck'),
+                        Name: name,
+                        Email: email,
+                        'Travel month': monthEn,
+                        'Travel year': year,
+                        Travellers: travellers,
+                        Notes: note || '—',
+                    }),
+                }).catch(() => {
+                    // The WhatsApp path already carries this lead; ignore transient
+                    // email failures rather than block or alarm the visitor.
+                })
+            }
+
+            // 3) Always confirm, and expose a manual WhatsApp link in case the
+            //    popup was blocked.
+            const success = form.querySelector<HTMLElement>('[data-wa-success]')
+            const link = form.querySelector<HTMLAnchorElement>('[data-wa-link]')
+            if (link) link.href = waUrl
+            if (success) success.classList.remove('hidden')
+        })
+    })
+</script>
