@@ -60,8 +60,7 @@ export const WEB3FORMS = {
 /* -------------------------------------------------------------------------- */
 export const GOOGLE_ADS = {
     id: 'AW-17672655754',
-    /** TODO: full `send_to` ("AW-<id>/<label>") from the conversion event snippet. */
-    conversionSendTo: '',
+    conversionSendTo: 'AW-17672655754/YwbaCLanregcEIqn_epB',
 }
 
 /* -------------------------------------------------------------------------- */
