@@ -43,12 +43,8 @@ export const WEB3FORMS = {
     /**
      * Web3Forms access key. Delivers each form submission to the inbox this key
      * was registered with at https://web3forms.com (free tier: 250/month).
-     *
-     * TODO: create a free Web3Forms account for info@africanpolecatsafaris.com
-     * and paste the access key here. Left empty for now — the form still opens
-     * WhatsApp, it just skips the parallel email step until this is set.
      */
-    accessKey: '',
+    accessKey: '6da1efcc-d6a1-4a56-819d-445a39587ce5',
     endpoint: 'https://api.web3forms.com/submit',
 }
 
