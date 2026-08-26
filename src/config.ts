@@ -59,8 +59,7 @@ export const WEB3FORMS = {
 /*  value/currency come from that conversion action's defaults in Google Ads.  */
 /* -------------------------------------------------------------------------- */
 export const GOOGLE_ADS = {
-    /** TODO: replace with Polecat Safaris' real Google Ads account tag ("AW-XXXXXXXXX"). */
-    id: 'AW-XXXXXXXXX',
+    id: 'AW-17672655754',
     /** TODO: full `send_to` ("AW-<id>/<label>") from the conversion event snippet. */
     conversionSendTo: '',
 }
