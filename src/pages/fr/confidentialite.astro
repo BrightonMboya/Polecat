@@ -4,9 +4,12 @@
  *
  * ⚠️ AVANT LA MISE EN LIGNE — ceci est un bon brouillon de départ, fidèle à ce
  * que la page fait réellement (transfert WhatsApp, envoi d'email via Web3Forms,
- * tag Google Ads + Consent Mode). Ce N'EST PAS un conseil juridique. Il faut :
+ * tag Google Ads — aucune bannière de consentement n'est implémentée ; le tag
+ * se déclare sans condition à chaque visite). Ce N'EST PAS un conseil juridique. Il faut :
  *   1. Compléter les champs [PLACEHOLDER] ci-dessous — raison sociale, adresse, TVA, DPO/email.
- *   2. Faire relire ce texte par une personne qualifiée en droit applicable (RGPD).
+ *   2. Faire relire ce texte par une personne qualifiée en droit applicable (RGPD) —
+ *      en particulier, déterminer si le trafic UE/EEE nécessite une véritable bannière
+ *      de consentement avant le chargement du tag Google, et l'implémenter si oui.
  * Les trois tiers cités (Google, Web3Forms, Meta/WhatsApp) sont les seuls
  * destinataires de données utilisés par cette page — à tenir à jour si cela change.
  */
@@ -45,7 +48,7 @@ const updated = 'Août 2026'
                 <ul class="list-disc space-y-1 pl-5">
                     <li><strong>Données du formulaire de demande :</strong> prénom et nom, adresse email, mois de voyage, nombre de voyageurs et toute note que vous nous fournissez volontairement.</li>
                     <li><strong>Données de communication :</strong> si vous nous contactez par WhatsApp ou email, le contenu des messages et les coordonnées associées.</li>
-                    <li><strong>Données de navigation et cookies :</strong> avec votre consentement, identifiants et données collectées par les tags publicitaires de Google pour la mesure des campagnes (voir §5).</li>
+                    <li><strong>Données de navigation et cookies :</strong> identifiants et données collectées par les tags publicitaires de Google pour la mesure des campagnes (voir §5).</li>
                 </ul>
             </section>
 
@@ -53,7 +56,7 @@ const updated = 'Août 2026'
                 <h2 class="mb-2 text-xl font-semibold text-gray-900">3. Finalités et bases juridiques</h2>
                 <ul class="list-disc space-y-1 pl-5">
                     <li><strong>Répondre aux demandes et préparer des devis</strong> — base juridique : exécution de mesures précontractuelles à votre demande (art. 6.1.b RGPD).</li>
-                    <li><strong>Mesure et optimisation publicitaire</strong> via les cookies Google — base juridique : votre consentement (art. 6.1.a RGPD), révocable à tout moment.</li>
+                    <li><strong>Mesure et optimisation publicitaire</strong> via les cookies Google — base juridique : notre intérêt légitime à mesurer et améliorer nos campagnes publicitaires (art. 6.1.f RGPD). [À confirmer par un conseil juridique qualifié — une base fondée sur le consentement pourrait être requise selon votre trafic et le droit applicable.]</li>
                 </ul>
             </section>
 
@@ -71,11 +74,9 @@ const updated = 'Août 2026'
                 <h2 class="mb-2 text-xl font-semibold text-gray-900">5. Cookies et technologies de suivi</h2>
                 <p>
                     Nous utilisons le <strong>tag Google (Google Ads)</strong> pour mesurer les conversions de nos
-                    campagnes publicitaires. Nous adoptons le <strong>mode de consentement (Consent Mode)</strong> :
-                    les cookies publicitaires et de mesure restent <strong>désactivés par défaut</strong> et ne
-                    s'activent qu'après votre consentement via la bannière. Si vous refusez, aucun cookie de ce type
-                    n'est déposé. Vous pouvez modifier votre choix en supprimant les données du site depuis votre
-                    navigateur : la bannière réapparaîtra.
+                    campagnes publicitaires. Ce tag se charge automatiquement lorsque vous visitez le site ;
+                    <strong>nous n'utilisons actuellement aucune bannière de consentement aux cookies</strong>. Vous
+                    pouvez contrôler ou supprimer ces cookies à tout moment depuis les paramètres de votre navigateur.
                 </p>
             </section>
 

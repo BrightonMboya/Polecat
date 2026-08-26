@@ -3,10 +3,13 @@
  * PRIVACY & COOKIES POLICY (English).
  *
  * ⚠️ BEFORE GOING LIVE — this is a solid starting draft, faithful to what the
- * page actually does (WhatsApp handoff, email via Web3Forms, Google Ads tag +
- * Consent Mode). This is NOT legal advice. Still needed:
+ * page actually does (WhatsApp handoff, email via Web3Forms, Google Ads tag —
+ * no consent banner is implemented; the tag fires unconditionally on every
+ * page view). This is NOT legal advice. Still needed:
  *   1. Fill in the [PLACEHOLDER] fields below — legal name, address, VAT/tax ID, DPO/email.
- *   2. Have this text reviewed by someone qualified in the applicable law (e.g. GDPR).
+ *   2. Have this text reviewed by someone qualified in the applicable law (e.g. GDPR) —
+ *      in particular, decide whether EU/EEA traffic requires an actual consent banner
+ *      before the Google tag loads, and implement one if so.
  * The three third parties named (Google, Web3Forms, Meta/WhatsApp) are the
  * only data recipients used by this page — keep this current if that changes.
  */
@@ -45,7 +48,7 @@ const updated = 'August 2026'
                 <ul class="list-disc space-y-1 pl-5">
                     <li><strong>Inquiry form data:</strong> full name, email address, travel month, number of travellers and any note you voluntarily provide.</li>
                     <li><strong>Communication data:</strong> if you contact us via WhatsApp or email, the content of those messages and associated contact details.</li>
-                    <li><strong>Browsing and cookie data:</strong> with your consent, identifiers and data collected by Google's advertising tags for campaign measurement (see §5).</li>
+                    <li><strong>Browsing and cookie data:</strong> identifiers and data collected by Google's advertising tags for campaign measurement (see §5).</li>
                 </ul>
             </section>
 
@@ -53,7 +56,7 @@ const updated = 'August 2026'
                 <h2 class="mb-2 text-xl font-semibold text-gray-900">3. Purposes and Legal Bases</h2>
                 <ul class="list-disc space-y-1 pl-5">
                     <li><strong>Responding to inquiries and preparing quotes</strong> — legal basis: steps taken at your request prior to entering a contract (GDPR art. 6.1.b).</li>
-                    <li><strong>Advertising measurement and optimization</strong> via Google cookies — legal basis: your consent (GDPR art. 6.1.a), revocable at any time.</li>
+                    <li><strong>Advertising measurement and optimization</strong> via Google cookies — legal basis: legitimate interest in measuring and improving our advertising campaigns (GDPR art. 6.1.f). [To be confirmed by qualified legal counsel — a consent-based basis may be required instead, depending on your traffic and applicable law.]</li>
                 </ul>
             </section>
 
@@ -71,11 +74,9 @@ const updated = 'August 2026'
                 <h2 class="mb-2 text-xl font-semibold text-gray-900">5. Cookies and Tracking Technologies</h2>
                 <p>
                     We use the <strong>Google tag (Google Ads)</strong> to measure conversions from our
-                    advertising campaigns. We use <strong>Consent Mode</strong>: advertising and
-                    measurement cookies remain <strong>disabled by default</strong> and only activate
-                    after your consent via the banner. If you decline, no such cookie is set. You can
-                    change your choice by clearing this site's data in your browser: the banner will
-                    reappear.
+                    advertising campaigns. This tag loads automatically when you visit the site;
+                    <strong>we do not currently use a cookie consent banner</strong>. You can control
+                    or delete these cookies at any time through your browser's settings.
                 </p>
             </section>
 
