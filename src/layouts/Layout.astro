@@ -54,7 +54,11 @@ if (faqs.length) {
         <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS.id}`}></script>
         <script is:inline define:vars={{ gadsId: GOOGLE_ADS.id }}>
             window.dataLayer = window.dataLayer || []
-            function gtag() { dataLayer.push(arguments) }
+            // Astro's `define:vars` wraps this script in an IIFE, so a plain
+            // `function gtag(){}` declaration stays local to that closure
+            // instead of becoming `window.gtag` — assign it explicitly so
+            // InquiryForm.astro's `window.gtag(...)` call can find it.
+            window.gtag = function () { window.dataLayer.push(arguments) }
             gtag('js', new Date())
             gtag('config', gadsId)
         </script>
