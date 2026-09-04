@@ -1,14 +1,17 @@
 ---
 /*
- * Inquiry form — WhatsApp-only lead capture. On submit it composes a message
- * from the field values and opens wa.me/<number> with everything pre-filled, so
- * the visitor lands in a chat and the lead arrives in your WhatsApp inbox.
- * No backend required. The <script> is scoped per-instance via a unique id.
+ * Inquiry form — WhatsApp-first lead capture, ported from the Mufasa landing
+ * page (~/web/mufasa) so both campaigns capture leads the same way. On submit
+ * it composes a message from the field values and opens wa.me/<number> with
+ * everything pre-filled, so the visitor lands in a chat and the lead arrives in
+ * the WhatsApp inbox. In parallel it emails the lead via Web3Forms, which
+ * catches everyone who submits but never actually sends the message.
+ * No backend required.
  *
- * All visitor-facing labels come from `copy` (src/content/en.ts / fr.ts) so
- * this component works unchanged for both locales — see LandingPage.astro.
+ * All visitor-facing labels come from `copy` (src/content/fr.ts), so this
+ * component carries no hardcoded copy — see LandingPage.astro.
  */
-import { CONTACT, WEB3FORMS, GOOGLE_ADS } from '../config'
+import { CONTACT, WEB3FORMS, GOOGLE_ADS, LEAD_SOURCE } from '../config'
 import type { FormCopy } from '../content/types'
 
 interface Props {
@@ -20,18 +23,40 @@ interface Props {
 
 const { id = 'inquiry', copy, privacyPath, submitLabel = copy.submitLabelDefault } = Astro.props
 
-// Current year + the next two, so travellers booking well ahead can still pick
-// a year — plus "Flexible" to match the month field's fallback option.
-const currentYear = new Date().getFullYear()
-const years = [currentYear, currentYear + 1, currentYear + 2, 'Flexible']
+/*
+ * One chronological month+year list, rather than a month field and a year field
+ * the visitor has to combine. Two fields let them submit a window that cannot be
+ * booked — "Janvier" paired with a year whose January has already gone — or a
+ * half-answer like a "Flexible" month with a fixed year. A single list can only
+ * produce a real travel window.
+ *
+ * Runs from the current month to the end of the third calendar year. Rebuilt at
+ * build time, so redeploys keep it from drifting into the past; a page cached
+ * across a month boundary only ever shows one stale option, and it stays
+ * selectable rather than breaking.
+ */
+const now = new Date()
+const currentYear = now.getFullYear()
+const travelWindows: { value: string; label: string }[] = []
+for (let y = currentYear; y <= currentYear + 2; y++) {
+    for (let m = y === currentYear ? now.getMonth() : 0; m < 12; m++) {
+        travelWindows.push({
+            // ISO-ish value so the script can translate it for the lead email
+            // without a second French→English month table.
+            value: `${y}-${String(m + 1).padStart(2, '0')}`,
+            label: `${copy.months[m]} ${y}`,
+        })
+    }
+}
 
 // Passed to the client script as JSON so it can build the WhatsApp message
-// without re-implementing per-locale copy in JS.
-const monthsJson = JSON.stringify(copy.months)
+// without re-implementing the copy in JS.
 const waCopyJson = JSON.stringify({ intro: copy.waIntro, labels: copy.waLabels })
 ---
 
-<form id={id} class="space-y-4" data-wa-number={CONTACT.whatsappNumber} data-w3f-key={WEB3FORMS.accessKey} data-gads-conversion={GOOGLE_ADS.conversionSendTo} data-months={monthsJson} data-wa-copy={waCopyJson} novalidate>
+<form id={id} class="space-y-4" data-wa-number={CONTACT.whatsappNumber} data-w3f-key={WEB3FORMS.accessKey}
+      data-gads-conversion={GOOGLE_ADS.conversionSendTo} data-wa-copy={waCopyJson}
+      data-source-tag={LEAD_SOURCE.tag} data-source-label={LEAD_SOURCE.label} novalidate>
     {/* Honeypot — hidden from people, tempting to bots. Web3Forms drops any
         submission where this is filled, so the public key doesn't invite spam. */}
     <input type="text" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" />
@@ -52,34 +77,42 @@ const waCopyJson = JSON.stringify({ intro: copy.waIntro, labels: copy.waLabels }
             class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30" />
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
-        <div>
-            <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-month`}>{copy.monthLabel}</label>
-            <select id={`${id}-month`} name="month" required
-                class="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30">
-                <option value="">{copy.monthPlaceholder}</option>
-                {copy.months.map((m) => <option value={m}>{m}</option>)}
-            </select>
-        </div>
-        <div>
-            <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-year`}>{copy.yearLabel}</label>
-            <select id={`${id}-year`} name="year" required
-                class="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30">
-                <option value="">{copy.yearPlaceholder}</option>
-                {years.map((y) => <option value={y}>{y}</option>)}
-            </select>
-        </div>
+    {/* Optional, and worth the extra field: the lead email exists to catch
+        visitors who submit but never send the WhatsApp message — and for those
+        the team otherwise has an address and no phone number. Left optional so
+        it can't cost a submission. `inputmode` gives phones a numeric keypad. */}
+    <div>
+        <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-whatsapp`}>
+            {copy.whatsappNumberLabel} <span class="font-normal text-gray-500">{copy.optionalSuffix}</span>
+        </label>
+        <input id={`${id}-whatsapp`} name="whatsapp" type="tel" inputmode="tel" autocomplete="tel"
+            placeholder={copy.whatsappNumberPlaceholder}
+            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30" />
     </div>
 
-    <div>
-        <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-travellers`}>{copy.travellersLabel}</label>
-        <input id={`${id}-travellers`} name="travellers" type="number" min="1" max="20" value="2"
-            class="h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30" />
+    <div class="grid grid-cols-2 gap-3">
+        <div>
+            <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-travel`}>{copy.travelLabel}</label>
+            <select id={`${id}-travel`} name="travel" required
+                class="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30">
+                <option value="">{copy.travelPlaceholder}</option>
+                {travelWindows.map((w) => <option value={w.value}>{w.label}</option>)}
+                {/* Kept as an explicit choice: a traveller who hasn't settled on
+                    dates is still a lead, and forcing a month would either lose
+                    them or invent a date the team then quotes against. */}
+                <option value="flexible">{copy.travelFlexibleLabel}</option>
+            </select>
+        </div>
+        <div>
+            <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-travellers`}>{copy.travellersLabel}</label>
+            <input id={`${id}-travellers`} name="travellers" type="number" min="1" max="20" value="2"
+                class="h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30" />
+        </div>
     </div>
 
     <div>
         <label class="mb-1 block text-sm font-medium text-gray-800" for={`${id}-message`}>
-            {copy.messageLabel} <span class="font-normal text-gray-500">{copy.messageOptional}</span>
+            {copy.messageLabel} <span class="font-normal text-gray-500">{copy.optionalSuffix}</span>
         </label>
         <textarea id={`${id}-message`} name="message" placeholder={copy.messagePlaceholder}
             class="min-h-[70px] w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"></textarea>
@@ -115,20 +148,9 @@ const waCopyJson = JSON.stringify({ intro: copy.waIntro, labels: copy.waLabels }
     //      visitor never sends the WhatsApp message.
     // Neither can break the other: WhatsApp opens synchronously (so a popup
     // blocker can't eat the user-gesture), and the email POST is best-effort.
-    //
-    // The visitor's month selection is in their page's language; the lead
-    // email goes to an English-speaking team, so it's translated to English
-    // for the email only (using the month's position in data-months, which
-    // matches src/content/en.ts's month order). WhatsApp stays in the
-    // visitor's language.
-    const MONTHS_EN = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December', 'Flexible',
-    ]
-
     document.querySelectorAll<HTMLFormElement>('form[data-wa-number]').forEach((form) => {
-        const localeMonths: string[] = JSON.parse(form.dataset.months ?? '[]')
-        const waCopy: { intro: string; labels: Record<string, string> } = JSON.parse(form.dataset.waCopy ?? '{}')
+        const waCopy: { intro: string; labels: Record<string, string> } =
+            JSON.parse(form.dataset.waCopy ?? '{}')
 
         form.addEventListener('submit', (e) => {
             e.preventDefault()
@@ -148,13 +170,45 @@ const waCopyJson = JSON.stringify({ intro: copy.waIntro, labels: copy.waLabels }
 
             const name = get('name')
             const email = get('email')
-            const month = get('month')
-            const year = get('year')
+            const whatsapp = get('whatsapp')
             const travellers = get('travellers')
             const note = get('message')
 
-            const monthIndex = localeMonths.indexOf(month)
-            const monthEn = monthIndex >= 0 ? MONTHS_EN[monthIndex] : month
+            // Where the lead came from — full URL, so any utm_* / gclid the ad
+            // click carried survives into the inbox, and the team can open the
+            // exact page (and form: hero vs. bottom) the visitor submitted from.
+            const pageUrl = window.location.href
+
+            // African Polecat Safaris also take quote requests through their
+            // main site and by phone, so the email says outright that this one
+            // came from the landing page — and, where the URL reveals it, which
+            // click paid for it. `gclid` is appended by Google Ads auto-tagging.
+            const sourceTag = form.dataset.sourceTag || 'Landing Page'
+            const sourceLabel = form.dataset.sourceLabel || 'Campaign landing page'
+            const params = new URLSearchParams(window.location.search)
+            const utmSource = params.get('utm_source')
+            const utmCampaign = params.get('utm_campaign')
+            const channel = params.get('gclid')
+                ? 'Google Ads — paid click'
+                : utmSource
+                  ? [utmSource, utmCampaign].filter(Boolean).join(' · ')
+                  : 'Direct / organic (no ad click tracked)'
+
+            // The travel window renders twice: French for WhatsApp and the form
+            // (visitor-facing), English for the lead email (the Arusha team
+            // reads it). The French side is the option's own label, so there is
+            // no second copy of the month names to keep in sync; the English
+            // side is derived from the "YYYY-MM" value.
+            const MONTHS_EN = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December',
+            ]
+            const travelField = form.elements.namedItem('travel') as HTMLSelectElement | null
+            const travelValue = travelField?.value ?? ''
+            const travelFr = travelField?.selectedOptions[0]?.textContent?.trim() ?? ''
+            const travelEn = /^\d{4}-\d{2}$/.test(travelValue)
+                ? `${MONTHS_EN[Number(travelValue.slice(5)) - 1]} ${travelValue.slice(0, 4)}`
+                : 'Flexible dates'
 
             // 1) WhatsApp — synchronous, so the click gesture isn't lost.
             const waLines = [
@@ -162,17 +216,18 @@ const waCopyJson = JSON.stringify({ intro: copy.waIntro, labels: copy.waLabels }
                 '',
                 `${waCopy.labels.name}: ${name}`,
                 `${waCopy.labels.email}: ${email}`,
-                `${waCopy.labels.month}: ${month}`,
-                `${waCopy.labels.year}: ${year}`,
+                ...(whatsapp ? [`${waCopy.labels.whatsapp}: ${whatsapp}`] : []),
+                `${waCopy.labels.travel}: ${travelFr}`,
                 `${waCopy.labels.travellers}: ${travellers}`,
             ]
             if (note) waLines.push(`${waCopy.labels.notes}: ${note}`)
+            waLines.push('', `${waCopy.labels.page}: ${pageUrl}`)
             const waUrl = `https://wa.me/${number}?text=${encodeURIComponent(waLines.join('\n'))}`
             window.open(waUrl, '_blank', 'noopener')
 
             // 2) Email via Web3Forms — parallel, best-effort. `keepalive` lets it
             //    finish even if the tab is closed right after. Skipped (no error)
-            //    until an access key is set in config.ts.
+            //    if no access key is set in config.ts.
             if (w3fKey) {
                 fetch('https://api.web3forms.com/submit', {
                     method: 'POST',
@@ -180,16 +235,23 @@ const waCopyJson = JSON.stringify({ intro: copy.waIntro, labels: copy.waLabels }
                     keepalive: true,
                     body: JSON.stringify({
                         access_key: w3fKey,
-                        subject: `New honeymoon safari lead — ${name || 'no name'} (${travellers || '?'} pax · ${monthEn || 'flexible dates'} ${year || ''})`,
-                        from_name: 'Tanzania Honeymoon Safari Landing',
+                        subject: `[${sourceTag}] New safari lead — ${name || 'no name'} (${travellers || '?'} pax · ${travelEn})`,
+                        from_name: sourceTag,
                         replyto: email,
                         botcheck: get('botcheck'),
+                        // Web3Forms renders the fields in the order given, so the
+                        // two source rows land at the top of the email, above the
+                        // traveller's own details.
+                        'Request came from': sourceLabel,
+                        'Traffic source': channel,
                         Name: name,
                         Email: email,
-                        'Travel month': monthEn,
-                        'Travel year': year,
+                        WhatsApp: whatsapp || '—',
+                        'Travel window': travelEn,
                         Travellers: travellers,
                         Notes: note || '—',
+                        'Page URL': pageUrl,
+                        Form: form.id || '—',
                     }),
                 }).catch(() => {
                     // The WhatsApp path already carries this lead; ignore transient

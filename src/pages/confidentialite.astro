@@ -13,8 +13,8 @@
  * Les trois tiers cités (Google, Web3Forms, Meta/WhatsApp) sont les seuls
  * destinataires de données utilisés par cette page — à tenir à jour si cela change.
  */
-import Layout from '../../layouts/Layout.astro'
-import { CONTACT, OFFER } from '../../config'
+import Layout from '../layouts/Layout.astro'
+import { CONTACT, OFFER } from '../config'
 
 const updated = 'Août 2026'
 ---
@@ -24,9 +24,9 @@ const updated = 'Août 2026'
     description="Politique de confidentialité et de cookies : comment nous traitons les données collectées via ce site."
     lang="fr"
     ogLocale="fr_FR"
-    tripName={`Safari de lune de miel en Tanzanie de ${OFFER.tripLengthDays} jours`}>
+    tripName="Safari privé sur mesure en Tanzanie">
     <main class="mx-auto max-w-3xl px-6 py-16 lg:py-20">
-        <a href="/fr" class="text-sm font-medium text-primary hover:underline">&larr; Retour à la page principale</a>
+        <a href="/" class="text-sm font-medium text-primary hover:underline">&larr; Retour à la page principale</a>
         <h1 class="mt-4 text-3xl font-bold md:text-4xl">Politique de Confidentialité et de Cookies</h1>
         <p class="mt-2 text-sm text-gray-500">Dernière mise à jour : {updated}</p>
 

@@ -1,32 +1,71 @@
 ---
 import '../styles/global.css'
-import { OFFER, IMAGES, GOOGLE_ADS } from '../config'
+import { OFFER, CONTACT, IMAGES, GOOGLE_ADS, TRIPADVISOR, FX, eurEquivalent } from '../config'
 
 interface Props {
     title: string
     description: string
     faqs?: { question: string; answer: string }[]
-    /** Locale for the <html lang>, driven by the calling page's copy file. */
-    lang: 'en' | 'fr'
-    /** e.g. "en_US" / "fr_FR", for og:locale. */
+    /** Locale for <html lang>, driven by the calling page's copy file. */
+    lang: 'fr'
+    /** e.g. "fr_FR", for og:locale. */
     ogLocale: string
-    /** Locale-specific trip name for the TouristTrip schema. */
+    /** Trip name for the TouristTrip schema. */
     tripName: string
 }
 
 const { title, description, faqs = [], lang, ogLocale, tripName } = Astro.props
 
+// Absolute URLs for canonical/og — Astro.site comes from astro.config.mjs.
+const canonical = new URL(Astro.url.pathname, Astro.site).href
+const ogImage = IMAGES.hero.startsWith('http')
+    ? IMAGES.hero
+    : new URL(IMAGES.hero, Astro.site).href
+
 const schema: object[] = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'TravelAgency',
+        name: OFFER.company,
+        url: canonical,
+        email: CONTACT.email,
+        telephone: CONTACT.phone,
+        areaServed: { '@type': 'Country', name: 'Tanzania' },
+        address: { '@type': 'PostalAddress', addressLocality: 'Arusha', addressCountry: 'TZ' },
+        // Confirmed by the client — see TRIPADVISOR in config.ts. Only emitted
+        // when both values are actually set, never with placeholder numbers.
+        ...(TRIPADVISOR.url ? { sameAs: [TRIPADVISOR.url] } : {}),
+    },
     {
         '@context': 'https://schema.org',
         '@type': 'TouristTrip',
         name: tripName,
         description,
-        offers: {
-            '@type': 'Offer',
-            price: OFFER.pricePerPerson,
-            priceCurrency: 'USD',
-        },
+        // The confirmed price of the 6-day example itinerary. Not a "from"
+        // price — see OFFER.pricePerPerson in config.ts. USD is listed first
+        // because it is the currency actually invoiced; the EUR offer is the
+        // indicative conversion the page shows French visitors, at FX.rate.
+        offers: [
+            {
+                '@type': 'Offer',
+                price: OFFER.pricePerPerson,
+                priceCurrency: 'USD',
+                availability: 'https://schema.org/InStock',
+            },
+            {
+                '@type': 'Offer',
+                price: eurEquivalent(OFFER.pricePerPerson),
+                priceCurrency: 'EUR',
+                availability: 'https://schema.org/InStock',
+                description: `Conversion indicative au taux ${FX.source} du ${FX.asOf}.`,
+            },
+        ],
+        itinerary: ['Serengeti', 'Ngorongoro', 'Tarangire'].map((name) => ({
+            '@type': 'TouristAttraction',
+            name,
+            address: { '@type': 'PostalAddress', addressCountry: 'TZ' },
+        })),
+        provider: { '@type': 'TravelAgency', name: OFFER.company },
     },
 ]
 
@@ -49,8 +88,7 @@ if (faqs.length) {
         {/* Google tag (gtag.js) — Google Ads conversion tracking. `is:inline`
             keeps Astro from bundling it so it loads exactly as Google expects,
             as high in <head> as possible. The form-submit conversion event
-            lives in InquiryForm.astro. TODO: GOOGLE_ADS.id in config.ts must be
-            set to Polecat Safaris' real account id before this fires for real. */}
+            lives in InquiryForm.astro. */}
         <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS.id}`}></script>
         <script is:inline define:vars={{ gadsId: GOOGLE_ADS.id }}>
             window.dataLayer = window.dataLayer || []
@@ -65,7 +103,7 @@ if (faqs.length) {
 
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        {/* Real Polecat Safaris brand mark, pulled from africanpolecatsafaris.com. */}
+        {/* Real African Polecat Safaris brand mark, from africanpolecatsafaris.com. */}
         <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
         <link rel="icon" href="/favicon-512.png" sizes="512x512" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -73,14 +111,19 @@ if (faqs.length) {
 
         <title>{title}</title>
         <meta name="description" content={description} />
-        {/* Paid-ads landing page — keep it out of the organic index. */}
-        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={canonical} />
+        {/* Indexable as of 2026-09-04 (user's call) — the page targets organic
+            "safari en Tanzanie" intent alongside the paid campaign. */}
+        <meta name="robots" content="index, follow, max-image-preview:large" />
 
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:site_name" content={OFFER.company} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content={IMAGES.hero} />
+        <meta property="og:image" content={ogImage} />
         <meta property="og:locale" content={ogLocale} />
+        <meta name="twitter:card" content="summary_large_image" />
 
         {/* Preload the LCP hero image for a faster paint. */}
         <link rel="preload" as="image" href={IMAGES.hero} fetchpriority="high" />

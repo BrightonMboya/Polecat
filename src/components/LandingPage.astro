@@ -1,14 +1,34 @@
 ---
 /*
- * Shared landing-page body for every locale. src/pages/index.astro (English)
- * and src/pages/fr/index.astro (French) both render this with their own
- * `copy` object (src/content/en.ts / fr.ts) — the markup and behavior stay
- * identical, only the text differs.
+ * Landing-page body for the French "safari en Tanzanie" Google Ads campaign.
+ * src/pages/index.astro renders it with src/content/fr.ts — all text lives
+ * there, nothing user-facing is hardcoded here.
+ *
+ * DESIGN NOTE: this deliberately reuses the original landing page's visual
+ * language — Inter, `text-3xl font-bold md:text-4xl` section headings,
+ * white / bg-gray-50 alternating sections, `rounded-xl border bg-white p-6
+ * shadow-sm` cards, primary-green pill CTAs. The sections that are new to the
+ * Tanzania-safari brief (why-us, destinations, sur-mesure, why-Tanzania) are
+ * built from those same tokens rather than a new style. Don't introduce new
+ * type scales, fonts or section treatments here.
+ *
+ * STRUCTURE mirrors ~/web/mufasa's landing page, section for section:
+ *   1 hero+form · 2 trust bar · 3 itinerary · 4 price · 5 included
+ *   6 reviews · 7 why book · 8 second form + contact · 9 FAQ · footer
+ * The earlier standalone destinations / sur-mesure / why-Tanzania sections
+ * were removed on request — they made the page far too information-heavy for
+ * an ads landing page. Don't add sections back without asking.
+ *
+ * SECTION IDS ARE STILL LOAD-BEARING. Google Ads sitelinks point at
+ * #safari-tanzanie (itinerary), #sur-mesure (price), #contact (bottom form),
+ * and #serengeti / #ngorongoro / #tarangire — which are now the itinerary day
+ * cards that visit each park, set via copy.itinerary[].anchor. The user plans
+ * to revise the sitelinks; until then every advertised anchor still resolves.
  */
 import Layout from '../layouts/Layout.astro'
 import Icon from '../components/Icon.astro'
 import InquiryForm from '../components/InquiryForm.astro'
-import { CONTACT, OFFER, IMAGES, TRIPADVISOR, usd, whatsappLink } from '../config'
+import { CONTACT, FX, OFFER, IMAGES, TRIPADVISOR, eurEquivalent, eurFr, usdFr, whatsappLink } from '../config'
 import type { LandingCopy } from '../content/types'
 
 interface Props {
@@ -17,24 +37,31 @@ interface Props {
 
 const { copy } = Astro.props
 
-const priceLabel = usd(OFFER.pricePerPerson)
-const title = copy.metaTitle(priceLabel)
-const description = copy.metaDescription(priceLabel)
+// Euro leads because the campaign runs in France; the dollar figure is the
+// firm, contractual one and travels with it everywhere. See FX in config.ts.
+const priceEurLabel = eurFr(eurEquivalent(OFFER.pricePerPerson))
+const priceUsdLabel = usdFr(OFFER.pricePerPerson)
 const heroWhatsapp = whatsappLink(copy.whatsappGreeting)
 
 // The section renders once the TripAdvisor rating/count are set (config.ts) —
 // the aggregate badge alone is enough to show, it doesn't need quote cards.
-// Individual testimonials (copy.testimonials, per locale) are a separate,
-// optional addition: real quotes only, never fabricated.
+// Individual testimonials (copy.testimonials) are a separate, optional
+// addition: real quotes only, never fabricated.
 const hasRatingBadge = TRIPADVISOR.rating !== null && TRIPADVISOR.reviewCount !== null
 const hasTestimonials = copy.testimonials.length > 0
 ---
 
-<Layout title={title} description={description} faqs={copy.faqs} lang={copy.lang} ogLocale={copy.ogLocale} tripName={copy.schemaTripName}>
+<Layout
+    title={copy.metaTitle}
+    description={copy.metaDescription}
+    faqs={copy.faqs}
+    lang={copy.lang}
+    ogLocale={copy.ogLocale}
+    tripName={copy.schemaTripName}>
     {/* ================= STICKY MOBILE CTA ================= */}
     <div id="sticky-cta" class="fixed inset-x-0 bottom-0 z-50 hidden border-t border-gray-200 bg-white p-3 shadow-lg lg:hidden">
         <div class="flex gap-2">
-            <a href="#bottom-form" class="flex-1">
+            <a href="#contact" class="flex-1">
                 <span class="flex w-full items-center justify-center rounded-full bg-primary py-3 text-base font-semibold text-white">
                     {copy.stickyCtaLabel}
                 </span>
@@ -49,6 +76,9 @@ const hasTestimonials = copy.testimonials.length > 0
     <main class="min-h-screen bg-background">
         {/* ============================================================
             SECTION 1 — HERO + FORM
+            Same hero as before; the H1 is now the campaign's primary
+            search phrase and the CTA pair replaces the single WhatsApp
+            button.
             ============================================================ */}
         <section id="top" class="relative min-h-[92vh] lg:min-h-screen">
             <div class="absolute inset-0">
@@ -57,12 +87,14 @@ const hasTestimonials = copy.testimonials.length > 0
             </div>
 
             <div class="relative z-10 mx-auto flex max-w-7xl flex-col gap-8 px-5 pt-16 pb-12 sm:px-8 lg:flex-row lg:items-center lg:gap-12 lg:pt-20 lg:pb-16">
-                {/* Left: copy */}
+                {/* Left: copy — same structure as the Mufasa hero: badge →
+                    H1 → subtitle → small secondary line with an inline link →
+                    TripAdvisor rating strip → CTA row. */}
                 <div class="flex-1 lg:pr-4">
                     <img src={IMAGES.logoWhite} alt={OFFER.company} class="mb-6 h-8 w-auto sm:h-9" width="900" height="390" />
 
                     <div class="mb-5 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
-                        <Icon name="heart" class="h-4 w-4 fill-accent text-accent" />
+                        <Icon name="mapPin" class="h-4 w-4 text-accent" />
                         {copy.heroBadge}
                     </div>
 
@@ -71,15 +103,39 @@ const hasTestimonials = copy.testimonials.length > 0
                     </h1>
 
                     <p class="mb-2 max-w-xl text-lg leading-relaxed text-white/90 md:text-xl">
-                        {copy.heroSubtitle(priceLabel)}
-                    </p>
-                    <p class="mb-6 text-sm text-white/60">
-                        {copy.heroZanzibarPrefix}
-                        {' '}
-                        <a href="#bottom-form" class="underline underline-offset-2 hover:text-white/90">{copy.heroZanzibarLinkText}</a>
+                        {copy.heroSubtitle}
                     </p>
 
+                    {/* Real, itinerary-specific pricing — never framed as a
+                        "from" price (see OFFER.pricePerPerson in config.ts).
+                        The secondary CTA rides along as an inline link here
+                        rather than a third button. */}
+                    <p class="mb-6 max-w-xl text-sm text-white/60">
+                        {copy.heroPriceLine(priceEurLabel, priceUsdLabel)}
+                        {' · '}
+                        <a href="#safari-tanzanie" class="underline underline-offset-2 hover:text-white/90">
+                            {copy.ctaSecondaryLabel}
+                        </a>
+                    </p>
+
+                    {/* Real TripAdvisor rating (config.ts), above the fold —
+                        rendered only when it is actually set. */}
+                    {hasRatingBadge && (
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-1">
+                                {[...Array(5)].map(() => <Icon name="star" class="h-4 w-4 fill-accent text-accent" />)}
+                            </div>
+                            <span class="text-sm text-white/70">
+                                {TRIPADVISOR.rating} {copy.reviewsRatingSuffix} · {TRIPADVISOR.reviewCount}+ {copy.reviewsCountSuffix}
+                            </span>
+                        </div>
+                    )}
+
                     <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                        <a href="#contact"
+                            class="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark">
+                            {copy.ctaPrimaryLabel}
+                        </a>
                         <a href={heroWhatsapp} target="_blank" rel="noopener noreferrer"
                             class="inline-flex items-center justify-center gap-2 rounded-full bg-green-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-700">
                             <Icon name="messageCircle" class="h-5 w-5" />
@@ -106,7 +162,7 @@ const hasTestimonials = copy.testimonials.length > 0
             <div class="mx-auto grid max-w-5xl grid-cols-2 gap-4 px-6 sm:grid-cols-3 lg:grid-cols-5">
                 {copy.trustSignals.map((item) => (
                     <div class="flex items-center gap-2 text-sm font-medium text-gray-700">
-                        <Icon name={item.icon as any} class="h-5 w-5 text-primary" />
+                        <Icon name={item.icon} class="h-5 w-5 text-primary" />
                         <span>{item.text}</span>
                     </div>
                 ))}
@@ -114,15 +170,20 @@ const hasTestimonials = copy.testimonials.length > 0
         </section>
 
         {/* ============================================================
-            SECTION 3 — ITINERARY
+            SECTION 3 — ITINÉRAIRE  ·  #safari-tanzanie
+            Mufasa's section 3. The parks the campaign advertises are
+            covered here, in the days that actually visit them — which is
+            also where the #serengeti / #ngorongoro / #tarangire sitelink
+            anchors live (copy.itinerary[].anchor), so the page needs no
+            separate destinations section for them.
             ============================================================ */}
-        <section id="itineraire" class="py-16 lg:py-20">
+        <section id="safari-tanzanie" class="scroll-mt-6 py-16 lg:py-20">
             <div class="mx-auto max-w-4xl px-6">
                 <h2 class="mb-3 text-3xl font-bold md:text-4xl">{copy.itineraryHeading}</h2>
                 <p class="mb-10 text-lg text-gray-600">{copy.itinerarySubheading}</p>
                 <div class="space-y-0">
                     {copy.itinerary.map((day, index) => (
-                        <div class="relative flex gap-4 pb-8 last:pb-0">
+                        <div id={day.anchor} class="relative flex scroll-mt-6 gap-4 pb-8 last:pb-0">
                             {index < copy.itinerary.length - 1 && (
                                 <div class="absolute left-5 top-10 h-full w-px bg-primary/20"></div>
                             )}
@@ -130,13 +191,13 @@ const hasTestimonials = copy.testimonials.length > 0
                                 {index + 1}
                             </div>
                             <div class="flex-1 rounded-xl border bg-white p-5 shadow-sm">
-                                <h3 class="mb-1 text-lg font-semibold">{`${copy.dayLabel(index + 1)}: ${day.name}`}</h3>
+                                <h3 class="mb-1 text-lg font-semibold">{`${copy.dayLabel(index + 1)} : ${day.name}`}</h3>
                                 <p class="leading-relaxed text-gray-600">{day.description}</p>
                                 <div class="mt-3 flex items-center gap-2 border-t border-gray-100 pt-3 text-sm">
                                     <Icon name="bed" class="h-4 w-4 shrink-0 text-primary" />
                                     {day.lodge ? (
                                         <span class="text-gray-700">
-                                            {copy.overnightLabel}: <span class="font-semibold text-gray-900">{day.lodge.name}</span>
+                                            {copy.overnightLabel} : <span class="font-semibold text-gray-900">{day.lodge.name}</span>
                                             <span class="text-gray-500"> · {day.lodge.area}</span>
                                         </span>
                                     ) : (
@@ -151,30 +212,40 @@ const hasTestimonials = copy.testimonials.length > 0
         </section>
 
         {/* ============================================================
-            SECTION 4 — PRICE
-            Price for two, all-inclusive. No group-size tiers: this page
-            targets honeymooners, one couple at a time.
+            SECTION 4 — PRIX  ·  #sur-mesure
+            Mufasa's section 4. No group-size tiers: one confirmed price
+            for the itinerary above. #sur-mesure lands here because this
+            is where the page explains that the price follows whatever
+            trip you actually build.
             ============================================================ */}
-        <section id="prix" class="bg-gray-50 py-16 lg:py-20">
+        <section id="sur-mesure" class="scroll-mt-6 bg-gray-50 py-16 lg:py-20">
             <div class="mx-auto max-w-2xl px-6 text-center">
                 <h2 class="mb-3 text-3xl font-bold md:text-4xl">{copy.priceHeading}</h2>
                 <p class="mx-auto mb-10 max-w-xl text-lg text-gray-600">{copy.priceSubheading}</p>
 
                 <div class="mx-auto max-w-sm overflow-hidden rounded-2xl border bg-white shadow-sm">
                     <div class="border-b bg-primary/5 px-6 py-3 text-sm font-semibold text-primary">
-                        {copy.priceBadge}
+                        {copy.priceLabelPrefix}
                     </div>
                     <div class="px-6 py-8">
-                        <div class="text-4xl font-bold text-gray-900">{priceLabel}</div>
+                        <div class="text-4xl font-bold text-gray-900">
+                            <span class="align-middle text-2xl font-semibold text-gray-400">≈ </span>{priceEurLabel}
+                        </div>
                         <div class="mt-1 text-sm text-gray-500">{copy.perPersonLabel}</div>
+                        <div class="mt-2 text-sm font-semibold text-gray-700">{copy.priceUsdLine(priceUsdLabel)}</div>
                         <p class="mt-4 text-xs text-gray-500">{copy.priceValidity}</p>
                     </div>
                 </div>
 
                 <p class="mt-4 text-sm text-gray-500">{copy.priceFootnote}</p>
+                {/* Conversion disclosure — the euro figure above is
+                    indicative, the operator invoices in dollars. */}
+                <p class="mt-3 text-xs leading-relaxed text-gray-500">
+                    {copy.priceCurrencyNote(priceUsdLabel, FX.asOf, FX.source)}
+                </p>
 
                 <div class="mt-8">
-                    <a href="#bottom-form"
+                    <a href="#contact"
                         class="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-primary-dark">
                         {copy.priceCtaLabel}
                     </a>
@@ -184,9 +255,9 @@ const hasTestimonials = copy.testimonials.length > 0
         </section>
 
         {/* ============================================================
-            SECTION 5 — WHAT'S INCLUDED
+            SECTION 5 — CE QUI EST INCLUS
             ============================================================ */}
-        <section id="inclus" class="py-16 lg:py-20">
+        <section id="inclus" class="scroll-mt-6 py-16 lg:py-20">
             <div class="mx-auto max-w-6xl px-6">
                 <div class="mb-4 text-center">
                     <h2 class="mb-3 text-3xl font-bold md:text-4xl">{copy.includedHeading}</h2>
@@ -196,7 +267,7 @@ const hasTestimonials = copy.testimonials.length > 0
                     {copy.included.map((item) => (
                         <div class="rounded-xl border bg-white p-6 shadow-sm">
                             <div class="mb-3 flex items-center justify-between">
-                                <Icon name={item.icon as any} class="h-6 w-6 text-primary" />
+                                <Icon name={item.icon} class="h-6 w-6 text-primary" />
                                 {item.value && (
                                     <span class="rounded-full bg-sand px-3 py-1 text-xs font-semibold text-brown">{item.value}</span>
                                 )}
@@ -210,15 +281,12 @@ const hasTestimonials = copy.testimonials.length > 0
         </section>
 
         {/* ============================================================
-            SECTION 6 — REVIEWS
-            The rating badge renders as soon as TRIPADVISOR.rating/reviewCount
-            (config.ts) are set — it doesn't need quote cards to be useful.
-            The quote grid below it is a separate, optional layer: it only
-            renders once copy.testimonials (per locale) has real entries.
-            No fabricated rating or quote either way.
+            SECTION 6 — AVIS
+            Two independent gates: the badge needs only the config rating,
+            the quote grid needs real testimonials. Never recouple them.
             ============================================================ */}
         {hasRatingBadge && (
-            <section id="avis" class="bg-gray-50 py-16 lg:py-20">
+            <section id="avis" class="scroll-mt-6 bg-gray-50 py-16 lg:py-20">
                 <div class="mx-auto max-w-5xl px-6">
                     <h2 class="mb-3 text-center text-3xl font-bold md:text-4xl">{copy.reviewsHeading}</h2>
                     <p class={`text-center text-lg text-gray-600 ${hasTestimonials ? 'mb-6' : 'mb-10'}`}>{copy.reviewsSubheading}</p>
@@ -264,13 +332,13 @@ const hasTestimonials = copy.testimonials.length > 0
         )}
 
         {/* ============================================================
-            SECTION 7 — WHY BOOK WITH POLECAT SAFARIS
+            SECTION 7 — POURQUOI RÉSERVER AVEC NOUS
             ============================================================ */}
         <section class="py-16 lg:py-20">
             <div class="mx-auto max-w-4xl px-6">
-                <h2 class="mb-10 text-center text-3xl font-bold md:text-4xl">{copy.whyBookHeading}</h2>
+                <h2 class="mb-10 text-center text-3xl font-bold md:text-4xl">{copy.whyUsHeading}</h2>
                 <div class="grid gap-8 md:grid-cols-2">
-                    {copy.whyBook.map((item) => (
+                    {copy.whyUs.map((item) => (
                         <div class="flex gap-4">
                             <Icon name="check" class="mt-1 h-6 w-6 shrink-0 text-primary" />
                             <div>
@@ -284,16 +352,16 @@ const hasTestimonials = copy.testimonials.length > 0
         </section>
 
         {/* ============================================================
-            SECTION 8 — SECOND FORM + CONTACT
+            SECTION 8 — SECOND FORMULAIRE + CONTACT  ·  #contact
             ============================================================ */}
-        <section id="bottom-form" class="bg-gray-900 py-16 lg:py-20">
+        <section id="contact" class="scroll-mt-6 bg-gray-900 py-16 lg:py-20">
             <div class="mx-auto max-w-xl px-6">
                 <div class="mb-8 text-center">
-                    <h2 class="mb-3 text-3xl font-bold text-white md:text-4xl">{copy.bottomFormHeading}</h2>
-                    <p class="text-lg text-gray-300">{copy.bottomFormSubheading}</p>
+                    <h2 class="mb-3 text-3xl font-bold text-white md:text-4xl">{copy.finalHeading}</h2>
+                    <p class="text-lg text-gray-300">{copy.finalSubheading}</p>
                 </div>
                 <div class="rounded-2xl border border-gray-700 bg-white p-6 shadow-xl md:p-8">
-                    <InquiryForm id="bottom-inquiry" copy={copy.form} privacyPath={copy.privacyPath} submitLabel={copy.bottomFormSubmitLabel} />
+                    <InquiryForm id="bottom-inquiry" copy={copy.form} privacyPath={copy.privacyPath} submitLabel={copy.finalSubmitLabel} />
                 </div>
                 <div class="mt-8 text-center">
                     <p class="mb-4 text-sm text-gray-400">{copy.contactPrompt}</p>
@@ -313,17 +381,18 @@ const hasTestimonials = copy.testimonials.length > 0
         </section>
 
         {/* ============================================================
-            FAQ
+            SECTION 9 — FAQ  (also feeds the FAQPage JSON-LD)
             ============================================================ */}
-        <section class="bg-white py-16 lg:py-20">
+        <section id="faq" class="scroll-mt-6 bg-white py-16 lg:py-20">
             <div class="mx-auto max-w-3xl px-6">
-                <h2 class="mb-10 text-center text-3xl font-bold md:text-4xl">{copy.faqHeading}</h2>
-                <div class="divide-y divide-gray-200 rounded-xl border">
+                <h2 class="mb-3 text-center text-3xl font-bold md:text-4xl">{copy.faqHeading}</h2>
+                <p class="mb-10 text-center text-lg text-gray-600">{copy.faqSubheading}</p>
+                <div class="divide-y divide-gray-200 rounded-xl border bg-white">
                     {copy.faqs.map((f) => (
                         <details class="group px-6">
-                            <summary class="flex cursor-pointer items-center justify-between py-5 text-left text-lg font-semibold [&::-webkit-details-marker]:hidden">
+                            <summary class="flex cursor-pointer items-center justify-between gap-4 py-5 text-left text-lg font-semibold [&::-webkit-details-marker]:hidden">
                                 {f.question}
-                                <svg class="h-5 w-5 shrink-0 text-primary transition-transform group-open:rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                <svg class="h-5 w-5 shrink-0 text-primary transition-transform group-open:rotate-45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                             </summary>
                             <p class="pb-5 leading-relaxed text-gray-600">{f.answer}</p>
                         </details>

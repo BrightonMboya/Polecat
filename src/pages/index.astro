@@ -1,6 +1,11 @@
 ---
+/*
+ * The landing page. French-only since 2026-09-04 — it serves a Google Search
+ * campaign in France on general "safari en Tanzanie" intent. The former
+ * English honeymoon page was dropped; `/fr` redirects here (astro.config.mjs).
+ */
 import LandingPage from '../components/LandingPage.astro'
-import { content } from '../content/en'
+import { content } from '../content/fr'
 ---
 
 <LandingPage copy={content} />

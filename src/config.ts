@@ -1,12 +1,15 @@
 /* ============================================================================
- * POLECAT SAFARIS — HONEYMOON LANDING PAGE CONFIG
+ * AFRICAN POLECAT SAFARIS — TANZANIA SAFARI LANDING PAGE CONFIG
  * ----------------------------------------------------------------------------
- * Language-agnostic campaign data shared by every locale (English at `/`,
- * French at `/fr`) — contact details, pricing, tracking IDs, images. All
- * user-facing copy (headlines, itinerary text, form labels, WhatsApp
- * messages) lives per-locale in src/content/en.ts and src/content/fr.ts so
- * translating or adding a language never touches this file.
- * Fields marked TODO still need real values before this goes live.
+ * Language-agnostic campaign data — contact details, pricing, tracking IDs,
+ * images. All user-facing copy (headlines, itinerary text, form labels,
+ * WhatsApp messages) lives in src/content/fr.ts so translating or adding a
+ * language never touches this file.
+ *
+ * The page is French-only as of 2026-09-04: it serves a Google Search
+ * campaign in France on general "safari en Tanzanie" intent (it used to be a
+ * bilingual honeymoon page — English at `/`, French at `/fr`; the English
+ * version was dropped and `/fr` now redirects to `/`).
  * ==========================================================================*/
 
 /* -------------------------------------------------------------------------- */
@@ -49,6 +52,20 @@ export const WEB3FORMS = {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  LEAD SOURCE — stamped on every lead email.                                 */
+/*  African Polecat Safaris also takes enquiries through their main site and   */
+/*  by phone, so the inbox needs to be able to tell at a glance which leads    */
+/*  this campaign actually paid for. InquiryForm pairs these with the page URL */
+/*  and the gclid/utm_* on the click.                                          */
+/* -------------------------------------------------------------------------- */
+export const LEAD_SOURCE = {
+    /** Short tag prefixed to the email subject, e.g. "[Landing Page FR]". */
+    tag: 'Landing Page FR',
+    /** Human-readable line shown at the top of the email body. */
+    label: 'French Tanzania safari landing page (Google Ads campaign)',
+}
+
+/* -------------------------------------------------------------------------- */
 /*  GOOGLE ADS — conversion tracking.                                          */
 /*  The base gtag + Consent Mode v2 live in Layout.astro, driven by `id` below.*/
 /*  `conversionSendTo` is the specific conversion action fired on form submit; */
@@ -64,20 +81,73 @@ export const GOOGLE_ADS = {
 /* -------------------------------------------------------------------------- */
 export const OFFER = {
     /** Proper noun — same spelling in every locale. */
-    company: 'Polecat Safaris',
-    /** Number of days/nights on the ground, used for the schema.org duration ("P6D"). */
+    company: 'African Polecat Safaris',
+    /** Length of the example itinerary shown on the page, in days. */
     tripLengthDays: 6,
-    /** Confirmed price per person, double occupancy — from the client's itinerary. */
+    /**
+     * Confirmed price per person, double occupancy, for the 6-day example
+     * itinerary below — from the client's own itinerary document.
+     *
+     * ⚠️ This is the price of THAT itinerary, not a "from" price for every
+     * safari we sell — we have no confirmed floor price. Never render it as
+     * "à partir de"; always tie it to the 6-day example.
+     */
     pricePerPerson: 2800,
 }
 
+/* -------------------------------------------------------------------------- */
+/*  CURRENCY                                                                   */
+/*  The safari is quoted and invoiced by the operator in US dollars — that is  */
+/*  the contractual price. This campaign runs in France, so the page LEADS     */
+/*  with a euro figure, but it is an indicative conversion, never a second     */
+/*  price the business has committed to. Everywhere it appears it is marked    */
+/*  "≈" and paired with the firm USD amount and the rate it came from.         */
+/* -------------------------------------------------------------------------- */
+export const FX = {
+    /**
+     * USD → EUR. Taken 2026-09-04 from the ECB euro foreign-exchange reference
+     * rate published for 2026-09-03 (EUR/USD 1.1615 → 1 USD = 0.86095 EUR),
+     * cross-checked against frankfurter.app (0.86096) and exchangerate-api
+     * (0.861) — all three agreed to four decimals.
+     *
+     * ⚠️ THIS GOES STALE. It is a hardcoded snapshot, not a live rate: a
+     * static ads page should not depend on an FX API at runtime. A few
+     * percent of drift moves the displayed euro figure by ~€50, so re-check
+     * it before each campaign period (`curl -sL
+     * 'https://api.frankfurter.app/latest?base=USD&symbols=EUR'`) and update
+     * `rate` and `asOf` together.
+     */
+    rate: 0.86095,
+    /** Human-readable date of the rate above, as shown to the visitor. */
+    asOf: '3 septembre 2026',
+    /** Shown to the visitor so the conversion is checkable. */
+    source: 'BCE',
+}
+
 /**
- * Format a number as a US-style dollar price: 2800 → "$2,800".
- * Done by hand rather than via toLocaleString('en-US') — keeps the same
- * dependency-free approach as the rest of this config regardless of the
- * build environment's ICU data.
+ * The euro equivalent of a USD amount, rounded to the nearest 10 € so the page
+ * shows "≈ 2 410 €" rather than a false-precision "2 410,66 €". Always render
+ * the result behind an "≈" — see FX above.
  */
-export const usd = (n: number) => `$${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+export const eurEquivalent = (usd: number) => Math.round((usd * FX.rate) / 10) * 10
+
+/** Format a euro amount for a French reader: 2410 → "2 410 €". */
+export const eurFr = (n: number) =>
+    `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0')}\u00A0€`
+
+/**
+ * Format a USD amount for a French reader: 2800 → "2 800 $US".
+ * French convention puts the unit after the number with a non-breaking space
+ * and groups thousands with a space, not a comma. The company quotes in US
+ * dollars, so the currency is spelled "$US" rather than a bare "$" — a bare
+ * "$" reads ambiguously in France.
+ *
+ * Done by hand rather than via toLocaleString('fr-FR') — keeps the same
+ * dependency-free approach as the rest of this config regardless of the
+ * build environment's ICU data. \u00A0 is a non-breaking space.
+ */
+export const usdFr = (n: number) =>
+    `${n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0')}\u00A0$US`
 
 /* -------------------------------------------------------------------------- */
 /*  TRIPADVISOR                                                                */
@@ -111,10 +181,13 @@ export const TESTIMONIALS: Testimonial[] = []
 /*  IMAGES                                                                     */
 /* -------------------------------------------------------------------------- */
 export const IMAGES = {
-    // Served from /public. Swap the file to change it.
-    // Real Polecat Safaris photography (their own safari vehicle and guests
-    // with wildebeest during the migration), pulled from africanpolecatsafaris.com
-    // and downloaded locally — resized/re-compressed for page weight.
+    // ⚠️ Currently an EXTERNAL HOTLINK to theroyalportfolio.com — a third
+    // party's image on a third party's server. It can break or change without
+    // warning, it costs a cross-origin connection on the LCP element, and it
+    // is not licensed to this business. Real Polecat Safaris photography is
+    // already vendored at /public/hero-serengeti-safari-vehicle.jpg (their own
+    // vehicle among wildebeest during the migration, 1920×1280, ~323KB);
+    // switch back to it, or vendor a licensed replacement.
     hero: 'https://wp.theroyalportfolio.com/app/uploads/2022/06/CW2_0761-scaled.jpg',
     /** Real brand mark, pulled from africanpolecatsafaris.com — white text, for dark backgrounds (hero). */
     logoWhite: '/logo-horizontal-white.png',
