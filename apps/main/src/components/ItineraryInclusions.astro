@@ -1,0 +1,90 @@
+---
+/**
+ * What the rate covers. Ported from ItineraryInclusions.astro in
+ * ~/web/kan_safaris — an intro column, then included and not-included side by
+ * side, each row led by a mark rather than a bullet so the two lists can be
+ * told apart at a glance without reading them.
+ */
+import type { SafariPackage } from '../content/packages'
+
+interface Props {
+    pkg: SafariPackage
+}
+
+const { pkg } = Astro.props
+---
+
+<section id="included" class="gutter scroll-mt-16 bg-stone py-20 lg:py-25">
+    <div class="shell grid grid-cols-1 gap-12 lg:grid-cols-[18rem_1fr_1fr] lg:gap-14">
+        <div class="flex flex-col gap-4.5">
+            <h2
+                class="font-display text-[28px] leading-9 font-light tracking-[-0.014em] text-ink lg:text-[34px] lg:leading-10.5"
+            >
+                What the rate covers
+            </h2>
+            <p class="text-[14px] leading-6.5 text-muted">
+                Everything below is settled before you travel. What isn’t covered is listed just as
+                plainly, so nothing on this trip arrives as a surprise.
+            </p>
+        </div>
+
+        <div class="flex flex-col gap-5">
+            <p class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-primary uppercase">
+                Included
+            </p>
+            <ul class="flex flex-col gap-3.5">
+                {
+                    pkg.included.map((item) => (
+                        <li class="flex items-start gap-3.5">
+                            <svg
+                                class="mt-1 size-3.75 shrink-0"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M4 12.5 9.5 18 20 6.5"
+                                    stroke="var(--color-primary)"
+                                    stroke-width="2.1"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                            <span class="text-[15px] leading-6.25 text-ink">{item}</span>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+
+        {
+            pkg.excluded.length > 0 && (
+                <div class="flex flex-col gap-5">
+                    <p class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-muted uppercase">
+                        Not included
+                    </p>
+                    <ul class="flex flex-col gap-3.5">
+                        {pkg.excluded.map((item) => (
+                            <li class="flex items-start gap-3.5">
+                                <svg
+                                    class="mt-1 size-3.75 shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M6 6l12 12M18 6 6 18"
+                                        stroke="var(--color-line)"
+                                        stroke-width="2.1"
+                                        stroke-linecap="round"
+                                    />
+                                </svg>
+                                <span class="text-[15px] leading-6.25 text-muted">{item}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )
+        }
+    </div>
+</section>

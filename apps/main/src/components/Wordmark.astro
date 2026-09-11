@@ -1,0 +1,46 @@
+---
+import { SITE } from '../config'
+
+interface Props {
+    href?: string
+    /**
+     * `header` steps the mark down below `sm` so the wordmark and three nav
+     * items fit across a 375px phone without wrapping. `full` is the design's
+     * size at every width — what the footer uses, where nothing competes with
+     * it for the row.
+     */
+    size?: 'header' | 'full'
+}
+
+const { href = '/', size = 'full' } = Astro.props
+const header = size === 'header'
+---
+
+<a href={href} class="flex shrink-0 items-center gap-2.5 sm:gap-3.25" aria-label={`${SITE.legalName} — home`}>
+    <img
+        src="/images/logo-mark.png"
+        alt=""
+        width="42"
+        height="42"
+        class:list={[
+            'shrink-0 object-contain',
+            header ? 'h-8 w-8 sm:h-10.5 sm:w-10.5' : 'h-10.5 w-10.5',
+        ]}
+    />
+    <span class="flex flex-col items-start gap-0.5">
+        <span
+            class:list={[
+                'font-display leading-8.5 tracking-[0.13em] text-primary uppercase',
+                header ? 'text-[21px] sm:text-[27px]' : 'text-[27px]',
+            ]}>{SITE.wordmark.top}</span
+        >
+        <span
+            class:list={[
+                'leading-3 text-primary uppercase',
+                header
+                    ? 'text-[8px] tracking-[0.3em] sm:text-[9px] sm:tracking-[0.4em]'
+                    : 'text-[9px] tracking-[0.4em]',
+            ]}>{SITE.wordmark.bottom}</span
+        >
+    </span>
+</a>

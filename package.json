@@ -1,17 +1,17 @@
 {
   "name": "polycate",
-  "type": "module",
-  "version": "0.0.1",
   "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/main",
+    "apps/marketing/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "astro": "^5.6.1",
-    "@tailwindcss/vite": "^4.1.4",
-    "tailwindcss": "^4.1.4"
+    "dev": "bun run --filter '@polycate/main' dev",
+    "dev:lp": "bun run --filter '@polycate/polecat-lp' dev",
+    "build": "bun run --filter '*' build",
+    "build:main": "bun run --filter '@polycate/main' build",
+    "build:lp": "bun run --filter '@polycate/polecat-lp' build"
   }
 }

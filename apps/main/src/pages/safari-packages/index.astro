@@ -1,0 +1,48 @@
+---
+/**
+ * The parent of the itinerary pages: every package we sell, as the same cards
+ * the homepage uses. Exists so the homepage's "All Safari Packages" button and
+ * the breadcrumb on each itinerary have somewhere to land.
+ */
+import Layout from '../../layouts/Layout.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import Newsletter from '../../components/Newsletter.astro'
+import PackageCard from '../../components/PackageCard.astro'
+import SectionHeading from '../../components/SectionHeading.astro'
+import { PACKAGES as PACKAGES_SECTION } from '../../content/home'
+import { PACKAGES as ALL_PACKAGES } from '../../content/packages'
+---
+
+<Layout
+    title="Safari Packages — Tanzania Honeymoon, Family and Migration Safaris | Polecat Safaris"
+    description="Every itinerary we sell across northern Tanzania and Zanzibar — honeymoon, family and Great Migration safaris from six to thirteen days, each one private, with day-by-day detail and rates."
+>
+    <Header />
+    <main>
+        <section class="gutter flex flex-col items-center bg-cream pt-16 pb-20 lg:pt-24 lg:pb-28.5">
+            <SectionHeading
+                eyebrow={PACKAGES_SECTION.eyebrow}
+                heading={PACKAGES_SECTION.heading}
+                body={PACKAGES_SECTION.body}
+            />
+
+            <ul class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-11.5 lg:grid-cols-3">
+                {
+                    ALL_PACKAGES.map((pkg, index) => (
+                        <PackageCard pkg={pkg} loading={index < 3 ? 'eager' : 'lazy'} />
+                    ))
+                }
+            </ul>
+
+            <p class="shell mt-14 max-w-180 text-center text-[16px] leading-7.25 text-muted">
+                Nothing here quite right? Every one of these is private, so the days, the camps and
+                the season can all move. Tell us roughly what you have in mind and we will draft
+                something against it.
+            </p>
+        </section>
+
+        <Newsletter />
+    </main>
+    <Footer />
+</Layout>

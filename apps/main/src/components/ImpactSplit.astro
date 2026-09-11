@@ -1,0 +1,36 @@
+---
+import { IMPACT } from '../content/home'
+---
+
+{/* Half text on green, half photograph. Below `lg` the photograph moves under
+    the copy rather than shrinking to a sliver. */}
+<section class="flex flex-col bg-primary lg:flex-row">
+    {/* Not the shared `gutter` utility: this half sets its own, much wider
+        inset so the copy column matches the design's 110px inner margin. */}
+    <div
+        class="flex flex-col items-start justify-center gap-5.5 px-6 py-16 md:px-10 lg:w-1/2 lg:px-27.5 lg:py-0"
+    >
+        <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-gold uppercase">
+            {IMPACT.eyebrow}
+        </p>
+        <h2
+            class="font-display text-[36px] leading-[1.2] font-light tracking-[-0.008em] text-cream lg:text-[46px] lg:leading-14.5"
+        >
+            {IMPACT.heading}
+        </h2>
+        <p class="text-[16px] leading-7.25 text-sage">{IMPACT.body}</p>
+        <a
+            href={IMPACT.cta.href}
+            class="mt-2 flex items-center justify-center bg-cream px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-white"
+        >
+            {IMPACT.cta.label}
+        </a>
+    </div>
+    <img
+        src={IMPACT.image}
+        alt={IMPACT.imageAlt}
+        loading="lazy"
+        decoding="async"
+        class="h-75 w-full object-cover lg:h-150 lg:w-1/2"
+    />
+</section>

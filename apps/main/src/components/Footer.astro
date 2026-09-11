@@ -1,0 +1,155 @@
+---
+import Wordmark from './Wordmark.astro'
+import { FOOTER_COLUMNS, FOOTER_LEGAL } from '../content/home'
+import { SITE, CONTACT, SOCIAL, whatsappLink } from '../config'
+import { getCategories } from '../content/journal'
+
+const year = new Date().getFullYear()
+
+/*
+ * The Journal column, built from the categories that actually have posts
+ * rather than hardcoded. /category/[category].astro only builds a page for a
+ * category with posts in it, so a fixed list here would 404 the day a category
+ * emptied — which is exactly what the old "Camps and lodges" link did.
+ *
+ * Three, biggest first, which is the order getCategories already returns.
+ */
+const categories = (await getCategories()).slice(0, 3)
+const journalColumn = {
+    heading: 'Journal',
+    links: [
+        { label: 'All stories', href: '/blogs/' },
+        ...categories.map((category) => ({
+            label: category.label,
+            href: `/category/${category.slug}/`,
+        })),
+    ],
+}
+
+/** Safaris · Where We Travel · Journal · Polecat Safaris. */
+const columns = [FOOTER_COLUMNS[0], FOOTER_COLUMNS[1], journalColumn, FOOTER_COLUMNS[2]]
+
+/*
+ * Single-path 18×18 marks, sized and coloured to match the design's set.
+ *
+ * Instagram and Facebook are the operator's own profiles; the third slot is
+ * Tripadvisor rather than the design's YouTube, because there is no channel
+ * and Tripadvisor is where the reviews this site quotes actually live. See
+ * SOCIAL in src/config.ts.
+ */
+const socials = [
+    { name: 'Instagram', href: SOCIAL.instagram },
+    { name: 'Facebook', href: SOCIAL.facebook },
+    { name: 'Tripadvisor', href: SOCIAL.tripadvisor },
+]
+
+const whatsapp = whatsappLink(
+    'Hello Polecat Safaris — I would like to plan a safari in Tanzania.'
+)
+---
+
+<footer class="gutter flex flex-col items-center bg-cream pt-16 pb-10 lg:pt-22">
+    <div class="shell flex flex-col gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-15">
+        <div class="flex flex-col items-start gap-6.5 lg:w-75 lg:shrink-0">
+            <Wordmark />
+            <p class="max-w-65 text-[14px] leading-6.5 text-muted">{SITE.tagline}</p>
+            <div class="flex flex-col gap-1.5">
+                <p class="text-[14px] leading-6 text-muted">{SITE.city}</p>
+                <a href={CONTACT.phoneHref} class="text-[14px] leading-6 text-ink hover:text-primary"
+                    >{CONTACT.phone}</a
+                >
+                <a
+                    href={`mailto:${CONTACT.email}`}
+                    class="text-[14px] leading-6 text-primary hover:underline">{CONTACT.email}</a
+                >
+                {/* The team works the WhatsApp inbox — same number as the
+                    landing page's enquiry handoff. */}
+                <a
+                    href={whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[14px] leading-6 text-muted transition-colors hover:text-primary"
+                    >Message us on WhatsApp</a
+                >
+            </div>
+        </div>
+
+        <nav class="grid grid-cols-2 gap-10 lg:flex lg:gap-15" aria-label="Footer">
+            {
+                columns.map((column) => (
+                    <div class="flex flex-col items-start gap-3 lg:w-47.5 lg:shrink-0">
+                        <h2 class="pb-1 text-[11px] leading-3.5 font-medium tracking-[0.24em] text-ink uppercase">
+                            {column.heading}
+                        </h2>
+                        {column.links.map((link) => (
+                            <a
+                                href={link.href}
+                                class="text-[14px] leading-6.5 text-muted transition-colors hover:text-primary"
+                            >
+                                {link.label}
+                            </a>
+                        ))}
+                    </div>
+                ))
+            }
+        </nav>
+    </div>
+
+    <div
+        class="shell mt-12 flex flex-col gap-6 border-t border-line pt-7.5 sm:flex-row sm:items-center sm:justify-between lg:mt-16.5 lg:gap-10"
+    >
+        <div class="flex flex-wrap items-center gap-x-6.5 gap-y-2">
+            <p class="text-[12px] leading-4.5 text-muted">© {year} {SITE.legalName}</p>
+            {
+                FOOTER_LEGAL.map((link) => (
+                    <a
+                        href={link.href}
+                        class="text-[12px] leading-4.5 text-muted transition-colors hover:text-primary"
+                    >
+                        {link.label}
+                    </a>
+                ))
+            }
+        </div>
+
+        <ul class="flex items-center gap-4.5">
+            {
+                socials.map((social) => (
+                    <li>
+                        <a
+                            href={social.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="block text-[#707070] transition-colors hover:text-primary"
+                            aria-label={`${SITE.name} on ${social.name}`}
+                        >
+                            {social.name === 'Instagram' && (
+                                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <rect x="2.4" y="2.4" width="13.2" height="13.2" rx="4" fill="none" stroke="currentColor" stroke-width="1.2" />
+                                    <circle cx="9" cy="9" r="3.3" fill="none" stroke="currentColor" stroke-width="1.2" />
+                                    <circle cx="13.1" cy="4.9" r="0.85" fill="currentColor" />
+                                </svg>
+                            )}
+                            {social.name === 'Facebook' && (
+                                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M10.9 16V9.9h2.05l.3-2.4H10.9V6c0-.7.2-1.15 1.2-1.15h1.25V2.7A17 17 0 0011.5 2.6c-1.8 0-3.05 1.1-3.05 3.15V7.5H6.4v2.4h2.05V16z" fill="currentColor" />
+                                </svg>
+                            )}
+                            {/* Tripadvisor's owl: two spectacle rings, one eye
+                                open, one closed, under a beak. */}
+                            {social.name === 'Tripadvisor' && (
+                                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <circle cx="5.2" cy="9.6" r="3.4" fill="none" stroke="currentColor" stroke-width="1.2" />
+                                    <circle cx="12.8" cy="9.6" r="3.4" fill="none" stroke="currentColor" stroke-width="1.2" />
+                                    <circle cx="5.2" cy="9.6" r="1.15" fill="currentColor" />
+                                    <circle cx="12.8" cy="9.6" r="1.15" fill="currentColor" />
+                                    <path d="M6.1 5.4A6.4 6.4 0 019 4.7a6.4 6.4 0 012.9.7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                                </svg>
+                            )}
+                        </a>
+                    </li>
+                ))
+            }
+        </ul>
+    </div>
+</footer>

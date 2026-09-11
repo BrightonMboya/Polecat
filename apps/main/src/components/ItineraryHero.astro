@@ -1,0 +1,95 @@
+---
+/**
+ * The head of an itinerary page. Ported from ItineraryHero.astro in
+ * ~/web/kan_safaris: a fixed-height frame rather than a viewport-height one,
+ * the content sitting on the floor of it, with the title on the left and the
+ * two facts a visitor actually shops on — how long, how much — ranged right.
+ *
+ * Written in this site's tokens and type rather than kan's stone palette.
+ */
+import type { SafariPackage } from '../content/packages'
+
+interface Props {
+    pkg: SafariPackage
+}
+
+const { pkg } = Astro.props
+
+// One itinerary has no published rate yet. "From On request" reads wrong, so
+// that one loses the "From" label and the per-person unit.
+const onRequest = pkg.priceFrom === 'On request'
+---
+
+<section class="relative flex h-115 w-full flex-col justify-end overflow-hidden bg-ink lg:h-150">
+    <img
+        src={pkg.image}
+        alt={pkg.imageAlt}
+        class="absolute inset-0 size-full object-cover object-[50%_55%]"
+        fetchpriority="high"
+        decoding="async"
+    />
+    {/* Light at the top so the photograph reads, heavy at the foot so the
+        title and the facts hold against any frame. */}
+    <div
+        class="absolute inset-0"
+        style="background: linear-gradient(180deg, rgba(35,32,27,0.3) 0%, rgba(35,32,27,0.34) 42%, rgba(35,32,27,0.84) 100%)"
+        aria-hidden="true"
+    >
+    </div>
+
+    <nav
+        class="gutter absolute inset-x-0 top-0 z-10 flex items-center gap-2.5 pt-9 text-[11px] tracking-[0.18em] text-white/70 uppercase"
+        aria-label="Breadcrumb"
+    >
+        <a href="/" class="transition-colors hover:text-white">Home</a>
+        <span aria-hidden="true">/</span>
+        <a href="/safari-packages/" class="transition-colors hover:text-white">Safari Packages</a>
+    </nav>
+
+    <div
+        class="gutter relative flex w-full flex-col items-start justify-between gap-8 pb-13 lg:flex-row lg:items-end lg:gap-16"
+    >
+        <div class="flex max-w-190 flex-col gap-4.5">
+            <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-gold uppercase">
+                {pkg.category}
+            </p>
+            <h1
+                class="font-display text-[34px] leading-10.5 font-light tracking-[-0.018em] text-white sm:text-[46px] sm:leading-14 lg:text-[66px] lg:leading-19"
+            >
+                {pkg.name}
+            </h1>
+        </div>
+
+        <dl class="flex shrink-0 items-end gap-10 lg:pb-2">
+            <div class="flex flex-col gap-2">
+                <dt class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-sage-dim uppercase">
+                    Duration
+                </dt>
+                <dd class="font-display text-[30px] leading-8.5 font-light text-white">
+                    {pkg.days} / {pkg.nights}
+                    <span class="ml-1 text-[12px] font-medium tracking-[0.14em] text-sage uppercase">
+                        Days / Nights
+                    </span>
+                </dd>
+            </div>
+
+            <span class="h-13 w-px shrink-0 bg-white/30" aria-hidden="true"></span>
+
+            <div class="flex flex-col gap-2">
+                <dt class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-sage-dim uppercase">
+                    {onRequest ? 'Rate' : 'From'}
+                </dt>
+                <dd class="font-display flex items-baseline gap-2 text-[30px] leading-8.5 font-light text-white">
+                    {pkg.priceFrom}
+                    {
+                        !onRequest && (
+                            <span class="text-[12px] font-medium tracking-[0.14em] text-sage uppercase">
+                                per person
+                            </span>
+                        )
+                    }
+                </dd>
+            </div>
+        </dl>
+    </div>
+</section>

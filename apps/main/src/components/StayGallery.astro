@@ -1,0 +1,215 @@
+---
+/**
+ * The "Your Stay" band inside a day of an itinerary: the lodge's own
+ * photography with its name over the foot of the frame. Ported from
+ * MinimalisticTheme.tsx in ~/web/makisala (apps/ratiba) — same bottom-up
+ * gradient, same slow crossfade every five seconds with arrows that appear on
+ * hover — with this site's square corners and type, and without React. The
+ * band is taller than makisala's fixed 16rem, which looked cramped against
+ * this page's wider measure.
+ *
+ * However long the gallery, only two <img> elements are rendered: the
+ * incoming photograph's src is set at the moment it is needed. These files are
+ * hotlinked full-size originals of a third to half a megabyte each, so a
+ * thirteen-day itinerary must not ask for a hundred and thirty of them up
+ * front. Rotation likewise only runs while the band is near the viewport.
+ */
+import type { Accommodation } from '../content/accommodations'
+
+interface Props {
+    stay: Accommodation
+}
+
+const { stay } = Astro.props
+
+// The photographs rotate, so the alt text has to describe the property rather
+// than any one frame.
+const alt = `${stay.name}, ${stay.region}`
+const rotates = stay.images.length > 1
+---
+
+<figure
+    class="stay group/stay relative h-80 w-full overflow-hidden bg-ink md:h-96 lg:h-112"
+    data-images={rotates ? JSON.stringify(stay.images) : undefined}
+>
+    <img
+        src={stay.images[0]}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        class="stay-layer absolute inset-0 size-full object-cover"
+    />
+    {
+        /* The incoming frame. It carries no src until there is one to show, and
+           no alt because the frame above it already describes the property. */
+        rotates && (
+            <img
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+                class="stay-layer absolute inset-0 size-full object-cover opacity-0"
+            />
+        )
+    }
+
+    <div
+        class="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent"
+        aria-hidden="true"
+    >
+    </div>
+
+    <figcaption class="absolute inset-x-6 bottom-6 max-w-2xl">
+        <p class="text-[10px] leading-3 font-medium tracking-[0.28em] text-white/80 uppercase">
+            Your Stay
+        </p>
+        <p class="font-display mt-1.5 text-[24px] leading-8 font-light text-white lg:text-[27px]">
+            {stay.name}
+        </p>
+    </figcaption>
+
+    {
+        rotates && (
+            <>
+                <button
+                    type="button"
+                    data-stay-step="-1"
+                    aria-label={`Previous photograph of ${stay.name}`}
+                    class="absolute top-1/2 left-4 z-10 flex size-9 -translate-y-1/2 items-center justify-center border border-white/30 bg-black/25 text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover/stay:opacity-100 hover:bg-black/45 focus-visible:opacity-100"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="size-4"
+                        aria-hidden="true"
+                    >
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    data-stay-step="1"
+                    aria-label={`Next photograph of ${stay.name}`}
+                    class="absolute top-1/2 right-4 z-10 flex size-9 -translate-y-1/2 items-center justify-center border border-white/30 bg-black/25 text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover/stay:opacity-100 hover:bg-black/45 focus-visible:opacity-100"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="size-4"
+                        aria-hidden="true"
+                    >
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </>
+        )
+    }
+</figure>
+
+<style>
+    .stay-layer {
+        transition: opacity 1.2s ease-in-out;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        /* The arrows still work; nothing moves on its own, and the swap is
+           immediate rather than a fade. */
+        .stay-layer {
+            transition: none;
+        }
+    }
+</style>
+
+<script>
+    // One pass over every stay band on the page. Each keeps two layers and
+    // crossfades between them, which is why the incoming src is set here
+    // rather than rendered: only the frames actually looked at get fetched.
+    const stillness = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    for (const figure of document.querySelectorAll<HTMLElement>('.stay[data-images]')) {
+        let images: string[] = []
+        try {
+            images = JSON.parse(figure.dataset.images ?? '[]')
+        } catch {
+            continue
+        }
+
+        const layers = [...figure.querySelectorAll<HTMLImageElement>('.stay-layer')]
+        if (images.length < 2 || layers.length < 2) continue
+
+        let index = 0
+        let front = 0
+        let swapping = false
+        let timer = 0
+
+        async function show(next: number) {
+            if (swapping || next === index) return
+            swapping = true
+
+            const incoming = layers[1 - front]
+            const outgoing = layers[front]
+            incoming.src = images[next]
+
+            try {
+                // Fading in a frame that hasn't arrived yet shows the ground
+                // through it, so wait for the bytes before touching opacity.
+                await incoming.decode()
+            } catch {
+                // A file that will not load shouldn't strand the rotation on it.
+                swapping = false
+                index = next
+                return
+            }
+
+            incoming.style.opacity = '1'
+            outgoing.style.opacity = '0'
+            front = 1 - front
+            index = next
+            swapping = false
+        }
+
+        function step(by: number) {
+            void show((index + by + images.length) % images.length)
+        }
+
+        function stop() {
+            window.clearInterval(timer)
+            timer = 0
+        }
+
+        function start() {
+            if (timer || stillness.matches) return
+            timer = window.setInterval(() => step(1), 5000)
+        }
+
+        for (const button of figure.querySelectorAll<HTMLButtonElement>('[data-stay-step]')) {
+            button.addEventListener('click', () => {
+                // Restart the clock so a click isn't immediately overtaken by
+                // the next automatic change.
+                stop()
+                step(Number(button.dataset.stayStep))
+                start()
+            })
+        }
+
+        // Bands far down a thirteen-day itinerary shouldn't be fetching
+        // photographs nobody has scrolled to.
+        const observer = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) entry.isIntersecting ? start() : stop()
+            },
+            { rootMargin: '200px' },
+        )
+        observer.observe(figure)
+
+        stillness.addEventListener('change', () => (stillness.matches ? stop() : undefined))
+    }
+</script>

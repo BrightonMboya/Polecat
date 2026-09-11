@@ -1,0 +1,76 @@
+---
+/**
+ * Category archives, at the same /category/<slug>/ URLs WordPress used. They
+ * were self-canonical and indexed on the old site, so they are rebuilt rather
+ * than redirected.
+ */
+import Layout from '../../layouts/Layout.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import PostCard from '../../components/PostCard.astro'
+import { SITE } from '../../config'
+import { getCategories, type Post } from '../../content/journal'
+
+export async function getStaticPaths() {
+    const categories = await getCategories()
+    return categories.map((category) => ({
+        params: { category: category.slug },
+        props: { label: category.label, posts: category.posts },
+    }))
+}
+
+interface Props {
+    label: string
+    posts: Post[]
+}
+
+const { label, posts } = Astro.props
+const { category } = Astro.params
+---
+
+<Layout
+    title={`${label} Archives - ${SITE.legalName}`}
+    description={`Journal notes filed under ${label} — ${posts.length} ${posts.length === 1 ? 'guide' : 'guides'} from our guides in Tanzania.`}
+    ogImage={posts[0]?.data.heroImage}
+    pageSchema={{
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: `${label} Archives`,
+        url: new URL(`/category/${category}/`, Astro.site).href,
+        isPartOf: { '@type': 'Blog', url: new URL('/blogs/', Astro.site).href },
+    }}
+>
+    <Header />
+    <main>
+        <section class="gutter flex flex-col items-center bg-cream pt-16 pb-12 lg:pt-20 lg:pb-14">
+            <div class="shell flex max-w-200 flex-col items-center gap-3">
+                <a
+                    href="/blogs/"
+                    class="rule-link text-[11px] leading-3.5 font-medium tracking-[0.22em] text-primary uppercase"
+                >
+                    The Journal
+                </a>
+                <h1
+                    class="font-display pt-2 text-center text-[38px] leading-[1.18] font-light text-ink lg:text-[52px] lg:leading-16"
+                >
+                    {label}
+                </h1>
+                <p class="text-center text-[15px] leading-6.75 text-muted">
+                    {posts.length}
+                    {posts.length === 1 ? 'note' : 'notes'} filed under {label.toLowerCase()}.
+                </p>
+            </div>
+        </section>
+
+        <section class="gutter flex flex-col items-center bg-cream pb-20 lg:pb-28">
+            <ul class="shell grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:grid-cols-3">
+                {
+                    posts.map((post, index) => (
+                        <PostCard post={post} loading={index < 3 ? 'eager' : 'lazy'} />
+                    ))
+                }
+            </ul>
+        </section>
+    </main>
+    <Footer />
+</Layout>

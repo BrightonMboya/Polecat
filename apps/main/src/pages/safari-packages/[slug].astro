@@ -1,0 +1,153 @@
+---
+/**
+ * The itinerary page behind every card in the homepage's Safari Packages
+ * section.
+ *
+ * Layout is ported from the itinerary page in ~/web/kan_safaris: a fixed
+ * hero with the facts ranged against the title, a sticky section bar, and
+ * then full-width bands rather than the sticky sidebar this page used to
+ * carry. Everything the sidebar held has a band of its own now — the price
+ * rail sits in the overview, the map moved into the route band, and the
+ * inclusions became their own section.
+ *
+ * kan has three further bands — seasonal rates, wildlife species and priced
+ * add-on activities — that are not here. The operator's data records a flat
+ * price list rather than a season × party-size matrix, species as bare names
+ * rather than described ones, and extras as free text rather than priced
+ * rows. Those bands go in when the data does; nothing here invents them.
+ *
+ * The FAQs and the related itineraries at the foot are this site's own and
+ * have no counterpart in kan.
+ */
+import Layout from '../../layouts/Layout.astro'
+import Header from '../../components/Header.astro'
+import Footer from '../../components/Footer.astro'
+import ItineraryHero from '../../components/ItineraryHero.astro'
+import ItineraryTabs from '../../components/ItineraryTabs.astro'
+import ItineraryOverview from '../../components/ItineraryOverview.astro'
+import ItineraryRoute from '../../components/ItineraryRoute.astro'
+import ItineraryDays from '../../components/ItineraryDays.astro'
+import ItineraryInclusions from '../../components/ItineraryInclusions.astro'
+import ItineraryEnquiry from '../../components/ItineraryEnquiry.astro'
+import { PACKAGES, type SafariPackage } from '../../content/packages'
+
+export function getStaticPaths() {
+    return PACKAGES.map((pkg) => ({
+        params: { slug: pkg.slug },
+        props: { pkg },
+    }))
+}
+
+interface Props {
+    pkg: SafariPackage
+}
+
+const { pkg } = Astro.props
+
+const related = PACKAGES.filter((p) => p.slug !== pkg.slug).slice(0, 3)
+
+const hasFaqs = pkg.faqs != null && pkg.faqs.length > 0
+
+// The bar only offers sections this itinerary actually renders.
+const tabs = [
+    { label: 'Overview', href: '#overview' },
+    { label: 'Route', href: '#route' },
+    { label: 'Day by Day', href: '#day-by-day' },
+    { label: "What's Included", href: '#included' },
+    ...(hasFaqs ? [{ label: 'Questions', href: '#questions' }] : []),
+    { label: 'Enquire', href: '#enquire' },
+]
+---
+
+<Layout
+    title={`${pkg.name} — ${pkg.duration} | Polecat Safaris`}
+    description={pkg.summary}
+    preloadImage={pkg.image}
+    ogImage={pkg.image}
+>
+    <Header />
+
+    <main>
+        <ItineraryHero pkg={pkg} />
+        <ItineraryTabs tabs={tabs} />
+
+        <ItineraryOverview pkg={pkg} />
+        <ItineraryRoute pkg={pkg} />
+        <ItineraryDays pkg={pkg} />
+        <ItineraryInclusions pkg={pkg} />
+
+        {/* What the operator gets asked about this itinerary */}
+        {
+            hasFaqs && (
+                <section
+                    id="questions"
+                    class="gutter scroll-mt-16 border-t border-line bg-white py-20 lg:py-24"
+                >
+                    <div class="shell grid grid-cols-1 gap-10 lg:grid-cols-[16rem_1fr] lg:gap-16">
+                        <h2 class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
+                            Questions
+                        </h2>
+                        <dl class="flex flex-col gap-2">
+                            {pkg.faqs!.map((faq) => (
+                                <div class="py-7">
+                                    <dt class="font-display mb-3 text-[21px] leading-7.5 font-light text-ink">
+                                        {faq.question}
+                                    </dt>
+                                    <dd class="max-w-3xl text-[16px] leading-7.25 text-muted">
+                                        {faq.answer}
+                                    </dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </div>
+                </section>
+            )
+        }
+
+        <ItineraryEnquiry pkg={pkg} />
+
+        {/* Other packages */}
+        <section class="gutter border-t border-line bg-white py-20 lg:py-24">
+            <div class="shell">
+                <h2
+                    class="mb-12 text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase"
+                >
+                    More Itineraries
+                </h2>
+                <ul class="grid grid-cols-1 gap-6.5 sm:grid-cols-3">
+                    {
+                        related.map((other) => (
+                            <li>
+                                <a
+                                    href={`/safari-packages/${other.slug}`}
+                                    class="group flex flex-col gap-4"
+                                >
+                                    <div class="aspect-[5/6] w-full overflow-hidden">
+                                        <img
+                                            src={other.image}
+                                            alt={other.imageAlt}
+                                            loading="lazy"
+                                            decoding="async"
+                                            class="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                                        />
+                                    </div>
+                                    <p class="text-[10px] leading-3 font-medium tracking-[0.2em] text-primary uppercase">
+                                        {other.category} · {other.days} Days
+                                    </p>
+                                    <h3 class="font-display text-[27px] leading-8.5 font-light text-ink">
+                                        {other.name}
+                                    </h3>
+                                    <span class="rule-link text-[11px] leading-4 tracking-[0.16em] text-muted uppercase transition-colors group-hover:text-primary">
+                                        View Itinerary
+                                    </span>
+                                </a>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <Footer />
+</Layout>

@@ -1,0 +1,160 @@
+---
+/**
+ * The day-by-day band. Ported from ItineraryDays.astro in ~/web/kan_safaris:
+ * every day is a rule-topped row with an oversized numeral in a fixed left
+ * rail, the prose beside it, and a meta strip holding the same slots on every
+ * day so they read down the page as columns.
+ *
+ * kan's meta strip is Meals / On the road / Elevation / Highlight. Nothing in
+ * this site's data records drive times or altitudes, so the slots here are
+ * Meals / Overnight / Highlight — the three it does record.
+ *
+ * The lodge photography (StayGallery) and the optional extras are this site's
+ * own and have no counterpart in kan; they keep their place inside the day
+ * body rather than being dropped to make the port tidier.
+ */
+import StayGallery from './StayGallery.astro'
+import { findAccommodation } from '../content/accommodations'
+import type { SafariPackage } from '../content/packages'
+
+interface Props {
+    pkg: SafariPackage
+}
+
+const { pkg } = Astro.props
+---
+
+<section id="day-by-day" class="gutter scroll-mt-16 bg-white py-20 lg:py-25">
+    <div class="shell flex flex-col">
+        <div
+            class="flex flex-col items-start justify-between gap-6 pb-13 lg:flex-row lg:items-end lg:gap-12"
+        >
+            <h2
+                class="font-display max-w-175 text-[34px] leading-11 font-light tracking-[-0.016em] text-ink lg:text-[46px] lg:leading-14"
+            >
+                Day by day
+            </h2>
+            <p class="w-full max-w-100 text-[13px] leading-6 text-muted lg:text-right">
+                Every day here is private — your own guide and your own vehicle — so the order holds
+                but the hours are yours to move.
+            </p>
+        </div>
+
+        {
+            pkg.itinerary.map((day, index) => {
+                const previous = index > 0 ? pkg.itinerary[index - 1] : null
+                // Consecutive nights in one camp are marked "(Cont.)" rather than
+                // restating the camp as if it were a new stay.
+                const sameStay = previous != null && previous.overnight === day.overnight
+                // The lodge's own photography, shown on the night you arrive at it
+                // and not repeated for the nights that follow. Matched on the
+                // property rather than the wording, so a camp written two ways
+                // across consecutive days is still one stay.
+                const stay = findAccommodation(day.overnight)
+                const arriving =
+                    stay != null && findAccommodation(previous?.overnight)?.slug !== stay.slug
+
+                return (
+                    <article class="flex flex-col gap-7 border-t border-line py-13 md:flex-row md:gap-14">
+                        <div class="flex shrink-0 flex-col gap-0.5 md:w-37.5">
+                            <span class="text-[11px] leading-4 font-medium tracking-[0.24em] text-muted uppercase">
+                                {day.label}
+                            </span>
+                            {/* A tint of `muted` rather than `line`: at this
+                                size the hairline khaki was the one warm mark
+                                on an otherwise neutral page. */}
+                            <span class="font-display text-[58px] leading-16 font-light tracking-[-0.02em] text-muted/28">
+                                {day.n < 10 ? `0${day.n}` : day.n}
+                            </span>
+                        </div>
+
+                        <div class="flex min-w-0 flex-1 flex-col gap-6">
+                            <h3 class="font-display text-[26px] leading-8.5 tracking-[-0.008em] text-ink lg:text-[29px] lg:leading-9.5">
+                                {day.title}
+                            </h3>
+
+                            {day.paragraphs.map((paragraph) => (
+                                <p class="text-[16px] leading-7.5 text-muted">{paragraph}</p>
+                            ))}
+
+                            {(day.meals || day.overnight || day.highlight) && (
+                                <dl class="flex flex-col gap-6 py-1 sm:flex-row sm:gap-0">
+                                    {day.meals && (
+                                        <div class="flex shrink-0 flex-col gap-1.25 sm:w-46.5 sm:pr-6">
+                                            <dt class="text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
+                                                Meals
+                                            </dt>
+                                            <dd class="text-[14px] leading-5.5 text-ink">
+                                                {day.meals}
+                                            </dd>
+                                        </div>
+                                    )}
+
+                                    {day.overnight && (
+                                        <div class="flex shrink-0 flex-col gap-1.25 sm:w-46.5 sm:pr-6">
+                                            <dt class="text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
+                                                Overnight
+                                            </dt>
+                                            <dd
+                                                class:list={[
+                                                    'text-[14px] leading-5.5 text-ink',
+                                                    sameStay && 'opacity-55',
+                                                ]}
+                                            >
+                                                {day.overnight}
+                                                {sameStay && (
+                                                    <span class="ml-1.5 text-[12px] text-muted">
+                                                        (Cont.)
+                                                    </span>
+                                                )}
+                                            </dd>
+                                        </div>
+                                    )}
+
+                                    {day.highlight && (
+                                        <div class="flex min-w-0 flex-1 flex-col gap-1.25">
+                                            <dt class="text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
+                                                Highlight
+                                            </dt>
+                                            <dd class="text-[14px] leading-5.5 font-medium text-ink">
+                                                {day.highlight}
+                                            </dd>
+                                        </div>
+                                    )}
+                                </dl>
+                            )}
+
+                            {/* kan labels its stay block "Where you sleep".
+                                StayGallery already captions itself over the
+                                foot of the frame, so a label here would say it
+                                twice. */}
+                            {arriving && stay && (
+                                <div class="pt-1.5">
+                                    <StayGallery stay={stay} />
+                                </div>
+                            )}
+
+                            {day.optional && day.optional.length > 0 && (
+                                <div class="flex flex-col gap-3.5 pt-1.5">
+                                    <p class="text-[10px] leading-3.5 font-medium tracking-[0.24em] text-muted/70 uppercase">
+                                        Optional today
+                                    </p>
+                                    <ul class="flex flex-col gap-2.5">
+                                        {day.optional.map((extra) => (
+                                            <li class="flex items-start gap-3 text-[15px] leading-6 text-muted">
+                                                <span class="text-muted/60" aria-hidden="true">
+                                                    +
+                                                </span>
+                                                {extra}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    </article>
+                )
+            })
+        }
+    </div>
+</section>

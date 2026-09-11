@@ -1,0 +1,221 @@
+---
+/**
+ * A journal post, at the root-level slug WordPress gave it — /materuni-waterfals/,
+ * typo and all. That is the whole point of this route: the old site's posts
+ * were never under a /blog/ prefix, so putting them under one now would throw
+ * away every link and every ranking they have.
+ *
+ * The catch-all sits at the site root but only ever builds the 22 slugs
+ * getStaticPaths returns, and Astro prefers a static route to a dynamic one,
+ * so /safari-packages/ and the homepage are unaffected.
+ */
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import PostCard from '../components/PostCard.astro'
+import { render } from 'astro:content'
+import { SITE } from '../config'
+import {
+    categoryLabel,
+    formatDate,
+    getPosts,
+    isoDate,
+    primaryCategory,
+    relatedPosts,
+    type Post,
+} from '../content/journal'
+
+export async function getStaticPaths() {
+    const posts = await getPosts()
+    return posts.map((post) => ({
+        params: { post: post.id },
+        props: { post, related: relatedPosts(post, posts) },
+    }))
+}
+
+interface Props {
+    post: Post
+    related: Post[]
+}
+
+const { post, related } = Astro.props
+const { Content } = await render(post)
+const { title, description, heroImage, heroImageAlt, pubDate, updatedDate, tags } = post.data
+const category = primaryCategory(post)
+const url = new URL(`/${post.id}/`, Astro.site).href
+
+// The same shape Yoast emitted for these posts, so nothing regresses in
+// Search Console when the site changes hands.
+const pageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: title,
+    description,
+    datePublished: pubDate.toISOString(),
+    dateModified: updatedDate.toISOString(),
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    ...(heroImage ? { image: new URL(heroImage, Astro.site).href } : {}),
+    author: { '@type': 'Organization', name: SITE.legalName },
+    publisher: {
+        '@type': 'Organization',
+        name: SITE.legalName,
+        logo: { '@type': 'ImageObject', url: new URL('/images/logo-mark.png', Astro.site).href },
+    },
+    articleSection: categoryLabel(category),
+    keywords: tags.join(', ') || undefined,
+    isPartOf: { '@type': 'Blog', url: new URL('/blogs/', Astro.site).href },
+}
+---
+
+<Layout
+    title={`${title} - ${SITE.legalName}`}
+    description={description}
+    preloadImage={heroImage}
+    ogImage={heroImage}
+    ogType="article"
+    publishedTime={pubDate}
+    modifiedTime={updatedDate}
+    pageSchema={pageSchema}
+>
+    <Header />
+    <main>
+        <article>
+            <header class="gutter flex flex-col items-center bg-cream pt-14 pb-10 lg:pt-18">
+                <div class="flex max-w-205 flex-col items-center gap-4">
+                    <nav
+                        class="flex flex-wrap items-center justify-center gap-2.5"
+                        aria-label="Breadcrumb"
+                    >
+                        <a
+                            href="/blogs/"
+                            class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-primary uppercase transition-colors hover:text-ink"
+                        >
+                            Journal
+                        </a>
+                        <span class="h-2.75 w-px shrink-0 bg-line" aria-hidden="true"></span>
+                        <a
+                            href={`/category/${category}/`}
+                            class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-primary uppercase transition-colors hover:text-ink"
+                        >
+                            {categoryLabel(category)}
+                        </a>
+                    </nav>
+
+                    <h1
+                        class="font-display text-center text-[34px] leading-[1.18] font-light text-ink lg:text-[52px] lg:leading-16"
+                    >
+                        {title}
+                    </h1>
+
+                    <p class="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+                        <time datetime={isoDate(pubDate)} class="text-[13px] leading-4 text-muted">
+                            {formatDate(pubDate)}
+                        </time>
+                        {
+                            isoDate(updatedDate) !== isoDate(pubDate) && (
+                                <>
+                                    <span class="h-3 w-px shrink-0 bg-line" aria-hidden="true" />
+                                    <span class="text-[13px] leading-4 text-muted">
+                                        Updated {formatDate(updatedDate)}
+                                    </span>
+                                </>
+                            )
+                        }
+                    </p>
+                </div>
+            </header>
+
+            {
+                heroImage && (
+                    <div class="gutter flex justify-center bg-cream">
+                        <img
+                            src={heroImage}
+                            alt={heroImageAlt || ''}
+                            width="1600"
+                            height="900"
+                            loading="eager"
+                            fetchpriority="high"
+                            decoding="async"
+                            class="shell aspect-[1336/620] w-full max-w-250 object-cover"
+                        />
+                    </div>
+                )
+            }
+
+            {/* The migrated WordPress body. `prose` in global.css styles it —
+                the HTML itself carries no classes. */}
+            <div class="gutter flex justify-center bg-cream pt-12 pb-16 lg:pt-16 lg:pb-20">
+                <div class="prose w-full max-w-195">
+                    <Content />
+                </div>
+            </div>
+
+            {
+                tags.length > 0 && (
+                    <div class="gutter flex justify-center bg-cream pb-16 lg:pb-20">
+                        <div class="w-full max-w-195 border-t border-line pt-8">
+                            <p class="pb-4 text-[11px] leading-3.5 font-medium tracking-[0.22em] text-primary uppercase">
+                                Filed Under
+                            </p>
+                            <ul class="flex flex-wrap gap-2.5">
+                                {tags.map((tag) => (
+                                    <li class="border border-line px-3.5 py-2 text-[12px] leading-4 text-muted">
+                                        {tag.replace(/-/g, ' ')}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )
+            }
+        </article>
+
+        <section class="gutter flex flex-col items-center bg-primary pt-16 pb-16 lg:pt-20 lg:pb-20">
+            <div class="flex max-w-180 flex-col items-center gap-4">
+                <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-gold uppercase">
+                    Travel With Us
+                </p>
+                <h2
+                    class="font-display text-center text-[32px] leading-[1.2] font-light text-white lg:text-[42px] lg:leading-13"
+                >
+                    Put this in an itinerary
+                </h2>
+                <p class="text-center text-[16px] leading-7.25 text-sage">
+                    Every safari we run is private — your own guide, your own vehicle, and days
+                    that can move. Tell us which of these places you want in yours.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-3.5 pt-3">
+                    <a
+                        href="/#safari-packages"
+                        class="flex items-center justify-center border border-white/40 px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:border-white hover:bg-white hover:text-primary"
+                    >
+                        See The Itineraries
+                    </a>
+                    <a
+                        href="/blogs/"
+                        class="rule-link text-[12px] leading-4 font-medium tracking-[0.2em] text-gold uppercase"
+                    >
+                        More From The Journal
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        {
+            related.length > 0 && (
+                <section class="gutter flex flex-col items-center bg-cream pt-18 pb-20 lg:pt-22 lg:pb-28">
+                    <h2 class="font-display mb-10 text-center text-[30px] leading-[1.22] font-light text-ink lg:mb-12 lg:text-[38px] lg:leading-12">
+                        Keep reading
+                    </h2>
+                    <ul class="shell grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:grid-cols-3">
+                        {related.map((item) => (
+                            <PostCard post={item} />
+                        ))}
+                    </ul>
+                </section>
+            )
+        }
+    </main>
+    <Footer />
+</Layout>

@@ -1,0 +1,53 @@
+---
+import Wordmark from './Wordmark.astro'
+import { NAV } from '../content/home'
+
+/*
+ * Three items and no Menu toggle. The design's hamburger opened a panel that
+ * duplicated the footer sitemap; with a nav this small there is nothing to
+ * hide behind it, so the links sit inline at every width and the panel — and
+ * the JavaScript that drove it — are gone.
+ *
+ * Below `sm` the two text links tighten rather than disappear, which keeps
+ * Safaris and About Us reachable on a phone without a drawer.
+ */
+const current = Astro.url.pathname
+/** `/about` and `/about/` are the same page; the trailing slash is canonical. */
+const isCurrent = (href: string) =>
+    href !== '/' && current.replace(/\/?$/, '/').startsWith(href)
+---
+
+<header class="border-b border-line bg-cream">
+    {/* Below `sm` the nav drops to its own row and spreads across it. The
+        wordmark plus three items does not fit on one line at 320–430px, and
+        squeezing them wraps "About Us" and clips the button — two honest rows
+        beat one broken one. From `sm` it is the design's single row. */}
+    <div
+        class="shell gutter flex flex-col items-start gap-3.5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-6.5"
+    >
+        <Wordmark size="header" />
+
+        <nav
+            class="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-end sm:gap-7 lg:gap-8.5"
+            aria-label="Primary"
+        >
+            {
+                NAV.primary.map((link) => (
+                    <a
+                        href={link.href}
+                        aria-current={isCurrent(link.href) ? 'page' : undefined}
+                        class="text-[11px] leading-4 tracking-[0.14em] whitespace-nowrap text-ink uppercase transition-colors hover:text-primary aria-[current=page]:text-primary sm:text-[12px] sm:tracking-[0.18em]"
+                    >
+                        {link.label}
+                    </a>
+                ))
+            }
+            <a
+                href={NAV.enquire.href}
+                class="flex shrink-0 items-center justify-center bg-primary px-5 py-2.75 text-[11px] leading-4 font-medium tracking-[0.14em] whitespace-nowrap text-white uppercase transition-colors hover:bg-[#083329] sm:px-6.5 sm:py-3 sm:text-[12px] sm:tracking-[0.18em]"
+            >
+                {NAV.enquire.label}
+            </a>
+        </nav>
+    </div>
+</header>

@@ -1,0 +1,67 @@
+---
+import Stars from './Stars.astro'
+import { REVIEWS } from '../content/home'
+import { TRIPADVISOR } from '../config'
+---
+
+<section class="gutter flex flex-col items-center bg-cream pt-20 pb-20 lg:pt-26 lg:pb-27.5">
+    <div class="flex flex-col items-center gap-3">
+        <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
+            Guest Reviews
+        </p>
+        <h2
+            class="font-display text-center text-[34px] leading-[1.22] font-light text-ink lg:text-[44px] lg:leading-14"
+        >
+            Reflections from our guests
+        </h2>
+        <div class="flex flex-wrap items-center justify-center gap-3.5 pt-3">
+            <Stars count={TRIPADVISOR.ratingValue} />
+            <p class="text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase">
+                {TRIPADVISOR.ratingLabel}
+            </p>
+            <span class="h-3.25 w-px shrink-0 bg-line" aria-hidden="true"></span>
+            <p class="text-[14px] leading-4.5 text-muted">
+                Based on {TRIPADVISOR.reviewCount} reviews on Tripadvisor
+            </p>
+        </div>
+    </div>
+
+    {/* Hairlines between columns, drawn with a divide rule so they disappear
+        cleanly when the columns stack. */}
+    <ul
+        class="shell mt-10 grid grid-cols-1 gap-10 lg:mt-11.5 lg:grid-cols-3 lg:gap-12 lg:divide-x lg:divide-line"
+    >
+        {
+            REVIEWS.map((review, index) => (
+                <li
+                    class:list={[
+                        'flex flex-col items-start gap-4',
+                        index > 0 && 'lg:pl-12',
+                    ]}
+                >
+                    <h3 class="font-display text-[25px] leading-8.25 font-light text-ink">
+                        {review.title}
+                    </h3>
+                    <blockquote class="text-[15px] leading-7 text-muted">
+                        “{review.quote}”
+                    </blockquote>
+                    <div class="flex flex-col gap-1 pt-1.5">
+                        <p class="text-[14px] leading-5 font-medium text-ink">{review.author}</p>
+                        <p class="text-[12px] leading-4 tracking-[0.1em] text-muted uppercase">
+                            {review.source}
+                        </p>
+                    </div>
+                </li>
+            ))
+        }
+    </ul>
+
+    <a
+        href={TRIPADVISOR.url}
+        rel="noopener noreferrer"
+        target="_blank"
+        class="rule-link mt-11 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
+    >
+        Read All {TRIPADVISOR.reviewCount} Reviews
+    </a>
+</section>

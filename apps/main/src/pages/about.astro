@@ -1,0 +1,274 @@
+---
+/**
+ * /about/ — the company page the header's "About Us" link lands on.
+ *
+ * The path is `/about/` rather than `/about-us/` because that is the URL the
+ * old WordPress site was indexed under (africanpolecatsafaris.com/about/), and
+ * this rebuild keeps the URLs it inherited — see the journal migration.
+ *
+ * Everything asserted here is checkable: Arusha, TATO membership, the
+ * Tripadvisor rating, "private only", and the community stops named in the
+ * impact section, which are days that actually appear in src/content/packages.ts
+ * (Shanga, Mto wa Mbu, Materuni). Nothing claims a conservation levy or a
+ * donation programme the operator has not told us about.
+ */
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import Newsletter from '../components/Newsletter.astro'
+import Reviews from '../components/Reviews.astro'
+import Partners from '../components/Partners.astro'
+import SectionHeading from '../components/SectionHeading.astro'
+import { SITE, CONTACT, TRIPADVISOR } from '../config'
+import { NAV } from '../content/home'
+
+/** Three claims the business can stand behind, in the design's card rhythm. */
+const PRINCIPLES = [
+    {
+        heading: 'Private, every time',
+        body: 'Nothing on this site is a group departure. Every itinerary we publish is one vehicle, one guide and your party — which is why the days, the lodges and the pace can all move before you travel, and on the morning itself.',
+    },
+    {
+        heading: 'Two places, properly',
+        body: 'Northern Tanzania and Zanzibar. We do not sell southern Africa, and we do not resell circuits we have not driven. The parks in our itineraries are the ones our guides work in week after week.',
+    },
+    {
+        heading: 'Our guides, not a roster',
+        body: 'Read the reviews and you will find them by name. The guide is the part of a safari that decides whether it was a good one, so it is the part we never subcontract to whoever is free that week.',
+    },
+]
+
+const IMPACT_POINTS = [
+    'Park and crater fees, paid in full for every day you are inside a gate — the largest single line in most of our quotes, and the money that funds Tanzania’s protected areas.',
+    'Shanga in Arusha, a social enterprise whose glassblowers, beaders and weavers are people with disabilities. It is a scheduled stop on several itineraries, not an upsell.',
+    'Mto wa Mbu, Materuni and the Karatu highlands — village and smallholder visits booked through the people who live there, on days built around them rather than a photo stop.',
+]
+
+const pageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: `About ${SITE.legalName}`,
+    description: `${SITE.legalName} is an owner-run safari operator based in Arusha, selling private, tailor-made journeys through northern Tanzania and Zanzibar.`,
+    url: 'https://africanpolecatsafaris.com/about/',
+}
+---
+
+<Layout
+    title="About Us — An Arusha safari company, private safaris only | Polecat Safaris"
+    description="African Polecat Safaris is an owner-run operator based in Arusha. We sell private, tailor-made safaris through northern Tanzania and Zanzibar — our own guides, our own vehicles, and no group departures."
+    preloadImage="/images/serengeti-migration-game-drive.jpg"
+    ogImage="/images/serengeti-migration-game-drive.jpg"
+    pageSchema={pageSchema}
+>
+    <Header />
+    <main>
+        {/* Page head. Copy left, photograph right — the operator's own vehicle
+            among the migration, which is the one image here that is theirs. */}
+        <section class="gutter flex flex-col items-center bg-cream pt-14 pb-16 lg:pt-20 lg:pb-24">
+            <div
+                class="shell flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16"
+            >
+                {/* `min-w-0` on both halves, and no `shrink-0`: two 50% columns
+                    plus the gap are wider than the shell, and an <img> flex item
+                    defaults to `min-width: auto` — its intrinsic 1600px — so
+                    without this the photograph bleeds past the gutter. */}
+                <div class="flex min-w-0 flex-col items-start gap-4 lg:w-1/2">
+                    <p
+                        class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase"
+                    >
+                        About Us
+                    </p>
+                    <h1
+                        class="font-display text-[36px] leading-[1.18] font-light text-ink lg:text-[52px] lg:leading-[1.12]"
+                    >
+                        A safari company from Arusha
+                    </h1>
+                    <p class="max-w-160 pt-2 text-[17px] leading-7.75 text-muted">
+                        {SITE.legalName} is a small, owner-run operator working out of Arusha, at
+                        the foot of Mount Meru and an hour from the gate of the northern circuit. We
+                        sell one thing: private safaris through northern Tanzania, and the Zanzibar
+                        days that so often follow them.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-4 pt-4">
+                        <a
+                            href={NAV.enquire.href}
+                            class="flex items-center justify-center bg-primary px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329]"
+                        >
+                            Start Planning
+                        </a>
+                        <a
+                            href="/safari-packages/"
+                            class="rule-link text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
+                        >
+                            See The Itineraries
+                        </a>
+                    </div>
+                </div>
+
+                <img
+                    src="/images/serengeti-migration-game-drive.jpg"
+                    alt="A Polecat Safaris game-drive vehicle among wildebeest during the migration"
+                    width="1600"
+                    height="1067"
+                    fetchpriority="high"
+                    decoding="async"
+                    class="aspect-[3/2] w-full min-w-0 object-cover lg:w-1/2"
+                />
+            </div>
+        </section>
+
+        {/* The story, in the journal's measure rather than the card grid. */}
+        <section class="gutter flex flex-col items-center bg-white pt-18 pb-18 lg:pt-24 lg:pb-24">
+            <div class="shell flex flex-col items-center">
+                <SectionHeading
+                    eyebrow="Our Story"
+                    heading="Built around the drive, not the brochure"
+                />
+                <div class="prose mt-9 max-w-180 lg:mt-11">
+                    <p>
+                        Arusha is where a northern-circuit safari begins, and being based here
+                        rather than in a sales office somewhere else is most of what makes our
+                        itineraries work. We know which gate opens early, which crater descent road
+                        is being graded, where the herds were yesterday and which lodge is worth the
+                        extra hour of driving to reach. That is local knowledge, and it has a
+                        shelf life of about a week.
+                    </p>
+                    <p>
+                        So the itineraries on this site are written the way we would drive them.
+                        Tarangire before the heat. A full day on the crater floor rather than a
+                        morning. Two nights in the central Serengeti before you move, because one
+                        night in the Serengeti is a transfer with a game drive attached. Where a day
+                        is a long one we say so, and where it can be broken differently we will
+                        break it differently for you.
+                    </p>
+                    <p>
+                        None of it is a group departure. Every safari we sell is private — your own
+                        guide, your own vehicle, your own pace — which is the only arrangement under
+                        which a guide can stop for two hours at a leopard kill because you wanted to
+                        stay. It costs more than a seat on a shared minibus, and it is the whole
+                        reason people come back to us.
+                    </p>
+                    <p>
+                        We are members of the <strong>Tanzania Association of Tour Operators</strong
+                        >, listed on SafariBookings, and rated {TRIPADVISOR.ratingValue} out of 5
+                        across {TRIPADVISOR.reviewCount} Tripadvisor reviews. Guests tend to name
+                        their guide in those reviews, which is the compliment we care about most.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        {/* Three principles. Same card treatment as the destination grid. */}
+        <section class="gutter flex flex-col items-center bg-cream pt-18 pb-18 lg:pt-24 lg:pb-26">
+            <SectionHeading
+                eyebrow="How We Work"
+                heading="What you can hold us to"
+                body="Three things that are true of every itinerary on this site, and that we would rather lose a booking than bend."
+            />
+            <ul
+                class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3"
+            >
+                {
+                    PRINCIPLES.map((principle) => (
+                        <li class="flex flex-col items-start gap-3.5 border-t-2 border-primary bg-white px-7 pt-8 pb-9">
+                            <h3 class="font-display text-[27px] leading-9 text-ink">
+                                {principle.heading}
+                            </h3>
+                            <p class="text-[15px] leading-6.75 text-muted">{principle.body}</p>
+                        </li>
+                    ))
+                }
+            </ul>
+        </section>
+
+        {/* #impact — the target of the homepage's "Learn More" button and of
+            the footer's "Our positive impact". Deliberately concrete: fees,
+            Shanga, the village days. No donation figure is claimed, because
+            none has been confirmed by the operator. */}
+        <section id="impact" class="flex scroll-mt-8 flex-col bg-primary lg:flex-row">
+            <div
+                class="flex flex-col items-start justify-center gap-5.5 px-6 py-16 md:px-10 lg:w-1/2 lg:px-27.5 lg:py-20"
+            >
+                <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-gold uppercase">
+                    Our Positive Impact
+                </p>
+                <h2
+                    class="font-display text-[36px] leading-[1.2] font-light tracking-[-0.008em] text-cream lg:text-[46px] lg:leading-14.5"
+                >
+                    Where the money actually goes
+                </h2>
+                <p class="text-[16px] leading-7.25 text-sage">
+                    Tread lightly, and pay the people whose ground you are on. In practice that is
+                    less romantic than it sounds and more useful:
+                </p>
+                <ul class="flex flex-col gap-4 pt-1">
+                    {
+                        IMPACT_POINTS.map((point) => (
+                            <li class="flex items-start gap-4">
+                                <span
+                                    class="mt-3 h-px w-6 shrink-0 bg-gold"
+                                    aria-hidden="true"
+                                />
+                                <p class="text-[15px] leading-7 text-sage">{point}</p>
+                            </li>
+                        ))
+                    }
+                </ul>
+                <p class="text-[14px] leading-6.5 text-sage-dim">
+                    We own no camps and no lodges. Every property in an itinerary is booked from its
+                    owner, and we will tell you who that is before you pay for it.
+                </p>
+            </div>
+            {/* Materuni, on the Kilimanjaro slopes — one of the village days
+                this section names, and a photograph that is actually of
+                Tanzania. It replaces `impact-community.webp`, which is San
+                people on a southern-African salt pan and has no business on
+                this site. Source is the Materuni journal post's hero, so it is
+                only 750×550; a larger original should replace it. */}
+            <img
+                src="/images/impact-materuni.webp"
+                alt="A waterfall in dense forest on the slopes above Materuni village, Kilimanjaro"
+                width="750"
+                height="550"
+                loading="lazy"
+                decoding="async"
+                class="h-75 w-full object-cover lg:h-auto lg:w-1/2 lg:self-stretch"
+            />
+        </section>
+
+        {/* Both of these are the homepage's own sections, reused. The wrappers
+            exist only to give the footer and the nav something to link to. */}
+        <div id="reviews" class="scroll-mt-8">
+            <Reviews />
+        </div>
+
+        <div id="partners" class="scroll-mt-8">
+            <Partners />
+        </div>
+
+        <section class="gutter flex flex-col items-center bg-cream pt-18 pb-18 lg:pt-22 lg:pb-24">
+            <SectionHeading
+                eyebrow="Next Step"
+                heading="Tell us roughly what you have in mind"
+                body="A rough month and a rough shape is enough to start. You will get a draft itinerary with real lodges and a real price, written by the people who would run it."
+            />
+            <div class="flex flex-wrap items-center justify-center gap-5 pt-9">
+                <a
+                    href={NAV.enquire.href}
+                    class="flex items-center justify-center bg-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329]"
+                >
+                    Enquire
+                </a>
+                <a
+                    href={CONTACT.phoneHref}
+                    class="flex items-center justify-center border border-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
+                >
+                    {CONTACT.phone}
+                </a>
+            </div>
+        </section>
+
+        <Newsletter />
+    </main>
+    <Footer />
+</Layout>

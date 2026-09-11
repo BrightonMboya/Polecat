@@ -1,0 +1,212 @@
+---
+/**
+ * The enquiry band at the foot of an itinerary. Ported from
+ * ItineraryEnquiry.astro in ~/web/kan_safaris — a short intro, then the fewest
+ * fields that let someone start a conversation.
+ *
+ * kan's form posts nowhere. This one posts to the same Web3Forms endpoint the
+ * /enquire page uses, with the itinerary's name carried along so the operator
+ * knows which trip the enquiry is about. It is deliberately shorter than the
+ * form on /enquire: this is the version for someone who has just finished
+ * reading the days and wants to say "this one, roughly then", and that page
+ * stays the place for a full brief.
+ */
+import type { SafariPackage } from '../content/packages'
+import { CONTACT, WEB3FORMS, whatsappLink } from '../config'
+
+interface Props {
+    pkg: SafariPackage
+}
+
+const { pkg } = Astro.props
+
+const whatsapp = whatsappLink(`Hello Polecat Safaris, I'm interested in the ${pkg.name}.`)
+
+const fields = [
+    {
+        id: 'enq-name',
+        name: 'name',
+        label: 'Your name',
+        type: 'text',
+        autocomplete: 'name',
+        required: true,
+    },
+    {
+        id: 'enq-email',
+        name: 'email',
+        label: 'Email',
+        type: 'email',
+        autocomplete: 'email',
+        required: true,
+    },
+    {
+        id: 'enq-travel',
+        name: 'travel',
+        label: 'Month you would travel',
+        type: 'text',
+        autocomplete: 'off',
+        required: true,
+    },
+    {
+        id: 'enq-travellers',
+        name: 'travellers',
+        label: 'How many of you',
+        type: 'text',
+        autocomplete: 'off',
+        required: false,
+    },
+]
+---
+
+<section id="enquire" class="gutter scroll-mt-16 bg-primary py-20 lg:py-25">
+    <div class="shell grid grid-cols-1 gap-12 lg:grid-cols-[24rem_1fr] lg:gap-20">
+        <div class="flex flex-col gap-5">
+            <h2
+                class="font-display text-[30px] leading-10 font-light tracking-[-0.014em] text-white lg:text-[38px] lg:leading-12"
+            >
+                Travel this one
+            </h2>
+            <p class="text-[15px] leading-7 text-sage">
+                Tell us roughly when, and we’ll come back with dates, the camps that are open and
+                what the {pkg.days}-day rate looks like for your party.
+            </p>
+            <p class="text-[14px] leading-6 text-sage-dim">
+                Or reach the team in Arusha directly — <a
+                    href={CONTACT.phoneHref}
+                    class="text-gold underline underline-offset-3">{CONTACT.phone}</a
+                > or <a
+                    href={whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-gold underline underline-offset-3">WhatsApp</a
+                >.
+            </p>
+        </div>
+
+        {/* `novalidate` so the messages below are ours rather than the browser's. */}
+        <form id={`itinerary-enquiry-${pkg.slug}`} class="flex flex-col gap-7" novalidate>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {
+                    fields.map((field) => (
+                        <p class="flex flex-col gap-2.5">
+                            <label
+                                class="text-[11px] leading-3.5 font-medium tracking-[0.2em] text-sage-dim uppercase"
+                                for={field.id}
+                            >
+                                {field.label}
+                            </label>
+                            <input
+                                class="border-b border-line-dark bg-transparent pb-3 text-[15px] leading-6 text-white transition-colors outline-none placeholder:text-sage-dim/50 focus:border-gold"
+                                id={field.id}
+                                type={field.type}
+                                name={field.name}
+                                autocomplete={field.autocomplete}
+                                required={field.required || undefined}
+                            />
+                        </p>
+                    ))
+                }
+            </div>
+
+            {/* Honeypot: hidden from people, irresistible to bots. */}
+            <input
+                type="checkbox"
+                name="botcheck"
+                class="hidden"
+                style="display:none"
+                tabindex="-1"
+                autocomplete="off"
+                aria-hidden="true"
+            />
+
+            <div class="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-7">
+                <button
+                    type="submit"
+                    class="flex shrink-0 items-center justify-center bg-white px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.18em] text-primary uppercase transition-colors hover:bg-cream disabled:opacity-60"
+                >
+                    Send My Dates
+                </button>
+                <p class="text-[13px] leading-5.5 text-sage-dim">
+                    We reply within one working day.
+                </p>
+            </div>
+
+            <p hidden data-enquiry-status class="text-[14px] leading-6 text-sage"></p>
+        </form>
+    </div>
+</section>
+
+<script
+    define:vars={{
+        formId: `itinerary-enquiry-${pkg.slug}`,
+        endpoint: WEB3FORMS.endpoint,
+        accessKey: WEB3FORMS.accessKey,
+        subject: WEB3FORMS.enquirySubject,
+        itinerary: pkg.name,
+        email: CONTACT.email,
+        whatsapp,
+    }}
+>
+    const form = document.getElementById(formId)
+    const status = form?.querySelector('[data-enquiry-status]')
+    const button = form?.querySelector('button[type="submit"]')
+
+    function show(message, ok) {
+        if (!status) return
+        status.innerHTML = message
+        status.hidden = false
+        status.style.color = ok ? 'var(--color-gold)' : '#F3B4A4'
+    }
+
+    const field = (name) => form?.elements.namedItem(name)
+
+    form?.addEventListener('submit', async (event) => {
+        event.preventDefault()
+
+        for (const name of ['name', 'email', 'travel']) {
+            const input = field(name)
+            if (input && !input.checkValidity()) {
+                show('Please fill in your name, a valid email address and a month.', false)
+                input.focus()
+                return
+            }
+        }
+
+        if (button) button.disabled = true
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({
+                    access_key: accessKey,
+                    subject,
+                    from_name: 'Polecat Safaris — itinerary page',
+                    replyto: field('email')?.value,
+                    botcheck: field('botcheck')?.checked ?? false,
+                    Name: field('name')?.value,
+                    Email: field('email')?.value,
+                    'Travel window': field('travel')?.value,
+                    Travellers: field('travellers')?.value || '—',
+                    Itinerary: itinerary,
+                    'Page URL': window.location.href,
+                }),
+            })
+            if (!response.ok) throw new Error(String(response.status))
+            form.reset()
+            show(
+                'Thank you — your enquiry is with the team in Arusha. You’ll hear back within one working day.',
+                true
+            )
+        } catch {
+            // Nothing else captures this enquiry, so the visitor has to be told
+            // it failed and handed a channel that works.
+            show(
+                `That didn’t go through. Please email <a href="mailto:${email}" style="color:inherit;text-decoration:underline">${email}</a> or <a href="${whatsapp}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">message us on WhatsApp</a> instead.`,
+                false
+            )
+        } finally {
+            if (button) button.disabled = false
+        }
+    })
+</script>

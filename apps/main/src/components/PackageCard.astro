@@ -1,0 +1,52 @@
+---
+/**
+ * One safari package card. Used by the homepage section and by the
+ * /safari-packages index, so the two can't drift apart.
+ */
+import type { SafariPackage } from '../content/packages'
+
+interface Props {
+    pkg: SafariPackage
+    /** Index pages load below the fold; the homepage section does too. */
+    loading?: 'lazy' | 'eager'
+    /**
+     * The homepage renders all ten cards and hides the four that aren't
+     * featured, so its route filter has something to reveal.
+     */
+    hidden?: boolean
+}
+
+const { pkg, loading = 'lazy', hidden = false } = Astro.props
+---
+
+<li
+    class="flex flex-col border border-line bg-white"
+    hidden={hidden}
+    data-routes={pkg.routes.join(' ')}
+    data-featured={pkg.featured ? 'true' : 'false'}
+>
+    <a href={`/safari-packages/${pkg.slug}`} class="group flex flex-1 flex-col">
+        <div class="overflow-hidden">
+            <img
+                src={pkg.image}
+                alt={pkg.imageAlt}
+                loading={loading}
+                decoding="async"
+                class="aspect-[428/306] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            />
+        </div>
+        <div class="flex flex-1 flex-col items-start gap-2.5 px-6 pt-6.5 pb-7.5">
+            <p class="text-[11px] leading-3.5 tracking-[0.16em] text-primary uppercase">
+                {pkg.region}
+            </p>
+            <h3 class="font-display text-[27px] leading-8.5 text-ink">
+                {pkg.name}
+            </h3>
+            <p class="flex flex-wrap items-center gap-2.5 pt-1.5 text-[13px] leading-4 text-muted">
+                <span>{pkg.duration}</span>
+                <span class="h-3 w-px shrink-0 bg-line" aria-hidden="true"></span>
+                <span>{pkg.price}</span>
+            </p>
+        </div>
+    </a>
+</li>

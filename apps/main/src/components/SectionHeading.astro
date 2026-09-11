@@ -1,0 +1,43 @@
+---
+interface Props {
+    /** Small letterspaced label above the heading. Omitted in some sections. */
+    eyebrow?: string
+    heading: string
+    /** Standfirst paragraph, centred under the heading. */
+    body?: string
+    align?: 'center' | 'start'
+}
+
+const { eyebrow, heading, body, align = 'center' } = Astro.props
+const centred = align === 'center'
+---
+
+<div class:list={['flex flex-col gap-3', centred ? 'items-center' : 'items-start']}>
+    {
+        eyebrow && (
+            <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
+                {eyebrow}
+            </p>
+        )
+    }
+    <h2
+        class:list={[
+            'font-display text-[34px] leading-[1.22] font-light text-ink lg:text-[44px] lg:leading-14',
+            centred && 'text-center',
+        ]}
+    >
+        {heading}
+    </h2>
+    {
+        body && (
+            <p
+                class:list={[
+                    'max-w-180 pt-2.5 text-[16px] leading-7.25 text-muted',
+                    centred && 'text-center',
+                ]}
+            >
+                {body}
+            </p>
+        )
+    }
+</div>

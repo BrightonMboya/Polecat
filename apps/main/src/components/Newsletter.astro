@@ -1,0 +1,132 @@
+---
+import { NEWSLETTER } from '../content/home'
+import { WEB3FORMS } from '../config'
+---
+
+<section class="gutter flex items-center justify-center bg-primary py-16 lg:py-23">
+    <div
+        class="shell flex flex-col items-start justify-between gap-10 lg:flex-row lg:items-center lg:gap-20"
+    >
+        <div class="flex flex-col items-start gap-4 lg:w-140 lg:shrink-0">
+            <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-gold uppercase">
+                {NEWSLETTER.eyebrow}
+            </p>
+            <h2
+                class="font-display text-[34px] leading-[1.24] font-light text-cream lg:text-[42px] lg:leading-13"
+            >
+                {NEWSLETTER.heading}
+            </h2>
+            <p class="max-w-117.5 text-[16px] leading-7.25 text-sage">{NEWSLETTER.body}</p>
+        </div>
+
+        <form
+            id="newsletter-form"
+            class="flex w-full flex-col items-start gap-5.5 lg:w-130 lg:shrink-0"
+            novalidate
+        >
+            {/* Honeypot — Web3Forms drops any submission where this is filled. */}
+            <input
+                type="checkbox"
+                name="botcheck"
+                class="hidden"
+                style="display:none"
+                tabindex="-1"
+                autocomplete="off"
+            />
+
+            <div class="flex w-full items-center justify-between gap-4 border-b border-[#4a6359] pb-4">
+                <label for="newsletter-email" class="sr-only">{NEWSLETTER.placeholder}</label>
+                <input
+                    id="newsletter-email"
+                    name="email"
+                    type="email"
+                    required
+                    autocomplete="email"
+                    placeholder={NEWSLETTER.placeholder}
+                    class="w-full bg-transparent text-[16px] leading-5.5 text-cream placeholder:text-sage-dim focus:outline-none"
+                />
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 18 18"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4.5 w-4.5 shrink-0"
+                    aria-hidden="true"
+                >
+                    <path d="M3 9h11M9.5 4.5L14 9l-4.5 4.5" fill="none" stroke="#8FA79C" stroke-width="1.2"></path>
+                </svg>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-5">
+                <button
+                    type="submit"
+                    class="flex cursor-pointer items-center justify-center bg-cream px-8.5 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-70"
+                >
+                    {NEWSLETTER.submit}
+                </button>
+                <p class="w-65 text-[12px] leading-4.5 text-sage-dim">{NEWSLETTER.note}</p>
+            </div>
+
+            {/* Both states are announced, so a screen reader hears the outcome
+                without the focus moving anywhere. */}
+            <p
+                data-newsletter-status
+                role="status"
+                aria-live="polite"
+                class="hidden text-[13px] leading-5 text-cream"
+            >
+            </p>
+        </form>
+    </div>
+</section>
+
+<script define:vars={{ endpoint: WEB3FORMS.endpoint, accessKey: WEB3FORMS.accessKey, subject: WEB3FORMS.newsletterSubject }}>
+    const form = document.getElementById('newsletter-form')
+    const status = form?.querySelector('[data-newsletter-status]')
+    const button = form?.querySelector('button[type="submit"]')
+
+    function show(message, ok) {
+        if (!status) return
+        status.textContent = message
+        status.classList.remove('hidden')
+        status.style.color = ok ? 'var(--color-gold)' : '#F3B7A6'
+    }
+
+    form?.addEventListener('submit', async (event) => {
+        event.preventDefault()
+
+        const email = form.elements.namedItem('email')
+        if (!email?.value || !email.checkValidity()) {
+            show('Please enter a valid email address.', false)
+            email?.focus()
+            return
+        }
+
+        if (button) button.disabled = true
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({
+                    access_key: accessKey,
+                    subject,
+                    from_name: 'Polecat Safaris — main site',
+                    replyto: email.value,
+                    botcheck: form.elements.namedItem('botcheck')?.checked ?? false,
+                    Email: email.value,
+                    'Page URL': window.location.href,
+                }),
+            })
+            if (!response.ok) throw new Error(String(response.status))
+            form.reset()
+            show('Thank you — you’re on the list.', true)
+        } catch {
+            // Nothing else captures this address, so the visitor has to be told
+            // it did not go through rather than shown a false confirmation.
+            show('That didn’t go through. Please try again in a moment.', false)
+        } finally {
+            if (button) button.disabled = false
+        }
+    })
+</script>

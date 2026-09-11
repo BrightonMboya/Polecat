@@ -1,0 +1,351 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens for the main site. Sourced from the "Polecat" artboard in the
+ * Paper file "Atlas Safaris" — every value below is a colour that actually
+ * appears in that design, not a reinterpretation of it.
+ *
+ * `primary` / `ink` / `muted` are the same brand values the landing page uses
+ * (apps/marketing/polecat-lp/src/styles/global.css), so the two sites read as
+ * one brand. The rest — cream, stone, gold, and the on-dark greens — are new
+ * here because the landing page never needed a full editorial surface set.
+ *
+ * The two page grounds are the off-whites from ~/web/kan_safaris rather than
+ * the Paper artboard's warm cream and greige: the design's grounds carried
+ * enough khaki to read as a colour of their own, and the photography is what
+ * should be supplying the warmth on this site.
+ *
+ * Contrast, for the pairings the design actually uses:
+ *   muted   #54595F on cream  #FCFCFA   6.88:1  ✅ AA
+ *   ink     #253746 on cream  #FCFCFA  11.93:1  ✅ AA
+ *   primary #0C4C40 on cream  #FCFCFA   9.63:1  ✅ AA
+ *   muted   #54595F on stone  #F3F3F0   6.36:1  ✅ AA
+ *   primary #0C4C40 on stone  #F3F3F0   8.90:1  ✅ AA
+ *   sage    #C3D0CA on primary #0C4C40   7.31:1  ✅ AA — body copy on green
+ *   gold    #F1CA64 on primary #0C4C40   8.65:1  ✅ AA — eyebrows on green
+ *   sage-dim #A9C0B6 on primary          5.16:1  ✅ AA — small print only
+ */
+@theme {
+    --color-primary: #0c4c40;
+    --color-ink: #253746;
+    --color-muted: #54595f;
+
+    /* Page grounds, and the only two tokens the backgrounds use. `cream` is
+       the default section ground, white the editorial break, and `stone` the
+       alternating band and the fill behind the itinerary route maps. Both are
+       kan_safaris' off-whites — neither carries a hue of its own, so the
+       photography and the green are the only colour on a light page. */
+    --color-cream: #fcfcfa;
+    --color-stone: #f3f3f0;
+
+    /* Hairlines: `line` on light grounds, `line-dark` on the green ones. */
+    --color-line: #dcd5c6;
+    --color-line-dark: #4a6359;
+
+    /* The single accent. Used for star ratings and eyebrow labels on green —
+       never behind dark text and never as a fill under white text. */
+    --color-gold: #f1ca64;
+
+    /* Text colours for the green sections. */
+    --color-sage: #c3d0ca;
+    --color-sage-dim: #a9c0b6;
+
+    --font-display: 'Cormorant Garamond', ui-serif, Georgia, 'Times New Roman', serif;
+    --font-body: 'Karla', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/*
+ * These belong in `base`, not at the top level: unlayered CSS outranks every
+ * `@layer`, so an unlayered `a { color: inherit }` would quietly beat every
+ * Tailwind text-* utility on a link — which is most of the buttons on this
+ * page.
+ */
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        font-family: var(--font-body);
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+        background: var(--color-cream);
+        color: var(--color-muted);
+    }
+
+    /*
+     * The design draws its links and buttons as a label with a rule beside it
+     * rather than an underline, so the underline is suppressed globally and
+     * the `.rule-link` pattern below supplies the affordance. The rule grows
+     * on hover — the only motion anywhere on the page.
+     */
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+}
+
+@utility rule-link {
+    display: inline-flex;
+    align-items: center;
+    gap: --spacing(2.5);
+
+    &::after {
+        content: '';
+        display: block;
+        width: --spacing(7);
+        height: 1px;
+        background: currentColor;
+        transition: width 200ms ease;
+    }
+
+    &:hover::after {
+        width: --spacing(11);
+    }
+}
+
+@layer base {
+    /* Keyboard focus has to stay visible even though links carry no underline. */
+    :focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 3px;
+    }
+}
+
+/*
+ * The page's single horizontal measure. The design is drawn at 1440px with a
+ * 52px gutter, giving a 1336px content column; below that the gutter tightens
+ * so small screens don't lose half their width to margin.
+ */
+@utility shell {
+    width: 100%;
+    max-width: --spacing(334);
+    margin-inline: auto;
+}
+
+@utility gutter {
+    padding-inline: --spacing(6);
+
+    @media (width >= 48rem) {
+        padding-inline: --spacing(10);
+    }
+
+    @media (width >= 64rem) {
+        padding-inline: --spacing(13);
+    }
+}
+
+/*
+ * The journal bodies came out of WordPress as plain semantic HTML with no
+ * classes of their own (see src/content.config.ts), so everything below is
+ * element styling scoped to `.prose`. It sits in the `components` layer so a
+ * utility on the wrapper still wins.
+ *
+ * Two habits of the original copy are worth knowing about:
+ *   - every h2 is wrapped in <strong> and set in capitals. The wrapper is
+ *     neutralised rather than stripped, so the display face stays light.
+ *   - the tables use spanning header rows, which is why the bodies are HTML
+ *     and not Markdown. They scroll inside their own box on small screens.
+ */
+@layer components {
+    .prose {
+        font-size: 17px;
+        line-height: 1.87;
+        color: var(--color-muted);
+    }
+
+    .prose > * + * {
+        margin-top: --spacing(5.5);
+    }
+
+    .prose h2,
+    .prose h3,
+    .prose h4 {
+        font-family: var(--font-display);
+        font-weight: 300;
+        color: var(--color-ink);
+        text-wrap: balance;
+    }
+
+    /* The headings arrive as <h2><strong>…</strong></h2>. */
+    .prose :is(h2, h3, h4) strong {
+        font-weight: inherit;
+    }
+
+    .prose h2 {
+        font-size: 32px;
+        line-height: 1.2;
+        letter-spacing: 0.01em;
+    }
+
+    .prose h3 {
+        font-size: 25px;
+        line-height: 1.28;
+    }
+
+    .prose h4 {
+        font-size: 20px;
+        line-height: 1.35;
+        font-family: var(--font-body);
+        font-weight: 500;
+        letter-spacing: 0.02em;
+    }
+
+    .prose > :is(h2, h3, h4) {
+        margin-top: --spacing(11);
+    }
+
+    .prose > h2 + *,
+    .prose > h3 + *,
+    .prose > h4 + * {
+        margin-top: --spacing(4);
+    }
+
+    .prose strong {
+        font-weight: 600;
+        color: var(--color-ink);
+    }
+
+    .prose a {
+        color: var(--color-primary);
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+    }
+
+    .prose :is(ul, ol) {
+        padding-left: --spacing(5.5);
+        display: flex;
+        flex-direction: column;
+        gap: --spacing(2.5);
+    }
+
+    .prose ul {
+        list-style: none;
+    }
+
+    .prose ul > li {
+        position: relative;
+    }
+
+    /* A hairline rule instead of a bullet — the same mark the buttons use. */
+    .prose ul > li::before {
+        content: '';
+        position: absolute;
+        top: 0.95em;
+        left: --spacing(-5.5);
+        width: --spacing(3);
+        height: 1px;
+        background: var(--color-primary);
+    }
+
+    .prose ol {
+        list-style: decimal;
+    }
+
+    .prose ol > li::marker {
+        color: var(--color-primary);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .prose blockquote {
+        border-left: 2px solid var(--color-primary);
+        padding: --spacing(1) 0 --spacing(1) --spacing(6);
+        font-family: var(--font-display);
+        font-size: 22px;
+        line-height: 1.55;
+        color: var(--color-ink);
+    }
+
+    .prose blockquote p + p {
+        margin-top: --spacing(3);
+    }
+
+    /* WordPress's `luxury-callout` — the operator's own asides. */
+    .prose aside {
+        background: #fff;
+        border-top: 2px solid var(--color-primary);
+        padding: --spacing(7) --spacing(7) --spacing(7.5);
+        font-size: 16px;
+        line-height: 1.8;
+    }
+
+    .prose aside > * + * {
+        margin-top: --spacing(3.5);
+    }
+
+    .prose aside blockquote {
+        border-left: 0;
+        padding: 0;
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.8;
+        color: var(--color-muted);
+    }
+
+    .prose figure {
+        display: flex;
+        flex-direction: column;
+        gap: --spacing(3);
+    }
+
+    .prose img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .prose figcaption {
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--color-muted);
+    }
+
+    /* Wide tables scroll in their own box rather than the page. */
+    .prose table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        border-collapse: collapse;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .prose :is(th, td) {
+        border: 1px solid var(--color-line);
+        padding: --spacing(3.5) --spacing(4);
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .prose th {
+        background: #fff;
+        color: var(--color-ink);
+        font-weight: 600;
+    }
+
+    /* First row and full-width spanning rows read as headers in these tables. */
+    .prose tr:first-child td,
+    .prose td[colspan] {
+        background: #fff;
+        color: var(--color-ink);
+    }
+
+    .prose :is(th, td) p {
+        margin: 0;
+    }
+
+    .prose :is(th, td) p + p {
+        margin-top: --spacing(2);
+    }
+
+    @media (width >= 64rem) {
+        .prose {
+            font-size: 18px;
+        }
+
+        .prose h2 {
+            font-size: 38px;
+        }
+    }
+}

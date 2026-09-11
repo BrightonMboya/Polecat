@@ -1,0 +1,57 @@
+---
+/**
+ * Three routes, not three countries. Each card is a link to the itineraries
+ * section's route filter, so the hrefs have to match the anchor ids that
+ * Packages.astro renders.
+ */
+import { DESTINATIONS } from '../content/home'
+---
+
+<section class="gutter flex flex-col items-center bg-cream pb-20 lg:pb-29.5">
+    <div class="flex max-w-180 flex-col items-center gap-3">
+        <h2
+            class="font-display text-center text-[34px] leading-[1.22] font-light text-ink lg:text-[44px] lg:leading-14"
+        >
+            {DESTINATIONS.heading}
+        </h2>
+        <p class="pt-1 text-center text-[16px] leading-7.25 text-muted">{DESTINATIONS.body}</p>
+    </div>
+
+    <ul class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3">
+        {
+            DESTINATIONS.items.map((destination) => (
+                <li class="flex flex-col">
+                    <a
+                        href={`#route-${destination.route}`}
+                        class="group flex flex-1 flex-col"
+                        aria-label={`See the ${destination.name} itineraries`}
+                    >
+                        <div class="overflow-hidden">
+                            <img
+                                src={destination.image}
+                                alt={destination.imageAlt}
+                                loading="lazy"
+                                decoding="async"
+                                class="aspect-[428/470] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                            />
+                        </div>
+                        <div class="flex flex-1 flex-col items-start gap-3 bg-white px-6.5 pt-7 pb-8">
+                            <h3 class="font-display text-[30px] leading-9.5 text-ink">
+                                {destination.name}
+                            </h3>
+                            <p class="flex-1 text-[15px] leading-6.75 text-muted">
+                                {destination.blurb}
+                            </p>
+                            <span
+                                class="rule-link text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
+                                aria-hidden="true"
+                            >
+                                See These Itineraries
+                            </span>
+                        </div>
+                    </a>
+                </li>
+            ))
+        }
+    </ul>
+</section>

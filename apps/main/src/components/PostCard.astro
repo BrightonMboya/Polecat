@@ -1,0 +1,55 @@
+---
+/**
+ * One journal card. Shared by /blogs/, the category archives and the related
+ * posts strip, so those three can't drift apart.
+ */
+import { categoryLabel, formatDate, isoDate, primaryCategory, type Post } from '../content/journal'
+
+interface Props {
+    post: Post
+    loading?: 'lazy' | 'eager'
+}
+
+const { post, loading = 'lazy' } = Astro.props
+const { title, description, heroImage, heroImageAlt, pubDate } = post.data
+const category = primaryCategory(post)
+---
+
+<li class="flex flex-col bg-white">
+    <a href={`/${post.id}/`} class="group flex flex-1 flex-col">
+        {
+            heroImage && (
+                <div class="overflow-hidden">
+                    <img
+                        src={heroImage}
+                        alt={heroImageAlt || ''}
+                        loading={loading}
+                        decoding="async"
+                        class="aspect-[428/286] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                </div>
+            )
+        }
+        <div class="flex flex-1 flex-col items-start gap-3 px-6 pt-6.5 pb-7.5">
+            <p class="flex items-center gap-2.5">
+                <span class="text-[11px] leading-3.5 tracking-[0.16em] text-primary uppercase">
+                    {categoryLabel(category)}
+                </span>
+                <span class="h-2.75 w-px shrink-0 bg-line" aria-hidden="true"></span>
+                <time datetime={isoDate(pubDate)} class="text-[12px] leading-3.5 text-muted">
+                    {formatDate(pubDate)}
+                </time>
+            </p>
+            <h3 class="font-display text-[25px] leading-8 font-light text-ink">
+                {title}
+            </h3>
+            <p class="flex-1 text-[15px] leading-6.75 text-muted">{description}</p>
+            <span
+                class="rule-link pt-1 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
+                aria-hidden="true"
+            >
+                Read More
+            </span>
+        </div>
+    </a>
+</li>

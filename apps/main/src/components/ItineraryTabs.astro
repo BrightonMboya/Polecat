@@ -1,0 +1,88 @@
+---
+/**
+ * The section bar under an itinerary's hero. Ported from ItineraryTabs.astro
+ * in ~/web/kan_safaris — sticks to the top of the viewport, scrolls sideways
+ * rather than wrapping when the labels outrun the width.
+ *
+ * kan marks the first tab active and leaves it there. Here the active tab
+ * follows the scroll position instead, because a bar that stays pinned while
+ * you read is claiming to say where you are.
+ *
+ * `tabs` is filtered by the page: an itinerary without FAQs has no Questions
+ * section to point at.
+ */
+interface Props {
+    tabs: { label: string; href: string }[]
+}
+
+const { tabs } = Astro.props
+---
+
+<nav
+    id="itinerary-tabs"
+    class="gutter sticky top-0 z-20 flex w-full gap-9.5 overflow-x-auto border-b border-line bg-cream max-sm:gap-6.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    aria-label="Sections of this itinerary"
+>
+    {
+        tabs.map((tab) => (
+            <a
+                href={tab.href}
+                data-tab={tab.href}
+                aria-current="false"
+                class="itab flex shrink-0 items-center border-b-2 border-transparent py-5.5 text-[12px] leading-4 tracking-[0.18em] text-muted uppercase transition-colors hover:text-ink"
+            >
+                {tab.label}
+            </a>
+        ))
+    }
+</nav>
+
+<style>
+    .itab[aria-current='true'] {
+        font-weight: 500;
+        color: var(--color-ink);
+        border-bottom-color: var(--color-primary);
+    }
+</style>
+
+<script>
+    const bar = document.getElementById('itinerary-tabs')
+
+    if (bar) {
+        const tabs = Array.from(bar.querySelectorAll<HTMLAnchorElement>('[data-tab]'))
+        const sections = tabs
+            .map((tab) => document.querySelector<HTMLElement>(tab.dataset.tab ?? ''))
+            .filter((section): section is HTMLElement => section != null)
+
+        const mark = (id: string) => {
+            for (const tab of tabs) {
+                const active = tab.dataset.tab === `#${id}`
+                tab.setAttribute('aria-current', active ? 'true' : 'false')
+                // Keep the active tab in view when the bar has scrolled sideways.
+                if (active) tab.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+            }
+        }
+
+        /*
+         * The section that owns the bar is the last one whose top has passed
+         * under it — computed from the entries rather than taking the first
+         * intersecting one, which flickers between neighbours on a fast
+         * scroll. The root margin pulls the trigger line down to just below
+         * the bar itself.
+         */
+        const observer = new IntersectionObserver(
+            () => {
+                const line = bar.getBoundingClientRect().bottom + 1
+                let current = sections[0]
+                for (const section of sections) {
+                    if (section.getBoundingClientRect().top <= line) current = section
+                }
+                if (current) mark(current.id)
+            },
+            { rootMargin: '-15% 0px -70% 0px', threshold: [0, 0.25, 0.5, 1] }
+        )
+
+        for (const section of sections) observer.observe(section)
+        if (sections[0]) mark(sections[0].id)
+    }
+</script>

@@ -14,3 +14,6 @@ pnpm-debug.log*
 .env.production
 # macOS
 .DS_Store
+
+# Vendored from node_modules by apps/main/scripts/vendor-maplibre.mjs
+apps/main/public/vendor/

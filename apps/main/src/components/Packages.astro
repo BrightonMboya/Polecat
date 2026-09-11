@@ -1,0 +1,131 @@
+---
+/**
+ * The itineraries section, and the only place on the homepage that filters.
+ *
+ * The pills below, and the footer's `/#route-<tag>` links, drive it through
+ * the hash, so all ten itineraries are in the markup and the filter shows the
+ * ones that match. With no hash — and with no JavaScript — the section is what
+ * it always was: the six featured cards, the other four carrying `hidden`.
+ */
+import SectionHeading from './SectionHeading.astro'
+import PackageCard from './PackageCard.astro'
+import { PACKAGES } from '../content/home'
+import { ROUTE_LABELS, type RouteTag } from '../content/packages'
+
+const routes = Object.keys(ROUTE_LABELS) as RouteTag[]
+---
+
+<section
+    id="safari-packages"
+    class="gutter flex scroll-mt-8 flex-col items-center bg-cream pt-20 pb-20 lg:pt-27 lg:pb-28.5"
+>
+    <SectionHeading heading={PACKAGES.heading} body={PACKAGES.body} />
+
+    {/* Anchors rather than buttons: the destination cards, and any link from
+        another page, drive this through the hash. */}
+    <nav
+        id="route-filter"
+        class="flex flex-wrap items-center justify-center gap-2.5 pt-8 lg:pt-9"
+        aria-label="Filter itineraries by route"
+    >
+        <a
+            href="#safari-packages"
+            data-route="all"
+            aria-current="true"
+            class="route-pill border border-line px-5 py-2.5 text-[11px] leading-4 font-medium tracking-[0.18em] text-muted uppercase transition-colors hover:border-primary hover:text-primary"
+        >
+            All Itineraries
+        </a>
+        {
+            routes.map((route) => (
+                <a
+                    id={`route-${route}`}
+                    href={`#route-${route}`}
+                    data-route={route}
+                    aria-current="false"
+                    class="route-pill border border-line px-5 py-2.5 text-[11px] leading-4 font-medium tracking-[0.18em] text-muted uppercase transition-colors hover:border-primary hover:text-primary"
+                >
+                    {ROUTE_LABELS[route]}
+                </a>
+            ))
+        }
+    </nav>
+
+    <p id="route-count" hidden class="pt-5 text-[13px] leading-5 text-muted" aria-live="polite"></p>
+
+    <ul
+        id="package-grid"
+        class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-11.5 lg:grid-cols-3"
+    >
+        {PACKAGES.all.map((pkg) => <PackageCard pkg={pkg} hidden={!pkg.featured} />)}
+    </ul>
+
+    <div class="flex w-full justify-center pt-11 lg:pt-14.5">
+        <a
+            href={PACKAGES.cta.href}
+            class="flex items-center justify-center border border-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
+        >
+            {PACKAGES.cta.label}
+        </a>
+    </div>
+</section>
+
+{/* A card's own `display:flex` would beat a utility class, so hiding is done
+    with the attribute and this one rule. Global because the cards belong to
+    PackageCard, not to this component's scope. */}
+<style is:global>
+    #package-grid > li[hidden] {
+        display: none;
+    }
+
+    #route-filter .route-pill[aria-current='true'] {
+        border-color: var(--color-primary);
+        background: var(--color-primary);
+        color: #fff;
+    }
+</style>
+
+<script>
+    const ROUTES = ['northern-circuit', 'trekking', 'zanzibar']
+
+    const filter = document.getElementById('route-filter')
+    const grid = document.getElementById('package-grid')
+    const count = document.getElementById('route-count')
+
+    if (filter && grid && count) {
+        const pills = Array.from(filter.querySelectorAll<HTMLAnchorElement>('[data-route]'))
+        const cards = Array.from(grid.querySelectorAll<HTMLLIElement>('li[data-routes]'))
+
+        const routeFromHash = () => {
+            const match = /^#route-(.+)$/.exec(window.location.hash)
+            return match && ROUTES.includes(match[1]) ? match[1] : 'all'
+        }
+
+        const apply = (route: string) => {
+            let shown = 0
+
+            for (const card of cards) {
+                const matches =
+                    route === 'all'
+                        ? card.dataset.featured === 'true'
+                        : (card.dataset.routes ?? '').split(' ').includes(route)
+                card.hidden = !matches
+                if (matches) shown += 1
+            }
+
+            for (const pill of pills) {
+                pill.setAttribute('aria-current', pill.dataset.route === route ? 'true' : 'false')
+            }
+
+            const label = pills.find((pill) => pill.dataset.route === route)?.textContent?.trim()
+            count.hidden = route === 'all'
+            count.textContent =
+                route === 'all'
+                    ? ''
+                    : `Showing ${shown} ${shown === 1 ? 'itinerary' : 'itineraries'} on the ${label} route.`
+        }
+
+        apply(routeFromHash())
+        window.addEventListener('hashchange', () => apply(routeFromHash()))
+    }
+</script>

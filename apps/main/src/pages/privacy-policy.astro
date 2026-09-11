@@ -1,0 +1,188 @@
+---
+/**
+ * /privacy-policy/ — the one legal page this site has, and the only legal link
+ * in the footer.
+ *
+ * ⚠️ BEFORE LAUNCH. This is an accurate description of what the site actually
+ * does — the two forms, Web3Forms as the only processor, Google Fonts as the
+ * only other third party, and no analytics or advertising tags of any kind on
+ * this origin. It is NOT legal advice, and two things still need a human:
+ *   1. The registered company name, address and registration number, marked
+ *      [PLACEHOLDER] below.
+ *   2. A review by someone qualified on Tanzania's Personal Data Protection
+ *      Act 2022 and, for UK/EU visitors, the UK GDPR and GDPR.
+ *
+ * If a tag manager, Meta pixel or analytics script is ever added to this app,
+ * §4 becomes wrong the same day — and a cookie banner probably becomes
+ * necessary. The landing page (apps/marketing/polecat-lp) already carries
+ * Google Ads tags and has its own, separate policy at /confidentialite.
+ */
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import { SITE, CONTACT } from '../config'
+
+/** Bump this whenever the text below changes. */
+const updated = '8 September 2026'
+---
+
+<Layout
+    title="Privacy Policy | Polecat Safaris"
+    description="How African Polecat Safaris handles the details you give us through this website — what we collect, why, who processes it, and how to have it deleted."
+>
+    <Header />
+    <main class="gutter flex flex-col items-center bg-cream pt-14 pb-20 lg:pt-20 lg:pb-26">
+        <div class="shell flex w-full max-w-180 flex-col items-start">
+            <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
+                Legal
+            </p>
+            <h1
+                class="font-display mt-4 text-[36px] leading-[1.18] font-light text-ink lg:text-[48px] lg:leading-[1.14]"
+            >
+                Privacy policy
+            </h1>
+            <p class="mt-3 text-[13px] leading-5 text-muted">Last updated {updated}</p>
+
+            <div class="prose mt-9 lg:mt-11">
+                <h2>1. Who we are</h2>
+                <p>
+                    This website is operated by {SITE.legalName} (“we”, “us”), a tour operator based
+                    in {SITE.city}. Registered name, address and registration number:
+                    <strong>[PLACEHOLDER — to be completed before launch]</strong>. For anything
+                    about your data, write to
+                    <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> or call
+                    <a href={CONTACT.phoneHref}>{CONTACT.phone}</a>.
+                </p>
+
+                <h2>2. What we collect</h2>
+                <p>We only hold what you type into one of the two forms on this site.</p>
+                <ul>
+                    <li>
+                        <strong>Enquiry form</strong> (<a href="/enquire/">/enquire/</a>) — your
+                        name, email address, phone or WhatsApp number if you give one, the month you
+                        want to travel, how many of you there are, the itinerary you are interested
+                        in, and any notes you add. The address of the page you submitted from is
+                        sent with it.
+                    </li>
+                    <li>
+                        <strong>Newsletter sign-up</strong> — your email address, and nothing else.
+                    </li>
+                    <li>
+                        <strong>Messages you send us</strong> — the content of any email, phone call
+                        or WhatsApp conversation, and the contact details attached to it.
+                    </li>
+                </ul>
+                <p>
+                    We do not ask for passport details, dates of birth or payment details through
+                    this website. If a booking reaches the point of needing them, we will collect
+                    them directly and tell you why at the time.
+                </p>
+
+                <h2>3. Why we hold it, and on what basis</h2>
+                <ul>
+                    <li>
+                        <strong>To answer your enquiry and quote for a safari.</strong> This is
+                        pre-contractual: you asked us for something and we cannot answer without it.
+                    </li>
+                    <li>
+                        <strong>To send the newsletter</strong>, where you asked for it. That is
+                        consent, and you can withdraw it from the unsubscribe link in any issue or
+                        by emailing us.
+                    </li>
+                    <li>
+                        <strong>To keep our own records</strong> of quotes given and trips run,
+                        which is our legitimate interest as a business and, for booked travel, a
+                        legal and accounting obligation.
+                    </li>
+                </ul>
+                <p>
+                    We do not sell your details, we do not rent them, and we do not pass them to
+                    anyone for their own marketing.
+                </p>
+
+                <h2>4. Cookies and tracking on this site</h2>
+                <p>
+                    <strong>This site sets no cookies of its own and carries no analytics,
+                    advertising or social-media tracking scripts.</strong> There is nothing to
+                    consent to, which is why you have not been shown a banner. Two third parties are
+                    contacted by your browser when you use the site:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Google Fonts</strong> serves the two typefaces the pages are set in.
+                        Your browser requests the font files from Google’s servers, which means
+                        Google receives your IP address and the page you were on. No cookie is set.
+                    </li>
+                    <li>
+                        <strong>Web3Forms</strong> receives a form submission only at the moment you
+                        press the button, and only the fields listed in §2.
+                    </li>
+                </ul>
+                <p>
+                    Our advertising landing page is a separate site on a separate address and
+                    <em>does</em> carry Google Ads tags. It has its own policy, linked from that page.
+                </p>
+
+                <h2>5. Who else sees it</h2>
+                <ul>
+                    <li>
+                        <strong>Web3Forms</strong> (web3forms.com) — the service that turns a form
+                        submission into an email to our inbox. It is the only processor of form data.
+                    </li>
+                    <li>
+                        <strong>Our email provider</strong>, which stores the resulting message in
+                        the {CONTACT.email} inbox.
+                    </li>
+                    <li>
+                        <strong>Meta</strong>, if you choose to contact us on WhatsApp — that
+                        conversation is subject to WhatsApp’s own terms as well as this policy.
+                    </li>
+                    <li>
+                        <strong>The lodges, camps, airlines and park authorities</strong> named in
+                        your itinerary, but only once you have confirmed a booking and only what
+                        they need to hold it.
+                    </li>
+                </ul>
+                <p>
+                    Some of these are outside Tanzania, so your details may be stored in the United
+                    States or the European Union.
+                </p>
+
+                <h2>6. How long we keep it</h2>
+                <p>
+                    Enquiries that do not turn into a booking: up to three years, because safari
+                    planning is slow and people come back. Booked trips: seven years, which is what
+                    our accounting and insurance obligations require. Newsletter subscribers: until
+                    you unsubscribe.
+                </p>
+
+                <h2>7. Your rights</h2>
+                <p>
+                    You can ask us for a copy of what we hold about you, ask us to correct it, ask
+                    us to delete it, or tell us to stop using it for marketing. Email
+                    <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> and we will answer
+                    within 30 days. There is nothing to pay and you do not need to give a reason to
+                    unsubscribe or to be deleted.
+                </p>
+                <p>
+                    If you are in the United Kingdom or the European Economic Area you also have the
+                    right to complain to your national data protection authority.
+                </p>
+
+                <h2>8. Changes</h2>
+                <p>
+                    If we change how any of this works — a new form, a new processor, any tracking
+                    at all — we will change this page and move the date at the top of it.
+                </p>
+            </div>
+
+            <a
+                href="/enquire/"
+                class="rule-link mt-12 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
+            >
+                Back To The Enquiry Form
+            </a>
+        </div>
+    </main>
+    <Footer />
+</Layout>
