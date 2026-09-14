@@ -43,7 +43,6 @@ export const GET: APIRoute = async ({ site }) => {
             priority: '0.7',
             changefreq: 'monthly',
         })),
-        { path: '/privacy-policy/', priority: '0.2', changefreq: 'yearly' },
         ...categories.map((category) => ({
             path: `/category/${category.slug}/`,
             lastmod: category.posts[0]?.data.updatedDate,

@@ -1,33 +1,19 @@
 ---
 import Wordmark from './Wordmark.astro'
-import { FOOTER_COLUMNS, FOOTER_LEGAL } from '../content/home'
+import { FOOTER_COLUMNS } from '../content/home'
 import { SITE, CONTACT, SOCIAL, whatsappLink } from '../config'
-import { getCategories } from '../content/journal'
 
 const year = new Date().getFullYear()
 
 /*
- * The Journal column, built from the categories that actually have posts
- * rather than hardcoded. /category/[category].astro only builds a page for a
- * category with posts in it, so a fixed list here would 404 the day a category
- * emptied — which is exactly what the old "Camps and lodges" link did.
+ * Safaris · Where We Travel · Polecat Safaris.
  *
- * Three, biggest first, which is the order getCategories already returns.
+ * There was a fourth, Journal, built at build time from the categories that
+ * actually had posts. It is gone by request. The journal itself is untouched —
+ * /blogs/ and the category pages still build, they are just no longer linked
+ * from here.
  */
-const categories = (await getCategories()).slice(0, 3)
-const journalColumn = {
-    heading: 'Journal',
-    links: [
-        { label: 'All stories', href: '/blogs/' },
-        ...categories.map((category) => ({
-            label: category.label,
-            href: `/category/${category.slug}/`,
-        })),
-    ],
-}
-
-/** Safaris · Where We Travel · Journal · Polecat Safaris. */
-const columns = [FOOTER_COLUMNS[0], FOOTER_COLUMNS[1], journalColumn, FOOTER_COLUMNS[2]]
+const columns = FOOTER_COLUMNS
 
 /*
  * Single-path 18×18 marks, sized and coloured to match the design's set.
@@ -100,16 +86,6 @@ const whatsapp = whatsappLink(
     >
         <div class="flex flex-wrap items-center gap-x-6.5 gap-y-2">
             <p class="text-[12px] leading-4.5 text-muted">© {year} {SITE.legalName}</p>
-            {
-                FOOTER_LEGAL.map((link) => (
-                    <a
-                        href={link.href}
-                        class="text-[12px] leading-4.5 text-muted transition-colors hover:text-primary"
-                    >
-                        {link.label}
-                    </a>
-                ))
-            }
         </div>
 
         <ul class="flex items-center gap-4.5">

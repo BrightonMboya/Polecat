@@ -99,21 +99,26 @@ export const DESTINATIONS: { heading: string; body: string; items: Destination[]
 }
 
 /*
- * ⚠️ `body` below asserts that a share of every night booked goes into
- * conservation trusts and community partnerships. That sentence came from the
- * Paper design, not from the operator, and nobody has confirmed such a
- * programme exists. It is a specific, checkable claim about how the business
- * spends money — get it confirmed or replace it. /about/#impact, which this
- * button leads to, deliberately says only what is verifiable: park fees, the
- * Shanga stop, and the village days that are in the itineraries.
+ * The teaser for /about/#impact, and it now says the same thing that section
+ * says: schooling for young Tanzanians, illustrated with the same photograph.
+ * It used to promise that "a share of every night booked" went into
+ * conservation trusts and community partnerships — a specific, checkable claim
+ * about how the business spends money that came from the Paper design and was
+ * never confirmed by the operator. That sentence is gone.
+ *
+ * ⚠️ What remains is still unconfirmed: the subject came from the equivalent
+ * band on ~/web/atlas, which is a different operator's site. It names no
+ * programme, no school and no sum, so it is not a false specific — but if the
+ * operator does not do this, both this band and /about/#impact come out.
  */
 export const IMPACT = {
-    eyebrow: 'Regenerative Tourism',
+    eyebrow: 'Beyond The Journey',
     heading: 'Our positive impact',
-    body: 'Tread lightly and give generously. A share of every night booked goes directly into the conservation trusts and community partnerships that keep these landscapes intact.',
+    body: 'A fortnight in Tanzania ought to leave more behind than a set of photographs. The part of this business that has nothing to do with selling safaris goes to schooling for children and teenagers here.',
     cta: { label: 'Learn More', href: '/about/#impact' },
-    image: '/images/impact-materuni.webp',
-    imageAlt: 'A waterfall in dense forest on the slopes above Materuni village, Kilimanjaro',
+    image: '/images/impact-schoolchildren.webp',
+    imageAlt:
+        'Schoolchildren in uniform sitting together on a grassy hillside, listening, with the highlands behind them',
 } as const
 
 /*
@@ -211,10 +216,9 @@ export const NAV = {
  * Packages.astro). They only work on the homepage — /safari-packages lists all
  * ten unfiltered — so they are written as absolute paths back to `/`.
  *
- * The Journal column is missing on purpose: its category links are built in
- * Footer.astro from the categories that actually have posts, because a
- * hardcoded one goes stale the moment a category empties out. It is spliced in
- * third.
+ * Three columns, and no Journal one: it used to be built in Footer.astro from
+ * the categories that had posts, and was removed by request. /blogs/ and the
+ * category pages still exist, they are simply not linked from the footer.
  */
 export const FOOTER_COLUMNS = [
     {
@@ -247,9 +251,8 @@ export const FOOTER_COLUMNS = [
 ] as const
 
 /*
- * One legal link, because one legal page exists. The old placeholders — terms
- * and conditions, a modern slavery statement — pointed at nothing; the second
- * is a UK Companies Act obligation that does not apply to a Tanzanian
- * operator. Add either back the day the page behind it is written.
+ * No legal links. The privacy policy that used to sit here was removed along
+ * with its page; terms and a modern slavery statement were never written.
+ * Anything added back needs a page behind it — the footer linking at nothing
+ * is worse than the footer saying nothing.
  */
-export const FOOTER_LEGAL = [{ label: 'Privacy policy', href: '/privacy-policy/' }] as const

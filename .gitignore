@@ -17,3 +17,7 @@ pnpm-debug.log*
 
 # Vendored from node_modules by apps/main/scripts/vendor-maplibre.mjs
 apps/main/public/vendor/
+
+# Vercel CLI link + the OIDC token it writes for local dev
+.vercel/
+.env.local

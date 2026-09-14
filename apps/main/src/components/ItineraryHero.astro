@@ -3,7 +3,8 @@
  * The head of an itinerary page. Ported from ItineraryHero.astro in
  * ~/web/kan_safaris: a fixed-height frame rather than a viewport-height one,
  * the content sitting on the floor of it, with the title on the left and the
- * two facts a visitor actually shops on — how long, how much — ranged right.
+ * two facts a visitor actually shops on — how long, how much — ranged right,
+ * as bare figures with no label above them.
  *
  * Written in this site's tokens and type rather than kan's stone palette.
  */
@@ -60,25 +61,26 @@ const onRequest = pkg.priceFrom === 'On request'
             </h1>
         </div>
 
-        <dl class="flex shrink-0 items-end gap-10 lg:pb-2">
-            <div class="flex flex-col gap-2">
-                <dt class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-sage-dim uppercase">
-                    Duration
-                </dt>
+        {/* The "Duration" and "From" eyebrows are gone from the frame; the
+            terms stay in the markup, visually hidden, so a screen reader still
+            hears what each figure is and the list stays a valid <dl>. Both
+            labels — and the nights — are written out in full in the trip
+            summary in the overview directly below. */}
+        <dl class="flex shrink-0 items-end gap-10">
+            <div>
+                <dt class="sr-only">Duration</dt>
                 <dd class="font-display text-[30px] leading-8.5 font-light text-white">
-                    {pkg.days} / {pkg.nights}
-                    <span class="ml-1 text-[12px] font-medium tracking-[0.14em] text-sage uppercase">
-                        Days / Nights
+                    {pkg.days}
+                    <span class="ml-1.5 text-[12px] font-medium tracking-[0.14em] text-sage uppercase">
+                        Days
                     </span>
                 </dd>
             </div>
 
-            <span class="h-13 w-px shrink-0 bg-white/30" aria-hidden="true"></span>
+            <span class="h-8 w-px shrink-0 bg-white/30" aria-hidden="true"></span>
 
-            <div class="flex flex-col gap-2">
-                <dt class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-sage-dim uppercase">
-                    {onRequest ? 'Rate' : 'From'}
-                </dt>
+            <div>
+                <dt class="sr-only">{onRequest ? 'Rate' : 'From'}</dt>
                 <dd class="font-display flex items-baseline gap-2 text-[30px] leading-8.5 font-light text-white">
                     {pkg.priceFrom}
                     {
