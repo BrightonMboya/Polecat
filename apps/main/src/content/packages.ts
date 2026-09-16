@@ -487,9 +487,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 8,
         nights: 7,
         price: 'From US$ 6,279 pp',
-        image: '/images/honeymoon-zanzibar-pool.webp',
+        image: '/images/honeymoon-beach-dinner-sunset.webp',
         imageAlt:
-            'A couple at a pool screened by palms and banana leaves, one of them swimming and the other reading on a lounger',
+            'A table laid for two on the sand at sunset, a couple in white walking hand in hand towards the water beneath a palm',
         summary:
             'Five nights of safari — Tarangire, the crater and two on the central Serengeti — and then a flight straight off the airstrip to Zanzibar, for Stone Town and a night on the beach.',
         priceFrom: 'US$ 6,279',

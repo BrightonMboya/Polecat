@@ -31,7 +31,6 @@ const { category } = Astro.params
 <Layout
     title={`${label} Archives - ${SITE.legalName}`}
     description={`Journal notes filed under ${label} — ${posts.length} ${posts.length === 1 ? 'guide' : 'guides'} from our guides in Tanzania.`}
-    ogImage={posts[0]?.data.heroImage}
     pageSchema={{
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
