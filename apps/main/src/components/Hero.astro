@@ -16,28 +16,55 @@ import { HERO } from '../content/home'
     />
 
     {/* Scrim: pared back to the least that keeps white type legible, so the
-        photograph carries the frame. It is all but clear across the sky and
+        photograph carries the frame. It is all but clear across the canopy and
         only gathers weight where the copy sits. Every stop was solved against
         the photograph's own pixels — the lowest alpha per 20px slice that
         clears AA on the single worst pixel under the column — then rounded up.
-        On the worst pixel, white reads:
-            headline  72px        3.55:1  ✅ AA  (needs 3:1, large text)
-            sub-head  22px italic 5.05:1  ✅ AA  (needs 4.5:1 — at this size it
+
+        Re-measured for the firepit photograph, whose flames blow out to pure
+        white (255,255,255) under the left of the copy column at every desktop
+        width. On that worst pixel, white reads:
+            headline  62px        4.51:1  ✅ AA  (needs 3:1, large text)
+            sub-head  22px italic 5.33:1  ✅ AA  (needs 4.5:1 — at this size it
                                                   is not large text)
-        Lightening these stops fails the headline. A new photograph means this
-        measured again; a darker one would let the scrim go lighter still. */}
+        The 70% stop went 0.64 → 0.66 for the sub-head, whose top edge cleared
+        4.5:1 by 0.006 alpha before that — passing by rounding rather than by
+        margin. It is the stop with no room left in it.
+
+        The 44% stop has headroom now: the one-line headline starts at 61% of
+        the frame rather than 44%, where the gradient has already reached 0.61.
+        It is held at 0.52 for the case where the headline does wrap after all
+        — a viewport near 1024px, or Georgia rendering before Cormorant loads —
+        which puts its first line back at 44% and still clears AA, at 3.40:1.
+
+        A new photograph means this measured again. At phone widths object-cover
+        crops the fire out of frame, so the wide viewports are the worst case. */}
     <div
         class="absolute inset-0"
-        style="background: linear-gradient(180deg, rgba(35,32,27,0.02) 0%, rgba(35,32,27,0.52) 44%, rgba(35,32,27,0.64) 70%, rgba(35,32,27,0.7) 100%)"
+        style="background: linear-gradient(180deg, rgba(35,32,27,0.02) 0%, rgba(35,32,27,0.52) 44%, rgba(35,32,27,0.66) 70%, rgba(35,32,27,0.7) 100%)"
         aria-hidden="true"
     >
     </div>
 
     {/* One centred stack on the floor of the frame: the headline, the italic
-        line, then the single call to action. */}
-    <div class="gutter relative flex w-full max-w-240 flex-col items-center gap-6 pt-32 pb-16 lg:gap-7 lg:pb-24">
+        line, then the single call to action.
+
+        The column widens to max-w-270 at lg so the headline sets on one line.
+        It is 886px at 62px/500 with the -0.01em tracking, and the tightest lg
+        viewport — 1024px, where max-w-270 is not yet reached — leaves 920px
+        inside the 52px gutters. Two lines at 72px cost more than the 10px of
+        type: the second line pushed the stack up over the fire. The sub-head
+        keeps its own max-w-215, so its measure is unchanged.
+
+        Less bottom padding at lg than below it, which reads backwards but is
+        not: the section is 780px tall there against a 620px minimum, and the
+        stack is pushed down into that extra height to get out of the couple's
+        way. At 48px its top edge sits at 478px, and the table they are sitting
+        at ends at 458px — so both faces, the table and the glasses stay in the
+        open above the headline. Raising this back up covers them. */}
+    <div class="gutter relative flex w-full max-w-240 flex-col items-center gap-6 pt-32 pb-16 lg:max-w-270 lg:gap-7 lg:pb-12">
         <h1
-            class="font-display max-w-215 text-center text-[40px] leading-[1.08] font-medium tracking-[-0.01em] text-balance text-white sm:text-[54px] lg:text-[72px] lg:leading-[1.06]"
+            class="font-display max-w-215 text-center text-[40px] leading-[1.08] font-medium tracking-[-0.01em] text-balance text-white sm:text-[54px] lg:max-w-none lg:text-[62px] lg:leading-[1.06]"
         >
             {HERO.heading}
         </h1>

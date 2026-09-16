@@ -47,21 +47,27 @@ export const HERO = {
         'From honeymoons to anniversaries to family holidays — let us help you celebrate the moments that matter with a curated wildlife experience.',
     /*
      * Full-bleed, and the LCP, so it is served at three widths rather than
-     * one: the grass and sky in this frame do not compress down to a single
-     * file that is both sharp on a desktop and cheap on a phone. `image` is
-     * the middle width, which is what a browser without srcset support gets.
+     * one. `image` is the middle width, which is what a browser without
+     * srcset support gets.
      *
-     * The photograph is people in the experience rather than animals, and the
-     * two of them are ranged left and right of the frame, which is what leaves
-     * the centre clear for the copy. Swapping it for a brighter one means
-     * re-measuring the scrim in Hero.astro.
+     * The photograph is people in the experience rather than animals — a
+     * couple mid-laugh over dinner, which is the milestone the headline is
+     * selling. The dense out-of-focus foliage costs roughly twice the bytes
+     * the open sky it replaced did, so the 1920 is encoded harder than the two
+     * smaller widths: it only ever goes to a wide or retina viewport, where
+     * the extra weight buys the least.
+     *
+     * The fire burns white-hot at its core, directly under the left of the
+     * copy column at desktop widths, so the scrim in Hero.astro was measured
+     * again against this frame — see the stops there. Swapping the photograph
+     * means measuring it a third time.
      */
-    image: '/images/hero-acacia-chairs-1400.webp',
+    image: '/images/hero-firepit-dinner-1400.webp',
     imageSrcset:
-        '/images/hero-acacia-chairs-900.webp 900w, /images/hero-acacia-chairs-1400.webp 1400w, /images/hero-acacia-chairs-1920.webp 1920w',
+        '/images/hero-firepit-dinner-900.webp 900w, /images/hero-firepit-dinner-1400.webp 1400w, /images/hero-firepit-dinner-1920.webp 1920w',
     imageSizes: '100vw',
     imageAlt:
-        'Two travellers sitting out in safari chairs with wine poured on the table between them, looking across the plains to a flat-topped acacia',
+        'A couple laughing over dinner at a table laid out in the bush, a fire burning in the foreground and lanterns hung in the trees behind them',
     cta: { label: 'Tell Us About Your Milestone', href: '/enquire/' },
 } as const
 
@@ -178,14 +184,73 @@ export const REVIEWS: Review[] = [
     },
 ]
 
-export const PARTNERS = {
+/*
+ * Members and partners. `logo` is optional: an item without one falls back to
+ * its name set as type, which is what TATO does — no TATO mark exists in the
+ * assets yet, and an association's logo is not ours to redraw. Drop the file
+ * in and add the three fields to switch it over.
+ *
+ * `nativeWidth`/`nativeHeight` are the file's own dimensions and `height` is
+ * what it renders at, which the component uses to work out the width. The two
+ * are separate because SafariBookings is a 173x22 raster that must not be
+ * scaled up, while Design My Safari is vector and crisp at any size.
+ *
+ * Both logos came from ~/web/mufasa_new, but neither `href` did: the listing
+ * id and the utm_source in those are King Mufasa's, and sending this
+ * operator's referrals under another operator's name would credit them to the
+ * wrong business. p4005 is ours; the utm_source is our own domain.
+ */
+export const PARTNERS: {
+    heading: string
+    items: {
+        name: string
+        role: string
+        href?: string
+        logo?: string
+        logoAlt?: string
+        nativeWidth?: number
+        nativeHeight?: number
+        height?: number
+    }[]
+} = {
     heading: 'Members And Partners',
     items: [
-        { name: 'SafariBookings', role: 'Listed Operator' },
+        {
+            name: 'SafariBookings',
+            role: 'Listed Operator',
+            /* This operator's own listing — p4005, not the p6151 the mufasa
+               copy of this data points at. */
+            href: 'https://www.safaribookings.com/reviews/p4005',
+            /* Ships white-on-transparent for dark surfaces; this section is
+               white, so the copy in public/images is recoloured to the brand
+               green rather than filtered at render time. */
+            logo: '/images/partner-safaribookings.png',
+            logoAlt: 'SafariBookings',
+            nativeWidth: 173,
+            nativeHeight: 22,
+            height: 22,
+        },
         { name: 'TATO', role: 'Tanzania Association of Tour Operators' },
-        { name: 'Design My Safari', role: 'Design Partner' },
+        {
+            name: 'Design My Safari',
+            role: 'Design Partner',
+            /* The utm_* triple is how Design My Safari attributes a referral,
+               so `utm_source` has to name this site and not the one the link
+               was copied from. Their convention in the mufasa copy was a bare
+               slug (`kingmufasaexpeditions`); if they have issued this
+               operator a partner id of their own, it replaces the domain. */
+            href: 'https://www.designmysafari.com/?utm_source=africanpolecatsafaris.com&utm_medium=partner&utm_campaign=operator_partner',
+            /* A badge rather than a wordmark — it carries its own white card
+               and gold rule, so it is left unrecoloured and set taller than
+               the SafariBookings lockup to balance against it. */
+            logo: '/images/partner-designmysafari.svg',
+            logoAlt: 'Design My Safari — Safari Partner',
+            nativeWidth: 1400,
+            nativeHeight: 460,
+            height: 52,
+        },
     ],
-} as const
+}
 
 export const NEWSLETTER = {
     eyebrow: 'Stay In Touch',

@@ -13,16 +13,55 @@ import { PARTNERS } from '../content/home'
             /* `w-75` is 300px — wider than the content column on a 320px phone,
                which pushed the whole document (and so the header row) past the
                viewport. Full width until there is room for the three-up row. */
-            PARTNERS.items.map((partner) => (
-                <li class="flex w-full flex-col items-center gap-2.25 sm:w-75 sm:shrink-0">
-                    <p class="text-[18px] leading-6 font-semibold tracking-[0.06em] text-primary">
-                        {partner.name}
-                    </p>
-                    <p class="text-center text-[11px] leading-4 tracking-[0.14em] text-muted uppercase">
-                        {partner.role}
-                    </p>
-                </li>
-            ))
+            PARTNERS.items.map((partner) => {
+                /* A fixed 52px slot whatever it holds, so the three roles sit
+                   on one line across the row — the two logos render at
+                   different heights, and TATO has none at all. */
+                const Mark = (
+                    <div class="flex h-13 items-center justify-center">
+                        {partner.logo ? (
+                            <img
+                                src={partner.logo}
+                                alt={partner.logoAlt ?? partner.name}
+                                width={Math.round(
+                                    (partner.height! * partner.nativeWidth!) / partner.nativeHeight!
+                                )}
+                                height={partner.height}
+                                loading="lazy"
+                                decoding="async"
+                            />
+                        ) : (
+                            <p class="text-[18px] leading-6 font-semibold tracking-[0.06em] text-primary">
+                                {partner.name}
+                            </p>
+                        )}
+                    </div>
+                )
+
+                return (
+                    <li class="flex w-full flex-col items-center gap-2.25 sm:w-75 sm:shrink-0">
+                        {/* Only the two with a listing to link to become links;
+                            TATO has no href, so it stays inert rather than
+                            becoming an anchor that goes nowhere. */}
+                        {partner.href ? (
+                            <a
+                                href={partner.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${partner.name} — ${partner.role}`}
+                                class="opacity-90 transition-opacity hover:opacity-100"
+                            >
+                                {Mark}
+                            </a>
+                        ) : (
+                            Mark
+                        )}
+                        <p class="text-center text-[11px] leading-4 tracking-[0.14em] text-muted uppercase">
+                            {partner.role}
+                        </p>
+                    </li>
+                )
+            })
         }
     </ul>
 </section>
