@@ -79,12 +79,13 @@ const schema = {
         { '@type': 'AdministrativeArea', name: 'Zanzibar' },
     ],
     sameAs: Object.values(SOCIAL),
-    aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: TRIPADVISOR.ratingValue,
-        reviewCount: TRIPADVISOR.reviewCount,
-        bestRating: 5,
-    },
+    /*
+     * No aggregateRating. It needs a reviewCount or ratingCount to be valid,
+     * and the count was removed as unmaintainable (see config.ts) — an invalid
+     * node buys nothing, and a count only the crawler can see is worse than
+     * none. This costs the star rich snippet; earning it back means a real
+     * count on the page, kept current.
+     */
 }
 ---
 

@@ -31,12 +31,19 @@ export const whatsappLink = (message: string) =>
     `https://wa.me/${CONTACT.whatsappNumber}?text=${encodeURIComponent(message)}`
 
 /**
- * Tripadvisor figures shown beside the reviews. These are the operator's real
- * numbers, so they are safe to put in structured data — update both fields
- * together, and never let them drift from what the reviews section renders.
+ * Tripadvisor figures shown beside the reviews.
+ *
+ * There is deliberately no review count here. It only ever goes up, so any
+ * number committed to the repo is wrong within weeks, and Tripadvisor answers
+ * 403 to an automated fetch (see `url` below) — so it cannot be kept honest
+ * from the build either. The rating and the label do not move, so they stay.
+ *
+ * Removing the count also took `aggregateRating` out of the structured data in
+ * Layout.astro: schema.org needs a reviewCount or ratingCount for that node to
+ * be valid, and a figure Google can read but no visitor can see is the same
+ * stale claim wearing a hat.
  */
 export const TRIPADVISOR = {
-    reviewCount: 175,
     ratingLabel: 'Excellent',
     ratingValue: 5,
     /**

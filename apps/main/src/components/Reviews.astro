@@ -20,8 +20,9 @@ import { TRIPADVISOR } from '../config'
                 {TRIPADVISOR.ratingLabel}
             </p>
             <span class="h-3.25 w-px shrink-0 bg-line" aria-hidden="true"></span>
+            {/* No count: it grows, and a committed number goes stale. */}
             <p class="text-[14px] leading-4.5 text-muted">
-                Based on {TRIPADVISOR.reviewCount} reviews on Tripadvisor
+                Verified reviews on Tripadvisor
             </p>
         </div>
     </div>
