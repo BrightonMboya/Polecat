@@ -1,0 +1,282 @@
+---
+/**
+ * /safari-add-ons/ — the fourteen add-on activities, one section each.
+ *
+ * This page exists so the itineraries do not have to carry the detail. Every
+ * "Optional today" row in a day-by-day links to the matching anchor here (see
+ * resolveExtra in ItineraryDays.astro), which lets the itinerary row stay one
+ * line and a price while the where/when/who lives in one maintained place.
+ *
+ * The content is src/content/addons.ts — read that file's header before
+ * changing anything priced, and before adding a place to an add-on: `places`
+ * decides which itinerary days may offer it.
+ */
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import Newsletter from '../components/Newsletter.astro'
+import SectionHeading from '../components/SectionHeading.astro'
+import { CONTACT } from '../config'
+import { NAV } from '../content/home'
+import { ADDONS } from '../content/addons'
+
+const HERO_IMAGE = '/images/honeymoon-sundowner-toast.webp'
+
+const eyebrow = 'text-[11px] leading-3.5 font-medium tracking-[0.22em] text-primary uppercase'
+const term = 'text-[10px] leading-3 font-medium tracking-[0.2em] text-muted/70 uppercase'
+
+const pageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Safari Add-ons',
+    description:
+        'The fourteen activities that can be added to a Polecat Safaris itinerary — balloon flights, night game drives, walking safaris, bush breakfasts, sundowners, Maasai visits and more, with where each one is offered and what it costs.',
+    url: 'https://africanpolecatsafaris.com/safari-add-ons/',
+    inLanguage: 'en-GB',
+    hasPart: ADDONS.map((addon) => ({
+        '@type': 'WebPageElement',
+        name: addon.name,
+        url: `https://africanpolecatsafaris.com/safari-add-ons/#${addon.slug}`,
+    })),
+}
+---
+
+<Layout
+    title="Safari Add-ons — Balloon Flights, Night Drives, Walking Safaris | Polecat Safaris"
+    description="Fourteen activities you can add to a Tanzania safari: balloon flights, night game drives, walking safaris, bush breakfasts, sundowners, Maasai visits, ziplining and more — where each is offered, how long it takes and what it costs."
+    preloadImage={HERO_IMAGE}
+    pageSchema={pageSchema}
+>
+    <Header />
+    <main>
+        <section class="gutter flex flex-col items-center bg-cream pt-14 pb-16 lg:pt-20 lg:pb-22">
+            <div
+                class="shell flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16"
+            >
+                <div class="flex min-w-0 flex-col items-start gap-4 lg:w-1/2">
+                    <p
+                        class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase"
+                    >
+                        Safari Add-ons
+                    </p>
+                    <h1
+                        class="font-display text-[36px] leading-[1.18] font-light text-ink lg:text-[52px] lg:leading-[1.12]"
+                    >
+                        Things you can add to a safari
+                    </h1>
+                    <p class="font-display max-w-160 text-[20px] leading-8 text-primary italic">
+                        Fourteen of them, and where each one is actually possible.
+                    </p>
+                    <div class="flex max-w-160 flex-col gap-4 pt-2">
+                        <p class="text-[16px] leading-7.5 text-muted">
+                            Every itinerary on this site is private, so there is room in it. A
+                            balloon over the Serengeti at dawn, a night drive in Tarangire, a
+                            morning on foot with a ranger, a table laid in the open for breakfast —
+                            none of it is in the rate, and all of it can be added to the day it
+                            belongs on.
+                        </p>
+                        <p class="text-[16px] leading-7.5 text-muted">
+                            What matters as much as the list is where each one is real. Only two
+                            northern parks permit driving after dark. Balloons launch from the
+                            central and southern Serengeti and from Tarangire. The zipline is at
+                            Mto wa Mbu, which most of these journeys drive through anyway. Open an
+                            itinerary and you will see the add-ons offered under the days they can
+                            actually happen on.
+                        </p>
+                    </div>
+                </div>
+
+                <img
+                    src={HERO_IMAGE}
+                    alt="A couple standing arm in arm with champagne at a private sundowner table on a rocky outcrop, the sky turning red behind them"
+                    width="1200"
+                    height="858"
+                    fetchpriority="high"
+                    decoding="async"
+                    class="aspect-[3/2] w-full min-w-0 object-cover lg:w-1/2"
+                />
+            </div>
+        </section>
+
+        {/* The index, with the from-price on each row so the page answers the
+            money question before anyone scrolls. */}
+        <nav class="gutter flex flex-col items-center bg-stone py-12 lg:py-14" aria-label="The add-ons">
+            <div class="shell flex flex-col gap-6">
+                <p
+                    class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase"
+                >
+                    The Fourteen
+                </p>
+                <ul class="grid grid-cols-1 gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
+                    {
+                        ADDONS.map((addon) => (
+                            <li class="flex items-baseline justify-between gap-4 border-b border-line py-3">
+                                <a
+                                    href={`#${addon.slug}`}
+                                    class="text-[15px] leading-6 text-ink transition-colors hover:text-primary"
+                                >
+                                    {addon.name}
+                                </a>
+                                <span class="shrink-0 text-[12px] leading-5 text-muted/80">
+                                    {addon.price === 'On request' ? 'On request' : addon.price}
+                                </span>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+        </nav>
+
+        {
+            ADDONS.map((addon, index) => {
+                const onCream = index % 2 !== 0
+                const facts: [string, string][] = [
+                    ['Where', addon.where],
+                    ['How long', addon.duration],
+                    ['Price', addon.price],
+                    ...(addon.who ? ([['Who can', addon.who]] as [string, string][]) : []),
+                ]
+
+                return (
+                    <section
+                        id={addon.slug}
+                        class:list={[
+                            'gutter scroll-mt-8 py-15 lg:py-20',
+                            onCream ? 'bg-cream' : 'bg-white',
+                        ]}
+                    >
+                        <div class="shell grid grid-cols-1 gap-8 lg:grid-cols-[19rem_1fr] lg:gap-16 xl:gap-20">
+                            <div class="flex flex-col gap-5 lg:sticky lg:top-14 lg:self-start">
+                                <div class="flex flex-col gap-3">
+                                    <h2 class="font-display text-[28px] leading-9 font-light tracking-[-0.014em] text-ink lg:text-[34px] lg:leading-10.5">
+                                        {addon.name}
+                                    </h2>
+                                    <p class="text-[15px] leading-7 text-muted">{addon.line}</p>
+                                </div>
+
+                                <dl class="flex flex-col gap-4 border-t border-line pt-5">
+                                    {facts.map(([label, value]) => (
+                                        <div class="flex flex-col gap-1">
+                                            <dt class={term}>{label}</dt>
+                                            <dd class="text-[14px] leading-5.5 text-ink">
+                                                {value}
+                                            </dd>
+                                        </div>
+                                    ))}
+                                    {addon.priceNote && (
+                                        <div class="flex flex-col gap-1">
+                                            <dt class={term}>Also worth knowing</dt>
+                                            <dd class="text-[13px] leading-5.5 text-muted">
+                                                {addon.priceNote}
+                                            </dd>
+                                        </div>
+                                    )}
+                                </dl>
+                            </div>
+
+                            <div class="flex max-w-220 flex-col gap-6.5">
+                                {addon.body.map((paragraph) => (
+                                    <p class="text-[16px] leading-7.5 text-muted">{paragraph}</p>
+                                ))}
+
+                                <div class="flex flex-col gap-4 pt-1">
+                                    <p class={eyebrow}>Where it runs</p>
+                                    <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                        {addon.places.map((place) => (
+                                            <li
+                                                class:list={[
+                                                    'flex flex-col gap-2 border-t-2 border-primary px-6 pt-5 pb-6',
+                                                    onCream ? 'bg-white' : 'bg-stone',
+                                                ]}
+                                            >
+                                                <h3 class="font-display text-[20px] leading-7 text-ink">
+                                                    {place.name}
+                                                </h3>
+                                                <p class="text-[14px] leading-6.25 text-muted">
+                                                    {place.note}
+                                                </p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {addon.bestTime && (
+                                    <div class="flex flex-col gap-2 pt-1">
+                                        <p class={eyebrow}>Best time</p>
+                                        <p class="text-[15px] leading-7 text-muted">
+                                            {addon.bestTime}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+                )
+            })
+        }
+
+        {/* How the money works. Every figure above is an estimate and four of
+            the fourteen have none at all, so the page says so once, plainly,
+            rather than hedging in fourteen places. */}
+        <section class="gutter flex flex-col items-center bg-primary py-16 lg:py-20">
+            <div class="shell grid max-w-260 grid-cols-1 gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
+                <div class="flex flex-col items-start gap-4">
+                    <p
+                        class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-gold uppercase"
+                    >
+                        How Add-ons Are Priced
+                    </p>
+                    <h2
+                        class="font-display text-[30px] leading-10 font-light text-cream lg:text-[38px] lg:leading-12"
+                    >
+                        Quoted with your itinerary, not bolted on later
+                    </h2>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <p class="text-[16px] leading-7.25 text-sage">
+                        The figures on this page are per person and indicative — they move with the
+                        season, the property and the size of your party, and they are confirmed in
+                        writing with your itinerary before you pay anything. Park and conservation
+                        fees are separate where an activity happens inside a park.
+                    </p>
+                    <p class="text-[16px] leading-7.25 text-sage">
+                        Balloon flights, night game drives and walking safaris are quoted on
+                        request: they are run by the camps and the park operators at rates that
+                        change, and we would rather give you the real number than a stale one.
+                        Balloons in particular sell out in peak season, so ask early.
+                    </p>
+                    <p class="text-[16px] leading-7.25 text-sage">
+                        Some lodges already include a bush meal or a spa treatment in their rate.
+                        Where that is true of the property on your itinerary, we will tell you
+                        rather than sell you the same thing twice.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="gutter flex flex-col items-center bg-cream pt-18 pb-18 lg:pt-22 lg:pb-24">
+            <SectionHeading
+                eyebrow="Next Step"
+                heading="Tell us which of these you want"
+                body="Name the ones that appeal and we will put them on the right days and price them into your itinerary. If something here does not fit the route you have chosen, we will say so rather than sell it to you."
+            />
+            <div class="flex flex-wrap items-center justify-center gap-5 pt-9">
+                <a
+                    href={NAV.enquire.href}
+                    class="flex items-center justify-center bg-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329]"
+                >
+                    {NAV.enquire.label}
+                </a>
+                <a
+                    href={CONTACT.phoneHref}
+                    class="flex items-center justify-center border border-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
+                >
+                    {CONTACT.phone}
+                </a>
+            </div>
+        </section>
+
+        <Newsletter />
+    </main>
+    <Footer />
+</Layout>

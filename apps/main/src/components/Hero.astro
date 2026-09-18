@@ -1,47 +1,109 @@
 ---
 import { HERO } from '../content/home'
+
+/*
+ * The hero cycles HERO.slides on a CSS-only crossfade: no JavaScript, nothing
+ * to hydrate, and nothing that can leave the frame blank if a script fails.
+ *
+ * Each slide runs the same keyframe over the whole cycle and is offset by its
+ * own delay, so exactly one is opaque at a time. HOLD is how long a slide sits
+ * still; FADE is the crossfade. The first slide's delay is negative by exactly
+ * FADE, which starts it already fully opaque — the hero must not fade in on
+ * load, because slide one is the LCP.
+ */
+const HOLD = 6
+const FADE = 0.8
+const CYCLE = HERO.slides.length * HOLD
+
+/*
+ * Keyframe stops, as a percentage of the whole cycle. A slide delayed by
+ * `i * HOLD - FADE` fades in over FADE, holds until HOLD, fades out by
+ * HOLD + FADE, and is transparent for the rest of the cycle — so exactly one
+ * slide is opaque at any moment and consecutive slides cross over.
+ *
+ * The stylesheet is built here rather than written out below because a CSS
+ * keyframe selector cannot read a custom property: `var(--x) { }` is not a
+ * valid stop. Class and animation names are global for the same reason
+ * (set:html skips Astro's scoping), so both are named for this component.
+ */
+const stop = (seconds: number) => `${((seconds / CYCLE) * 100).toFixed(3)}%`
+const slideStyles = `
+.hero-slide {
+    opacity: 0;
+    animation: hero-slide-fade ${CYCLE}s linear infinite;
+}
+
+@keyframes hero-slide-fade {
+    0% { opacity: 0 }
+    ${stop(FADE)} { opacity: 1 }
+    ${stop(HOLD)} { opacity: 1 }
+    ${stop(HOLD + FADE)} { opacity: 0 }
+    100% { opacity: 0 }
+}
+
+/* A carousel nobody asked for is exactly what this setting is about: hold the
+   first photograph and never move. */
+@media (prefers-reduced-motion: reduce) {
+    .hero-slide { animation: none }
+    .hero-slide:not(:first-of-type) { display: none }
+}
+`
 ---
 
 <section class="relative flex min-h-[620px] flex-col items-center justify-end overflow-hidden lg:h-195">
-    {/* The photograph is an <img> rather than a background so it can be
-        preloaded with fetchpriority and decoded eagerly — it is the LCP. */}
-    <img
-        src={HERO.image}
-        srcset={HERO.imageSrcset}
-        sizes={HERO.imageSizes}
-        alt={HERO.imageAlt}
-        class="absolute inset-0 h-full w-full object-cover"
-        fetchpriority="high"
-        decoding="async"
-    />
+    {/* The photographs are <img> rather than backgrounds so the first can be
+        preloaded with fetchpriority and decoded eagerly — it is the LCP.
 
-    {/* Scrim: pared back to the least that keeps white type legible, so the
-        photograph carries the frame. It is all but clear across the canopy and
-        only gathers weight where the copy sits. Every stop was solved against
-        the photograph's own pixels — the lowest alpha per 20px slice that
-        clears AA on the single worst pixel under the column — then rounded up.
+        Only the first carries alt text and eager loading. The rest are a
+        decorative loop over the same subject, so they take an empty alt rather
+        than reading four more descriptions out to a screen reader, and they
+        load lazily so they cost nothing until after the first paint. */}
+    {
+        HERO.slides.map((slide, index) => (
+            <img
+                src={slide.image}
+                srcset={slide.srcset}
+                sizes={HERO.imageSizes}
+                alt={index === 0 ? slide.alt : ''}
+                aria-hidden={index === 0 ? undefined : 'true'}
+                class="hero-slide absolute inset-0 h-full w-full object-cover"
+                style={`animation-delay: ${index * HOLD - FADE}s`}
+                fetchpriority={index === 0 ? 'high' : undefined}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+            />
+        ))
+    }
 
-        Re-measured for the firepit photograph, whose flames blow out to pure
-        white (255,255,255) under the left of the copy column at every desktop
-        width. On that worst pixel, white reads:
-            headline  62px        4.51:1  ✅ AA  (needs 3:1, large text)
-            sub-head  22px italic 5.33:1  ✅ AA  (needs 4.5:1 — at this size it
-                                                  is not large text)
-        The 70% stop went 0.64 → 0.66 for the sub-head, whose top edge cleared
-        4.5:1 by 0.006 alpha before that — passing by rounding rather than by
-        margin. It is the stop with no room left in it.
+    {/* Scrim: the least that keeps white type legible, so the photographs
+        carry the frame. It is all but clear at the top and only gathers weight
+        where the copy sits.
 
-        The 44% stop has headroom now: the one-line headline starts at 61% of
-        the frame rather than 44%, where the gradient has already reached 0.61.
-        It is held at 0.52 for the case where the headline does wrap after all
-        — a viewport near 1024px, or Georgia rendering before Cormorant loads —
-        which puts its first line back at 44% and still clears AA, at 3.40:1.
+        Re-measured for the loop by scripts/hero-scrim.py, which renders every
+        slide the way object-cover does at a 1440x780 desktop hero, finds the
+        brightest pixel under the centred copy column in each band, and solves
+        for the alpha that clears AA over it. Run it again after adding,
+        removing or re-cropping a slide.
 
-        A new photograph means this measured again. At phone widths object-cover
-        crops the fire out of frame, so the wide viewports are the worst case. */}
+        A single photograph could be fitted closely. Four cannot: every slide
+        in this loop puts a pure-white pixel (255,255,255) under the column
+        somewhere — the blown-out fire, a cloud, a white shirt, pale thatch —
+        so the worst case is the same for all of them and the stops are set
+        once, to it:
+            headline  62px        needs 0.48 alpha  (3:1, large text)
+            sub-head  22px italic needs 0.61 alpha  (4.5:1 — at this size it is
+                                                     not large text)
+        Hence 0.52 at 40%, where the headline lands, and 0.63 from 56% down,
+        where the sub-head and the button do. Both clear by a small margin
+        rather than by rounding, which is the point of setting them to the
+        worst slide instead of the current one.
+
+        The stack is pinned to the floor of the frame, so these percentages
+        hold at phone widths too, where object-cover crops to a slice of the
+        middle and the section grows past its 620px minimum instead. */}
     <div
         class="absolute inset-0"
-        style="background: linear-gradient(180deg, rgba(35,32,27,0.02) 0%, rgba(35,32,27,0.52) 44%, rgba(35,32,27,0.66) 70%, rgba(35,32,27,0.7) 100%)"
+        style="background: linear-gradient(180deg, rgba(35,32,27,0.02) 0%, rgba(35,32,27,0.52) 40%, rgba(35,32,27,0.63) 56%, rgba(35,32,27,0.68) 74%, rgba(35,32,27,0.72) 100%)"
         aria-hidden="true"
     >
     </div>
@@ -81,3 +143,5 @@ import { HERO } from '../content/home'
         </a>
     </div>
 </section>
+
+<style is:inline set:html={slideStyles}></style>

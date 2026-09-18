@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import Hero from '../components/Hero.astro'
+import TravelStyles from '../components/TravelStyles.astro'
 import ImpactSplit from '../components/ImpactSplit.astro'
 import Packages from '../components/Packages.astro'
 // import Journal from '../components/Journal.astro'
@@ -15,8 +16,8 @@ import { HERO } from '../content/home'
 <Layout
     title="Polecat Safaris — Private Tanzania & Zanzibar Safaris from Arusha"
     description="Owner-run, private safaris across northern Tanzania and Zanzibar — Tarangire, the Ngorongoro Crater, the Serengeti and the coast, built around our own guides and the seasons worth travelling for."
-    preloadImage={HERO.image}
-    preloadImageSrcset={HERO.imageSrcset}
+    preloadImage={HERO.slides[0].image}
+    preloadImageSrcset={HERO.slides[0].srcset}
     preloadImageSizes={HERO.imageSizes}
 >
     <Header />
@@ -27,6 +28,7 @@ import { HERO } from '../content/home'
         <ImpactSplit />
         {/* <Journal /> — journal section hidden for now */}
         <Partners />
+        <TravelStyles />
         <Newsletter />
     </main>
     <Footer />

@@ -1,11 +1,12 @@
 ---
 /**
- * A journal post, at the root-level slug WordPress gave it — /materuni-waterfals/,
- * typo and all. That is the whole point of this route: the old site's posts
- * were never under a /blog/ prefix, so putting them under one now would throw
- * away every link and every ranking they have.
+ * A journal post, at a root-level slug rather than under a /blog/ prefix.
+ * That started as a migration constraint — the WordPress posts this route was
+ * built for had earned their URLs, typos and all — and stayed after those
+ * posts were removed, because the two the operator has written since are
+ * published the same way.
  *
- * The catch-all sits at the site root but only ever builds the 22 slugs
+ * The catch-all sits at the site root but only ever builds the slugs
  * getStaticPaths returns, and Astro prefers a static route to a dynamic one,
  * so /safari-packages/ and the homepage are unaffected.
  */
@@ -207,7 +208,17 @@ const pageSchema = {
                     <h2 class="font-display mb-10 text-center text-[30px] leading-[1.22] font-light text-ink lg:mb-12 lg:text-[38px] lg:leading-12">
                         Keep reading
                     </h2>
-                    <ul class="shell grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:grid-cols-3">
+                    {/* The journal is small, so the strip has to look
+                        deliberate with one or two cards in it rather than
+                        leaving two thirds of a three-column grid empty. */}
+                    <ul
+                        class:list={[
+                            'grid grid-cols-1 gap-6.5',
+                            related.length >= 3 && 'shell sm:grid-cols-2 lg:grid-cols-3',
+                            related.length === 2 && 'w-full max-w-175 sm:grid-cols-2',
+                            related.length === 1 && 'w-full max-w-105',
+                        ]}
+                    >
                         {related.map((item) => (
                             <PostCard post={item} />
                         ))}

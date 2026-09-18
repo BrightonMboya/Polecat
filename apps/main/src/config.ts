@@ -8,6 +8,18 @@ export const SITE = {
     legalName: 'African Polecat Safaris',
     /** Wordmark is set in two lines in the design — see Wordmark.astro. */
     wordmark: { top: 'Polecat', bottom: 'Safaris' },
+    /**
+     * The operator's own slogan, supplied with the travel guide. Punctuated
+     * the way they write it — two full stops, not a comma — so it is quoted
+     * and not tidied up.
+     *
+     * `tagline` below does a different job and both stay: the slogan is the
+     * brand line, said in the operator's voice; the tagline is the sentence
+     * that states what the business actually sells, and it is what the meta
+     * description and the share card carry. A slogan cannot do that work —
+     * "Travel Deep. Feel More." tells a search result nothing about Tanzania.
+     */
+    slogan: 'Travel Deep. Feel More.',
     tagline: 'Private, tailor-made safaris across northern Tanzania and Zanzibar.',
     /**
      * The one place the business operates from, and the only geography it
@@ -24,6 +36,14 @@ export const CONTACT = {
     email: 'info@africanpolecatsafaris.com',
     /** Digits only, no plus or spaces — this is what wa.me expects. */
     whatsappNumber: '255654592688',
+    /**
+     * The office line, which is a different number from the mobile above and
+     * is not on WhatsApp. Supplied by the operator with the travel guide; so
+     * far only /travel-information/ publishes it, because that is the only
+     * page where a guest already travelling needs a second way through.
+     */
+    officePhone: '+255 763 946 450',
+    officePhoneHref: 'tel:+255763946450',
 } as const
 
 /** A wa.me link with the greeting pre-filled, same pattern as the landing page. */

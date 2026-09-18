@@ -2,9 +2,10 @@
  * Everything the journal pages need to agree on: how a category is spelled
  * for a reader, what order posts come in, and how a date is written.
  *
- * The category slugs are WordPress's own — they are in live URLs
- * (/category/destinations/) and in the posts' frontmatter, so they are not
- * ours to rename.
+ * The first six category slugs are WordPress's own, from the migrated posts.
+ * Those posts are gone, so nothing renders them today; they stay here so a
+ * re-import cannot land without labels. Everything written since uses the
+ * slugs below them.
  */
 import { getCollection, type CollectionEntry } from 'astro:content'
 
@@ -17,6 +18,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
     itinerary: 'Itineraries',
     accomodation: 'Camps and Lodges',
     uncategorized: 'Field Notes',
+    seasons: 'Seasons',
+    planning: 'Planning Your Safari',
 }
 
 export const categoryLabel = (slug: string) =>

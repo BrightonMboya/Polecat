@@ -22,10 +22,30 @@
  * never drift between the card and the itinerary page.
  */
 
+import type { AddonSlug } from './addons'
+
 export interface PriceLine {
     label: string
     amount: string
 }
+
+/**
+ * One thing offered on a day beyond what the rate covers.
+ *
+ * A slug points at the add-on catalogue in ./addons.ts, which carries the
+ * price, the duration and the age limits — so an add-on's rate lives in one
+ * place and cannot drift between the ten itineraries that offer it. `price`
+ * and `note` override the catalogue for this day only, which is how the
+ * operator's own itinerary wording survives ("Sundowners at Hole 16 — US$ 50
+ * pp"): the row still links to the catalogue entry, but says what they said.
+ *
+ * A bare string is for a one-off with no catalogue entry — polo chukkas, a
+ * Stone Town walking tour, a dhow cruise. Nothing there needs a price row.
+ *
+ * An add-on may only be offered on a day that actually reaches one of the
+ * places in its catalogue `places` list. See the header of ./addons.ts.
+ */
+export type DayExtra = string | { addon: AddonSlug; price?: string; note?: string }
 
 /** One day of an itinerary, or a grouped range like "Days 5–6". */
 export interface Day {
@@ -37,8 +57,8 @@ export interface Day {
     paragraphs: string[]
     /** The species the day's drives are built around, as the operator lists them. */
     wildlife?: string[]
-    /** Add-ons offered on the day, carrying the operator's price where it quoted one. */
-    optional?: string[]
+    /** Add-ons offered on the day — catalogue slugs, or free text for one-offs. */
+    optional?: DayExtra[]
     /** Where the night is spent. Repeated nights are marked "(Cont.)". */
     overnight?: string
     meals?: string
@@ -191,9 +211,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 6,
         nights: 5,
         price: 'From US$ 4,306 pp',
-        image: '/images/honeymoon-lantern-dinner.webp',
+        image: '/images/guided-walk-termite-mound.webp',
         imageAlt:
-            'A couple dining at a folding table in camp at dusk, hurricane lanterns hung in the tree above them',
+            'Four guests in sun hats standing with their guide at a termite mound under an acacia, white wildflowers across the grass around them',
         summary:
             'Five nights across the northern circuit for couples who want the whole of it — Tarangire’s elephant herds, Lake Manyara’s forest, the crater floor, and two nights in the central Serengeti with a private candlelit dinner under the stars.',
         priceFrom: 'US$ 4,306',
@@ -248,6 +268,10 @@ export const PACKAGES: SafariPackage[] = [
                     'You have the full day in the park before turning in at Elephant Springs by Karibu Camps, out in the bush with not much between you and it.',
                 ],
                 wildlife: ['African elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                optional: [
+                    { addon: 'night-game-drive' },
+                    { addon: 'sundowner' },
+                ],
                 overnight: 'Elephant Springs by Karibu Camps, Tarangire',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -260,6 +284,10 @@ export const PACKAGES: SafariPackage[] = [
                     'From there the road climbs into the Ngorongoro Highlands and Meliá Ngorongoro, where the air turns cool and the view falls away into the crater.',
                 ],
                 wildlife: ['Tree-climbing lion', 'Elephant', 'Hippo', 'Flamingo', 'Baboon'],
+                optional: [
+                    { addon: 'treetop-walk' },
+                    { addon: 'maasai-village' },
+                ],
                 overnight: 'Meliá Ngorongoro, Ngorongoro Highlands',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -273,6 +301,9 @@ export const PACKAGES: SafariPackage[] = [
                     'Dinner is laid for the two of you alone, by candlelight, under the stars.',
                 ],
                 wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo'],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                ],
                 highlight: 'A private candlelit dinner for two on the Serengeti plains',
                 overnight: 'Kubu Kubu — Honeymoon Tent, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -286,6 +317,11 @@ export const PACKAGES: SafariPackage[] = [
                     'The day closes with a sundowner looking out over the savannah while the light goes.',
                 ],
                 wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Giraffe', 'Wildebeest', 'Zebra'],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'bush-breakfast' },
+                    { addon: 'spa' },
+                ],
                 highlight: 'Sundowners over the Serengeti at last light',
                 overnight: 'Kubu Kubu — Honeymoon Tent, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -375,8 +411,8 @@ export const PACKAGES: SafariPackage[] = [
                     'An hour-long guided wildlife walk comes with the night if you want to stretch your legs; the polo lawn and the golf course next door are there if you want more than that.',
                 ],
                 optional: [
-                    'Sundowners at Hole 16',
-                    'Horse riding',
+                    { addon: 'sundowner', note: 'at Hole 16, Kilimanjaro Golf Course' },
+                    { addon: 'horse-riding' },
                     'Polo chukkas',
                     'A one-hour polo lesson',
                 ],
@@ -405,6 +441,10 @@ export const PACKAGES: SafariPackage[] = [
                     'How far you go and when you stop is yours to decide; there is no group to keep to.',
                 ],
                 wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Hippo', 'Wildebeest', 'Zebra'],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'bush-breakfast' },
+                ],
                 overnight: 'Melia Serengeti, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -415,6 +455,10 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'A final morning game drive in the Serengeti, then the road south-east through the Ngorongoro Conservation Area.',
                     'The landscape changes as you climb, and there is game to see for most of it. You finish at Lion’s Paw Camp, close enough to the crater rim to be first down in the morning.',
+                ],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                    { addon: 'maasai-village' },
                 ],
                 overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
                 meals: 'Breakfast, lunch & dinner',
@@ -428,6 +472,9 @@ export const PACKAGES: SafariPackage[] = [
                     'After the drive and a picnic lunch you climb back out and carry on to the Karatu highlands.',
                 ],
                 wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena', 'Zebra'],
+                optional: [
+                    { addon: 'quad-biking' },
+                ],
                 highlight: 'A full morning on the crater floor',
                 overnight: 'Kitela Lodge, Karatu',
                 meals: 'Breakfast, lunch & dinner',
@@ -441,7 +488,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Then into Tarangire for a game drive among the ancient baobabs and the elephant herds, and on to Lemala Mpingo Ridge.',
                 ],
                 wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Eland', 'Buffalo'],
-                optional: ['A night game drive in Tarangire'],
+                optional: [
+                    { addon: 'night-game-drive' },
+                    { addon: 'zipline', note: 'at Mto wa Mbu, on the way through' },
+                ],
                 overnight: 'Lemala Mpingo Ridge, Tarangire',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -547,6 +597,10 @@ export const PACKAGES: SafariPackage[] = [
                     'A game drive through the park, and then up to Lemala Mpingo Ridge, which sits high enough to give you the whole valley from your deck.',
                 ],
                 wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                optional: [
+                    { addon: 'night-game-drive' },
+                    { addon: 'sundowner' },
+                ],
                 overnight: 'Lemala Mpingo Ridge, Tarangire',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -560,6 +614,9 @@ export const PACKAGES: SafariPackage[] = [
                     'A picnic lunch down there, then back up to the rim and Lion’s Paw Camp for a quiet evening in the highlands.',
                 ],
                 wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena', 'Flamingo'],
+                optional: [
+                    { addon: 'walking-safari', note: 'on the crater rim, or down into Empakaai' },
+                ],
                 highlight: 'A full day on the crater floor, rhino included',
                 overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
                 meals: 'Breakfast, lunch & dinner',
@@ -571,6 +628,10 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'The drive north-west through the conservation area and into the Serengeti is a long one, and it is also a game drive — the short-grass plains on the way in are where a great deal happens.',
                     'You settle into Lala Salama in the central Serengeti in the afternoon.',
+                ],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                    { addon: 'maasai-village' },
                 ],
                 overnight: 'Lala Salama Serengeti Camp, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -584,7 +645,10 @@ export const PACKAGES: SafariPackage[] = [
                     'If you want the one thing that is hard to arrange later, start it in the air: a sunrise balloon flight over the plains, and a champagne breakfast laid out in the bush when you come down.',
                 ],
                 wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Giraffe', 'Wildebeest', 'Zebra'],
-                optional: ['A sunrise hot air balloon safari, with a champagne bush breakfast'],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'spa', note: 'in-tent, at the camp' },
+                ],
                 overnight: 'Lala Salama Serengeti Camp, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -611,7 +675,7 @@ export const PACKAGES: SafariPackage[] = [
                 optional: [
                     'Snorkelling and scuba diving',
                     'Paddleboarding',
-                    'A couples spa treatment',
+                    { addon: 'spa', note: 'a couples treatment at the resort' },
                     'A private beach dinner',
                     'A sunset dhow cruise',
                 ],
@@ -738,9 +802,9 @@ export const PACKAGES: SafariPackage[] = [
                     'Dinner is a welcome dinner, and the evening is otherwise yours. The guided wildlife walk is complimentary if you would rather move than sit.',
                 ],
                 optional: [
-                    'Sundowners at Hole 16, Kilimanjaro Golf Course — US$ 50 pp',
+                    { addon: 'sundowner', price: 'US$ 50 pp', note: 'at Hole 16, Kilimanjaro Golf Course' },
                     'A one-hour guided wildlife walk — complimentary',
-                    'A two-hour horse riding experience — US$ 150 pp',
+                    { addon: 'horse-riding', price: 'US$ 150 pp', note: 'two hours, at the Dolly Estate' },
                 ],
                 overnight: 'Hamerkop House by Lemala, Arusha',
                 meals: 'Dinner',
@@ -762,6 +826,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Waterbuck',
                     'Warthog',
                     'Flamingo',
+                ],
+                optional: [
+                    { addon: 'canoeing', note: 'on the Momella Lakes' },
+                    { addon: 'biking', note: 'inside the park' },
                 ],
                 highlight: 'A guided walking safari with an armed ranger',
                 overnight: 'Koroi Forest Camp, Arusha National Park',
@@ -787,6 +855,10 @@ export const PACKAGES: SafariPackage[] = [
                     'A whole day in the park. Your guide will work the predators in the morning and the herds later, or the other way around, depending on what the night before turned up.',
                 ],
                 wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Hippo', 'Wildebeest'],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'bush-breakfast' },
+                ],
                 overnight: 'Lala Salama Serengeti Camp, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -798,6 +870,10 @@ export const PACKAGES: SafariPackage[] = [
                     'An unhurried game drive in the morning, then the road east into the Ngorongoro Conservation Area.',
                     'On arrival you walk the crater rim with an armed ranger — a genuinely different way to see the place, and the only way to feel how high it is.',
                     'The evening is at Meliá Ngorongoro, with the highlands falling away below you.',
+                ],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                    { addon: 'maasai-village' },
                 ],
                 highlight: 'A guided walking safari along the Ngorongoro Crater rim',
                 overnight: 'Meliá Ngorongoro, Ngorongoro Highlands',
@@ -812,6 +888,9 @@ export const PACKAGES: SafariPackage[] = [
                     'You spend the day on the floor looking for the Big Five, black rhino among them, and then climb out towards the Karatu highlands and Kitela Lodge — gardens, coffee, and a very quiet evening.',
                 ],
                 wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena'],
+                optional: [
+                    { addon: 'quad-biking' },
+                ],
                 overnight: 'Kitela Lodge, Karatu',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -825,6 +904,10 @@ export const PACKAGES: SafariPackage[] = [
                     'The evening is at Elephant Springs.',
                 ],
                 wildlife: ['Tree-climbing lion', 'Elephant', 'Hippo', 'Flamingo', 'Baboon'],
+                optional: [
+                    { addon: 'treetop-walk' },
+                    { addon: 'horse-riding', note: 'at Manyara Ranch' },
+                ],
                 overnight: 'Elephant Springs',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -838,7 +921,9 @@ export const PACKAGES: SafariPackage[] = [
                     'Then the road back to Arusha and Elewana Arusha Coffee Lodge for the last night.',
                 ],
                 wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo', 'Eland'],
-                optional: ['A night game drive in Tarangire'],
+                optional: [
+                    { addon: 'night-game-drive' },
+                ],
                 overnight: 'Elewana Arusha Coffee Lodge, Arusha',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -959,6 +1044,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Buffalo',
                     'Greater kudu',
                 ],
+                optional: [
+                    { addon: 'night-game-drive' },
+                    { addon: 'sundowner' },
+                ],
                 overnight: 'Lake Burunge Baobab Tented Camp, Tarangire',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -979,6 +1068,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Cheetah',
                     'Hyena',
                 ],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                    { addon: 'maasai-village' },
+                ],
                 overnight: 'Kubu Kubu Tented Lodge, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -991,6 +1084,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Then back east through the conservation area, with the landscape climbing and changing the whole way, to Lion’s Paw Camp near the crater rim.',
                 ],
                 wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Wildebeest', 'Zebra'],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'bush-breakfast' },
+                ],
                 overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -1004,6 +1101,9 @@ export const PACKAGES: SafariPackage[] = [
                     'Afterwards you climb out and carry on to Kitela Lodge in the Karatu highlands.',
                 ],
                 wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Flamingo'],
+                optional: [
+                    { addon: 'quad-biking' },
+                ],
                 highlight: 'A full day on the Ngorongoro Crater floor',
                 overnight: 'Kitela Lodge, Karatu',
                 meals: 'Breakfast, lunch & dinner',
@@ -1016,6 +1116,9 @@ export const PACKAGES: SafariPackage[] = [
                     'The last morning is out of the vehicle. You cycle down to the shore of Lake Manyara on ground that is flat the whole way, so it suits most ages and most levels of fitness — and anyone who would rather not ride goes by tuk-tuk instead.',
                     'At the lake you walk the shoreline with a guide, where zebra, wildebeest, antelope, waterbuck and giraffe come down, along with a great deal of birdlife and, now and then, hippo.',
                     'Then a cultural morning in Mto wa Mbu itself — a plantation, how the farming works, and what daily life in the town looks like — and a tuk-tuk ride back through it before you carry on.',
+                ],
+                optional: [
+                    { addon: 'zipline' },
                 ],
                 highlight: 'A flat, family-friendly cycle to the Lake Manyara shore — tuk-tuk if you prefer',
                 meals: 'Breakfast & lunch',
@@ -1119,6 +1222,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Buffalo',
                     'Greater kudu',
                 ],
+                optional: [
+                    { addon: 'night-game-drive' },
+                    { addon: 'sundowner' },
+                ],
                 overnight: 'Elephant Springs by Karibu Camps, Tarangire',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -1131,6 +1238,9 @@ export const PACKAGES: SafariPackage[] = [
                     'Then on to the park, arriving in time for an afternoon game drive out across the plains.',
                 ],
                 wildlife: ['Lion', 'Elephant', 'Wildebeest', 'Zebra', 'Giraffe', 'Cheetah'],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                ],
                 highlight: 'A Maasai village visit — customs, cattle and daily life',
                 overnight: 'Kubu Kubu, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -1152,6 +1262,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Zebra',
                     'Hippo',
                 ],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'bush-breakfast' },
+                ],
                 overnight: 'Kubu Kubu, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -1162,6 +1276,9 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'Game drives in the Serengeti through the morning, and then east in the afternoon towards the Ngorongoro Conservation Area.',
                     'The plains give way to highland as you climb. You finish at Lion’s Paw Camp, close to the crater.',
+                ],
+                optional: [
+                    { addon: 'walking-safari', note: 'on the crater rim' },
                 ],
                 overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
                 meals: 'Breakfast, lunch & dinner',
@@ -1183,6 +1300,9 @@ export const PACKAGES: SafariPackage[] = [
                     'Flamingo',
                     'Hyena',
                 ],
+                optional: [
+                    { addon: 'quad-biking' },
+                ],
                 highlight: 'A morning on the crater floor',
                 overnight: 'Kitela Lodge, Karatu',
                 meals: 'Breakfast, lunch & dinner',
@@ -1194,6 +1314,9 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'The last morning is in Mto wa Mbu — a walk through the village, the farming, the crafts and the markets, in a town where a remarkable number of Tanzania’s communities live within a few streets of each other.',
                     'Then on to the airport for your onward flight.',
+                ],
+                optional: [
+                    { addon: 'zipline' },
                 ],
                 highlight: 'A guided cultural tour of Mto wa Mbu',
                 meals: 'Breakfast & lunch',
@@ -1304,6 +1427,11 @@ export const PACKAGES: SafariPackage[] = [
                     'Warthog',
                     'Flamingo',
                 ],
+                optional: [
+                    { addon: 'walking-safari' },
+                    { addon: 'biking', note: 'inside the park' },
+                    { addon: 'canoeing', note: 'on the Momella Lakes' },
+                ],
                 highlight: 'A guided walking safari — the one park on this route you can explore on foot',
                 overnight: 'Arusha Serena Hotel, Resort & Spa',
                 meals: 'Breakfast, lunch & dinner',
@@ -1324,6 +1452,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Buffalo',
                     'Wildebeest',
                 ],
+                optional: [
+                    { addon: 'night-game-drive' },
+                    { addon: 'sundowner' },
+                ],
                 overnight: 'Elephant Springs by Karibu Camps, Tarangire',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -1334,6 +1466,10 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'The morning is in Mto wa Mbu, one of the most culturally mixed towns in Tanzania — farms, the market, and how people here actually live.',
                     'Then up into the Ngorongoro highlands to Kitela Lodge, with coffee plantations on every side.',
+                ],
+                optional: [
+                    { addon: 'zipline' },
+                    { addon: 'treetop-walk' },
                 ],
                 highlight: 'A morning in Mto wa Mbu — farms, market and village life',
                 overnight: 'Kitela Lodge, Karatu',
@@ -1346,6 +1482,10 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'North-west through the Ngorongoro Conservation Area and on into the Serengeti, game driving as you go.',
                     'You arrive at Kubu Kubu Tented Lodge, in the middle of the central Serengeti and the middle of the game.',
+                ],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                    { addon: 'maasai-village' },
                 ],
                 overnight: 'Kubu Kubu Tented Lodge, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -1366,6 +1506,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Giraffe',
                     'Wildebeest',
                     'Zebra',
+                ],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'bush-breakfast' },
                 ],
                 overnight: 'Lion’s Paw by Karibu Camps, Ngorongoro Crater rim',
                 meals: 'Breakfast, lunch & dinner',
@@ -1522,6 +1666,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Wildebeest',
                     'Impala',
                 ],
+                optional: [
+                    { addon: 'night-game-drive' },
+                    { addon: 'sundowner' },
+                ],
                 overnight: 'Elephant Springs, Tarangire',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -1543,6 +1691,11 @@ export const PACKAGES: SafariPackage[] = [
                     'Buffalo',
                     'Flamingo',
                 ],
+                optional: [
+                    { addon: 'treetop-walk' },
+                    { addon: 'horse-riding', note: 'at Manyara Ranch' },
+                    { addon: 'quad-biking' },
+                ],
                 overnight: 'Kitela Lodge, Karatu',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -1553,6 +1706,10 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'North-west through the Ngorongoro Conservation Area, game viewing the whole way, and on into the Serengeti.',
                     'An afternoon game drive across the central plains, and then Meliá Serengeti Lodge.',
+                ],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                    { addon: 'maasai-village' },
                 ],
                 overnight: 'Meliá Serengeti Lodge, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -1573,6 +1730,11 @@ export const PACKAGES: SafariPackage[] = [
                     'Wildebeest',
                     'Zebra',
                 ],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'bush-breakfast' },
+                    { addon: 'spa' },
+                ],
                 overnight: 'Meliá Serengeti Lodge, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -1583,6 +1745,9 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'Up early for a final game drive while the light is still low on the plains.',
                     'Back for lunch, and then the long, scenic climb east through the highlands to Lion’s Paw Camp, set near the crater rim so that tomorrow can start before everyone else’s.',
+                ],
+                optional: [
+                    { addon: 'walking-safari', note: 'on the crater rim' },
                 ],
                 overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
                 meals: 'Breakfast, lunch & dinner',
@@ -1754,6 +1919,11 @@ export const PACKAGES: SafariPackage[] = [
                     'Waterbuck',
                     'Flamingo (seasonal)',
                 ],
+                optional: [
+                    { addon: 'walking-safari' },
+                    { addon: 'biking', note: 'inside the park' },
+                    { addon: 'canoeing', note: 'on the Momella Lakes' },
+                ],
                 highlight: 'A walking safari with an armed ranger',
                 overnight: 'Koroi Forest Camp, Arusha National Park',
                 meals: 'Breakfast, lunch & dinner',
@@ -1774,6 +1944,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Wildebeest',
                     'Ostrich',
                 ],
+                optional: [
+                    { addon: 'night-game-drive' },
+                    { addon: 'sundowner' },
+                ],
                 overnight: 'Elephant Springs Camp, Tarangire',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -1786,6 +1960,10 @@ export const PACKAGES: SafariPackage[] = [
                     'The afternoon is a guided walk through the town — farms, the market, the workshops and the banana plantations, in a place where a great many of Tanzania’s communities live in a few streets.',
                     'You spend the night at Kitela Lodge, up in the highlands.',
                 ],
+                optional: [
+                    { addon: 'zipline' },
+                    { addon: 'treetop-walk' },
+                ],
                 highlight: 'A guided walk through Mto wa Mbu — farms, market and banana plantations',
                 overnight: 'Kitela Lodge, Karatu',
                 meals: 'Breakfast, lunch & dinner',
@@ -1797,6 +1975,10 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'The drive through the Ngorongoro highlands and down onto the Serengeti plains, which is one of the better drives in Africa and worth doing slowly.',
                     'There is game the whole way in. You finish at Lala Salama Camp.',
+                ],
+                optional: [
+                    { addon: 'olduvai-gorge' },
+                    { addon: 'maasai-village' },
                 ],
                 overnight: 'Lala Salama Camp, Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -1817,6 +1999,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Giraffe',
                     'Wildebeest',
                     'Zebra',
+                ],
+                optional: [
+                    { addon: 'balloon' },
+                    { addon: 'bush-breakfast' },
                 ],
                 overnight: 'Lala Salama Camp, Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -1851,6 +2037,9 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'East to the foothills of Kilimanjaro and Materuni Village, for a coffee tour with the Chagga who grow it — picked, roasted and ground in front of you — and a walk up to the waterfall.',
                     'In the afternoon, the Chemka hot springs: clear, warm water under fig trees, and the best possible answer to eight days in a safari vehicle.',
+                ],
+                optional: [
+                    { addon: 'biking', note: 'through the Chagga farmland below the mountain' },
                 ],
                 highlight: 'A Chagga coffee tour, the Materuni waterfall, and a swim at Chemka',
                 overnight: 'Arusha Coffee Lodge, Arusha',
@@ -1896,9 +2085,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 13,
         nights: 12,
         price: 'From US$ 6,943 pp',
-        image: '/images/guests-boarding-game-drive.webp',
+        image: '/images/migration-herd-vehicle.webp',
         imageAlt:
-            'Two guests walking hand in hand to an open safari vehicle where their guide is waiting',
+            'A column of wildebeest and zebra walking past an open safari vehicle, with thousands more spread across the plain behind them',
         summary:
             'Twelve nights following the migration: north through Maasai country to Lake Natron, two nights on the Mara River in the northern Serengeti, then west, then central, then the crater and Tarangire — finishing with a day on Kilimanjaro, Materuni and the hot springs.',
         priceFrom: 'US$ 6,943',
@@ -1970,6 +2159,9 @@ export const PACKAGES: SafariPackage[] = [
                     'The lake is alkaline, shallow and full of flamingo, ringed by volcanic mountains with Ol Doinyo Lengai — still active — standing over it.',
                     'You stay at Africa Safari Lake Natron, with all of that in front of you.',
                 ],
+                optional: [
+                    { addon: 'maasai-village', note: 'in the Longido country on the way north' },
+                ],
                 highlight: 'Lake Natron under Ol Doinyo Lengai — few people come this way',
                 overnight: 'Africa Safari Lake Natron',
                 meals: 'Breakfast, lunch & dinner',
@@ -2012,6 +2204,10 @@ export const PACKAGES: SafariPackage[] = [
                     'Hippo',
                     'Nile crocodile',
                 ],
+                optional: [
+                    { addon: 'bush-breakfast' },
+                    { addon: 'sundowner' },
+                ],
                 highlight: 'Mara River crossings, season and herds permitting',
                 overnight: 'Mara River Camp, Northern Serengeti',
                 meals: 'Breakfast, lunch & dinner',
@@ -2044,6 +2240,9 @@ export const PACKAGES: SafariPackage[] = [
                     'An afternoon working the valley, and then Kubu Kubu Tented Lodge.',
                 ],
                 wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Hippo', 'Hyena'],
+                optional: [
+                    { addon: 'spa' },
+                ],
                 overnight: 'Kubu Kubu Tented Lodge, Central Serengeti',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -2054,6 +2253,10 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'One last morning game drive in the central Serengeti, and then the climb east through the highlands.',
                     'You finish at Lion’s Paw Camp, set near the crater rim, ready for the descent in the morning.',
+                ],
+                optional: [
+                    { addon: 'balloon', note: 'from the Seronera launch site, before the drive out' },
+                    { addon: 'olduvai-gorge' },
                 ],
                 overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
                 meals: 'Breakfast, lunch & dinner',
@@ -2076,6 +2279,9 @@ export const PACKAGES: SafariPackage[] = [
                     'Hyena',
                     'Flamingo',
                 ],
+                optional: [
+                    { addon: 'quad-biking' },
+                ],
                 overnight: 'Kitela Lodge, Karatu',
                 meals: 'Breakfast, lunch & dinner',
             },
@@ -2086,6 +2292,11 @@ export const PACKAGES: SafariPackage[] = [
                 paragraphs: [
                     'A morning in Mto wa Mbu — farms, the market, and a town where a remarkable number of Tanzania’s communities live within a few streets of each other.',
                     'Then south to Tarangire and Elephant Springs by Karibu Camps.',
+                ],
+                optional: [
+                    { addon: 'zipline' },
+                    { addon: 'treetop-walk' },
+                    { addon: 'night-game-drive' },
                 ],
                 highlight: 'A cultural morning in Mto wa Mbu',
                 overnight: 'Elephant Springs by Karibu Camps, Tarangire',
@@ -2131,6 +2342,9 @@ export const PACKAGES: SafariPackage[] = [
                     'Materuni Village in the morning, on the slopes of Kilimanjaro: a guided walk through the coffee to the waterfall, and the coffee-growing itself, which the Chagga will take you through properly.',
                     'Then Kikuletwa, where warm, startlingly clear water sits under fig trees and you can swim in it.',
                     'Back to Arusha for the last night.',
+                ],
+                optional: [
+                    { addon: 'biking', note: 'through the Chagga farmland' },
                 ],
                 overnight: 'Meliá Arusha',
                 meals: 'Breakfast & lunch',

@@ -5,8 +5,10 @@
  *
  * Ported from the trip planner on ~/web/atlas (src/pages/plan-my-trip.astro):
  * one question per screen — what you'd like to see, what draws you, who is
- * travelling, roughly when — and only then the contact fields. Same screens,
- * same interaction, restyled to this site's tokens and Header/Footer.
+ * travelling, roughly when and for how long — and only then the contact
+ * fields. Same screens, same interaction, restyled to this site's tokens and
+ * Header/Footer. The trip length shares the date screen rather than taking a
+ * fifth one, as it does in ~/web/mufasa_new.
  *
  * Atlas opens on a full-bleed "Let's Begin" splash; this page does not. Every
  * link that lands here is already a decision to enquire, so the first screen
@@ -30,6 +32,7 @@ import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import { CONTACT, WEB3FORMS, SITE, whatsappLink } from '../config'
 import { PACKAGES } from '../content/packages'
+import { TRAVEL_STYLES } from '../content/home'
 
 interface Option {
     value: string
@@ -111,6 +114,21 @@ const totalSteps = steps.length
 const minDate = new Date().toISOString().slice(0, 10)
 
 /*
+ * Trip length, asked in the same step as the date — ported from the planner in
+ * ~/web/mufasa_new (PlannerFlow.astro's `duration` block on its date step): a
+ * minus/number/plus stepper rather than a set of chips, so the answer is an
+ * exact figure and nobody has to reply asking "how many, exactly?".
+ *
+ * The catalogue runs 6 to 13 days. The bounds are wider than that on purpose:
+ * the planner also has to take a short private trip and a safari with a
+ * Zanzibar week on the end. 7 opens the field — the length of the two
+ * most-asked itineraries.
+ */
+const DAYS_MIN = 3
+const DAYS_MAX = 30
+const DAYS_INITIAL = 7
+
+/*
  * Chip label lookup for the client script, so the inbox gets "The Ngorongoro
  * Crater" rather than "crater". Built here rather than in the browser because
  * the options only exist at build time.
@@ -121,6 +139,39 @@ for (const step of steps) {
         optionLabels[`${step.id}:${option.value}`] = option.label
     }
 }
+
+/*
+ * The "How do you want to travel?" cards on the homepage link here as
+ * /enquire/?plan=<slug>. A plan carries two things: the card's title, which
+ * reaches the inbox as the enquiry's stated intent, and the answers the
+ * card's own title already gives, which arrive preselected so nobody is asked
+ * something they have just told us.
+ *
+ * Built from TRAVEL_STYLES so the cards and the planner cannot drift, and
+ * checked here rather than trusted: a preset naming a step or an option this
+ * page does not offer is a build error, not a chip that quietly stops
+ * lighting up when a question is reworded.
+ */
+const plans = Object.fromEntries(
+    TRAVEL_STYLES.items.map((style) => {
+        for (const [stepId, values] of Object.entries(style.preset ?? {})) {
+            const step = steps.find((candidate) => candidate.id === stepId)
+            if (!step) {
+                throw new Error(
+                    `TRAVEL_STYLES "${style.slug}" presets step "${stepId}", which /enquire/ does not ask.`
+                )
+            }
+            for (const value of values ?? []) {
+                if (!step.options?.some((option) => option.value === value)) {
+                    throw new Error(
+                        `TRAVEL_STYLES "${style.slug}" presets "${value}", which step "${stepId}" does not offer.`
+                    )
+                }
+            }
+        }
+        return [style.slug, { label: style.title, answers: style.preset ?? {} }]
+    })
+)
 
 const whatsapp = whatsappLink(
     'Hello Polecat Safaris — I would like to plan a safari in Tanzania.'
@@ -153,8 +204,8 @@ const whatsapp = whatsappLink(
                     <p class="pt-3 pb-10 text-[15px] leading-7 text-muted">{step.hint}</p>
 
                     {step.kind === 'date' ? (
-                        <div class="flex w-full max-w-100 flex-col items-center gap-5">
-                            <label class="relative block w-full">
+                        <div class="flex w-full flex-col items-center gap-5">
+                            <label class="relative block w-full max-w-100">
                                 <span class="sr-only">Arrival date</span>
                                 <input
                                     type="date"
@@ -185,6 +236,61 @@ const whatsapp = whatsappLink(
                                 class="font-display min-h-8 text-[22px] leading-8 text-primary italic"
                                 data-date-pretty
                             />
+
+                            <div class="flex w-full flex-col items-center gap-3.5 pt-1">
+                                <span class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-muted uppercase">
+                                    And how many days on safari?
+                                </span>
+                                {/* The unit sits outside the stepper so the two
+                                    buttons stay evenly spaced around the
+                                    number; on a phone there is no room beside
+                                    it, so it drops underneath. */}
+                                <div class="relative flex flex-wrap items-center justify-center gap-3">
+                                    <button
+                                        type="button"
+                                        class="flex h-14 w-12 cursor-pointer items-center justify-center border border-line bg-white text-[20px] leading-none text-ink transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-35"
+                                        data-days-step="-1"
+                                        aria-label="One day fewer"
+                                    >
+                                        &#8722;
+                                    </button>
+                                    <label class="block">
+                                        <span class="sr-only">Number of days</span>
+                                        <input
+                                            type="number"
+                                            class="planner-count h-14 w-28 border border-line bg-white px-2 text-center text-[24px] leading-8 text-ink transition-colors focus:border-primary focus:outline-none"
+                                            data-days-field
+                                            inputmode="numeric"
+                                            min={DAYS_MIN}
+                                            max={DAYS_MAX}
+                                            value={DAYS_INITIAL}
+                                        />
+                                    </label>
+                                    <button
+                                        type="button"
+                                        class="flex h-14 w-12 cursor-pointer items-center justify-center border border-line bg-white text-[20px] leading-none text-ink transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-35"
+                                        data-days-step="1"
+                                        aria-label="One day more"
+                                    >
+                                        +
+                                    </button>
+                                    <span
+                                        class="w-full text-center text-[11px] leading-3.5 font-medium tracking-[0.2em] text-muted uppercase sm:absolute sm:left-[calc(100%+0.75rem)] sm:w-auto sm:text-left"
+                                        data-days-unit
+                                    >
+                                        days
+                                    </span>
+                                </div>
+                                {/* The far end of the trip, derived from the
+                                    two answers above it. The arrival is
+                                    already spelled out over this line, so this
+                                    one names only the last day rather than
+                                    restating the span. */}
+                                <p
+                                    class="min-h-6 text-[14px] leading-6 text-muted"
+                                    data-days-span
+                                />
+                            </div>
                         </div>
                     ) : (
                         <div class="flex max-w-220 flex-wrap justify-center gap-3">
@@ -239,7 +345,7 @@ const whatsapp = whatsappLink(
             browser's, but every field keeps its real type so mobile keyboards
             and autofill still behave. */}
         <section
-            class="gutter hidden min-h-[70vh] flex-col justify-center py-20 lg:py-25"
+            class="gutter hidden min-h-[70vh] flex-col justify-center py-16 lg:py-20"
             data-screen="contact"
         >
             <div class="mx-auto w-full max-w-150">
@@ -248,19 +354,18 @@ const whatsapp = whatsappLink(
                 >
                     Where should we send your ideas?
                 </h2>
-                <p class="pt-4 text-[16px] leading-7.5 text-muted">
+                <p class="pt-3.5 text-[16px] leading-7.5 text-muted">
                     Leave your details and a guide in Arusha — not a call centre — will come back
-                    with a draft itinerary, named lodges and a firm per-person price. Nothing is
-                    booked and nothing is charged until you have said yes to one.
+                    with a draft itinerary, named lodges and a firm price.
                 </p>
 
                 <p
-                    class="mt-8 hidden border-l-2 border-primary bg-white py-4 pr-5 pl-5 text-[14px] leading-6 text-muted"
+                    class="mt-7 hidden border-l-2 border-primary bg-white py-3.5 pr-4.5 pl-4.5 text-[14px] leading-6 text-muted"
                     data-answer-summary
                 >
                 </p>
 
-                <form id="enquiry-form" class="mt-9 flex flex-col gap-6" novalidate>
+                <form id="enquiry-form" class="mt-7 flex flex-col gap-5" novalidate>
                     {/* Honeypot — Web3Forms drops any submission where this is
                         filled, so the public key doesn't invite spam. */}
                     <input
@@ -272,8 +377,8 @@ const whatsapp = whatsappLink(
                         autocomplete="off"
                     />
 
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <div class="flex flex-col gap-2">
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div class="flex flex-col gap-1.5">
                             <label
                                 for="enquiry-name"
                                 class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
@@ -288,7 +393,7 @@ const whatsapp = whatsappLink(
                                 class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
                             />
                         </div>
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-col gap-1.5">
                             <label
                                 for="enquiry-email"
                                 class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
@@ -305,8 +410,8 @@ const whatsapp = whatsappLink(
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <div class="flex flex-col gap-2">
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div class="flex flex-col gap-1.5">
                             <label
                                 for="enquiry-phone"
                                 class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
@@ -325,7 +430,7 @@ const whatsapp = whatsappLink(
                                 class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
                             />
                         </div>
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-col gap-1.5">
                             <label
                                 for="enquiry-travellers"
                                 class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
@@ -343,7 +448,7 @@ const whatsapp = whatsappLink(
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-1.5">
                         <label
                             for="enquiry-itinerary"
                             class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
@@ -358,7 +463,7 @@ const whatsapp = whatsappLink(
                         <select
                             id="enquiry-itinerary"
                             name="itinerary"
-                            class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
+                            class="planner-select border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
                         >
                             <option value="">Not sure yet — advise me</option>
                             {PACKAGES.map((pkg) => <option value={pkg.name}>{pkg.name}</option>)}
@@ -366,7 +471,7 @@ const whatsapp = whatsappLink(
                         </select>
                     </div>
 
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-1.5">
                         <label
                             for="enquiry-message"
                             class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
@@ -379,9 +484,9 @@ const whatsapp = whatsappLink(
                         <textarea
                             id="enquiry-message"
                             name="message"
-                            rows="3"
-                            placeholder="Children and their ages, a budget, Zanzibar days on the end, dietary needs — whatever shapes the trip."
-                            class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-7 text-ink placeholder:text-[15px] placeholder:text-muted focus:border-primary focus:outline-none"
+                            rows="2"
+                            placeholder="Children and their ages, a budget, dietary needs, Zanzibar days on the end."
+                            class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-7 text-ink placeholder:text-[15px] placeholder:text-muted/65 focus:border-primary focus:outline-none"
                         ></textarea>
                     </div>
 
@@ -395,7 +500,7 @@ const whatsapp = whatsappLink(
                     >
                     </p>
 
-                    <div class="mt-2 flex items-center justify-between gap-6">
+                    <div class="mt-1 flex items-center justify-between gap-6">
                         <button
                             type="button"
                             class="cursor-pointer text-[11px] leading-4 tracking-[0.18em] text-muted uppercase transition-colors hover:text-ink"
@@ -412,12 +517,13 @@ const whatsapp = whatsappLink(
                     </div>
 
                     <p class="text-[12px] leading-5 text-muted">
-                        We reply within one working day, and use your details to answer this
-                        enquiry and nothing else.
+                        Nothing is booked and nothing is charged until you have said yes to an
+                        itinerary. We reply within one working day, and use your details to answer
+                        this enquiry and nothing else.
                     </p>
                 </form>
 
-                <div class="mt-10 flex flex-col gap-3 border-t border-line pt-7">
+                <div class="mt-8 flex flex-col gap-3 border-t border-line pt-6">
                     <p
                         class="text-[11px] leading-3.5 font-medium tracking-[0.24em] text-ink uppercase"
                     >
@@ -434,13 +540,39 @@ const whatsapp = whatsappLink(
                             class="text-[16px] leading-7 text-primary hover:underline"
                             >{CONTACT.email}</a
                         >
+                        {/* The mark, then the number it reaches — drawn from
+                            primitives in the house style of the footer's
+                            social icons rather than lifted from a brand
+                            asset. No `rule-link` here: the trailing rule read
+                            as a stray line beside the icon. */}
                         <a
                             href={whatsapp}
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="rule-link text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
+                            class="flex items-center gap-2 text-[16px] leading-7 text-primary transition-colors hover:text-ink"
                         >
-                            WhatsApp
+                            <svg
+                                width="17"
+                                height="17"
+                                viewBox="0 0 18 18"
+                                fill="none"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                                class="shrink-0"
+                            >
+                                <path
+                                    d="M5.18 13.37A6.1 6.1 0 103.21 10.28L1.31 13.2Z"
+                                    stroke-width="1.2"
+                                    stroke-linejoin="round"
+                                />
+                                <path
+                                    d="M7.4 7.1c-.5.8.1 2 1 2.9.9.9 2.1 1.5 2.9 1"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                />
+                            </svg>
+                            {CONTACT.phone}
+                            <span class="sr-only">on WhatsApp</span>
                         </a>
                     </div>
                     <p class="pt-1 text-[13px] leading-5.5 text-muted">
@@ -496,6 +628,10 @@ const whatsapp = whatsappLink(
         optionLabels,
         whatsapp,
         email: CONTACT.email,
+        daysMin: DAYS_MIN,
+        daysMax: DAYS_MAX,
+        daysInitial: DAYS_INITIAL,
+        plans,
     }}
 >
     const root = document.querySelector('[data-planner]')
@@ -509,7 +645,34 @@ const whatsapp = whatsappLink(
         const summary = root.querySelector('[data-answer-summary]')
         const total = stepScreens.length
 
-        const answers = { see: [], interests: [], occasion: [], arrival: [] }
+        /* `days` starts at its default rather than empty: the stepper always
+           shows a figure, so that figure has to be the stored answer even if
+           nobody touches it. */
+        const answers = {
+            see: [],
+            interests: [],
+            occasion: [],
+            arrival: [],
+            days: [String(daysInitial)],
+        }
+
+        /* Which card sent them here, if any — reported to the inbox as the
+           stated intent. The answers a plan presets are visible as selected
+           chips, so the summary does not restate them. */
+        let intent = null
+        const plan = plans[new URLSearchParams(window.location.search).get('plan') ?? '']
+        if (plan) {
+            intent = plan.label
+            for (const [stepId, values] of Object.entries(plan.answers)) {
+                answers[stepId] = [...values]
+                root.querySelectorAll(`[data-option][data-step="${stepId}"]`).forEach((chip) => {
+                    const on = values.includes(chip.dataset.value)
+                    chip.toggleAttribute('data-selected', on)
+                    chip.setAttribute('aria-pressed', on ? 'true' : 'false')
+                })
+            }
+            stepScreens.forEach((screen) => syncNext(screen))
+        }
 
         /** "12 June 2026", or "" if the value isn't a real date. */
         function longDate(iso, withWeekday = false) {
@@ -541,7 +704,11 @@ const whatsapp = whatsappLink(
             const seeing = [...labelsFor('see'), ...labelsFor('interests')]
             if (seeing.length) parts.push(seeing.join(', '))
             const arriving = longDate(currentArrival())
-            parts.push(arriving ? `around ${arriving}` : 'dates still open')
+            parts.push(
+                arriving
+                    ? `${daysLabel()} from around ${arriving}`
+                    : `${daysLabel()}, dates still open`
+            )
 
             summary.textContent = `You told us: ${parts.join(' · ')}.`
             summary.classList.remove('hidden')
@@ -615,10 +782,72 @@ const whatsapp = whatsappLink(
         const dateField = root.querySelector('[data-date-field]')
         const datePretty = root.querySelector('[data-date-pretty]')
 
+        /* Trip length. There is one date step, so these are unique on the
+           page and need no per-step lookup. */
+        const daysField = root.querySelector('[data-days-field]')
+        const daysUnit = root.querySelector('[data-days-unit]')
+        const daysSpan = root.querySelector('[data-days-span]')
+
+        const currentDays = () => Number(answers.days[0])
+        const daysLabel = () => `${currentDays()} ${currentDays() === 1 ? 'day' : 'days'}`
+
+        /** The last day away, counting the arrival day as day one. */
+        function lastDay() {
+            const iso = currentArrival()
+            const days = currentDays()
+            if (!iso || !Number.isFinite(days)) return ''
+            const end = new Date(`${iso}T00:00:00`)
+            if (Number.isNaN(end.getTime())) return ''
+            end.setDate(end.getDate() + days - 1)
+            // Local parts rather than toISOString(), which east of UTC would
+            // hand back the day before.
+            const pad = (n) => String(n).padStart(2, '0')
+            return longDate(
+                `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`,
+                true
+            )
+        }
+
+        function paintDays() {
+            const days = currentDays()
+            if (daysUnit) daysUnit.textContent = days === 1 ? 'day' : 'days'
+            const end = lastDay()
+            if (daysSpan) daysSpan.textContent = end ? `Your last day would be ${end}.` : ''
+            root.querySelectorAll('[data-days-step]').forEach((b) => {
+                b.disabled = Number(b.dataset.daysStep) < 0 ? days <= daysMin : days >= daysMax
+            })
+        }
+
+        function commitDays(n) {
+            const clamped = Math.min(daysMax, Math.max(daysMin, Number.isFinite(n) ? n : daysMin))
+            if (daysField) daysField.value = String(clamped)
+            answers.days = [String(clamped)]
+            paintDays()
+        }
+
+        root.querySelectorAll('[data-days-step]').forEach((b) =>
+            b.addEventListener('click', () =>
+                commitDays(Number(daysField?.value) + Number(b.dataset.daysStep))
+            )
+        )
+
+        /* Typing is only clamped once the field settles: clamping on every
+           keystroke turns a half-typed "1" of 12 into a 3. */
+        daysField?.addEventListener('input', () => {
+            const n = Number(daysField.value)
+            if (Number.isFinite(n) && n >= daysMin && n <= daysMax) {
+                answers.days = [String(n)]
+                paintDays()
+            }
+        })
+        daysField?.addEventListener('blur', () => commitDays(Number(daysField.value)))
+
         function syncArrival() {
             const iso = currentArrival()
             if (dateField) dateField.value = iso
             if (datePretty) datePretty.textContent = longDate(iso, true)
+            // The last-day line reads from the date, so it follows every change.
+            paintDays()
         }
 
         dateField?.addEventListener('change', () => {
@@ -626,6 +855,7 @@ const whatsapp = whatsappLink(
             syncArrival()
         })
 
+        commitDays(Number(daysField?.value))
         syncArrival()
 
         /* The date step can be passed with nothing chosen — there is a skip
@@ -662,6 +892,8 @@ const whatsapp = whatsappLink(
                 answers.interests = []
                 answers.occasion = []
                 answers.arrival = []
+                intent = null
+                commitDays(daysInitial)
                 root.querySelectorAll('[data-option]').forEach((c) => {
                     c.removeAttribute('data-selected')
                     c.setAttribute('aria-pressed', 'false')
@@ -716,6 +948,8 @@ const whatsapp = whatsappLink(
                         Phone: field('phone')?.value || '—',
                         Travellers: field('travellers')?.value || '—',
                         'Travel window': arriving || 'Not decided yet',
+                        'Trip length': daysLabel(),
+                        'Interested in': intent ?? '—',
                         // The four planner answers, in the order they were asked.
                         'Would like to see': labelsFor('see').join(', ') || '—',
                         'Drawn to': labelsFor('interests').join(', ') || '—',
@@ -753,6 +987,14 @@ const whatsapp = whatsappLink(
 </script>
 
 <style>
+    /* An untouched select is a prompt, not an answer, so it is dimmed until a
+       real itinerary is chosen. :has() is doing the work a placeholder would
+       do if <select> had one; where it is unsupported the prompt simply stays
+       at full strength. */
+    .planner-select:has(option[value='']:checked) {
+        color: color-mix(in srgb, var(--color-muted) 65%, transparent);
+    }
+
     /* Light picker chrome, and a blank field reads as a prompt rather than
        "mm/dd/yyyy" noise. */
     .planner-date {
@@ -766,6 +1008,18 @@ const whatsapp = whatsappLink(
     .planner-date:not(:focus):invalid::-webkit-datetime-edit,
     .planner-date[value='']:not(:focus)::-webkit-datetime-edit {
         color: var(--color-muted);
+    }
+
+    /* The spinner chrome is redundant next to the minus/plus buttons. */
+    .planner-count {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    .planner-count::-webkit-outer-spin-button,
+    .planner-count::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 
     /* Stretch the invisible picker trigger over the calendar icon block. */

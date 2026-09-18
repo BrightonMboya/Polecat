@@ -38,7 +38,16 @@ const whatsapp = whatsappLink(
     <div class="shell flex flex-col gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-15">
         <div class="flex flex-col items-start gap-6.5 lg:w-75 lg:shrink-0">
             <Wordmark />
-            <p class="max-w-65 text-[14px] leading-6.5 text-muted">{SITE.tagline}</p>
+            {/* Slogan over tagline, as one block rather than two items of the
+                column's 26px gap: the brand line and the sentence that
+                explains it belong together, and the display italic is the
+                same voice the itinerary standfirsts use. */}
+            <div class="flex flex-col gap-2">
+                <p class="font-display text-[21px] leading-7.5 text-primary italic">
+                    {SITE.slogan}
+                </p>
+                <p class="max-w-65 text-[14px] leading-6.5 text-muted">{SITE.tagline}</p>
+            </div>
             <div class="flex flex-col gap-1.5">
                 <p class="text-[14px] leading-6 text-muted">{SITE.city}</p>
                 <a href={CONTACT.phoneHref} class="text-[14px] leading-6 text-ink hover:text-primary"

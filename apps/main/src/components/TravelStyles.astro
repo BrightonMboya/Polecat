@@ -1,0 +1,96 @@
+---
+/**
+ * "How do you want to travel?" — five portrait cards, each a way into the
+ * planner with its intent already carried. After the band of the same name on
+ * abercrombiekent.com, which the client asked this to read like: the title
+ * over the top of the photograph, one line of copy over the foot of it, three
+ * cards on the first row and two centred under them.
+ *
+ * The copy, the photographs and the answers each card preselects are all in
+ * TRAVEL_STYLES (src/content/home.ts). The `?plan=` slug is read by
+ * /enquire/, which throws at build time if a card presets an answer its
+ * planner does not offer.
+ */
+import SectionHeading from './SectionHeading.astro'
+import { TRAVEL_STYLES } from '../content/home'
+
+/*
+ * Both the title and the copy are white over the photograph, so the frame
+ * needs a scrim at each end and can stay open in the middle.
+ *
+ * Measured, not guessed: scripts/style-card-scrim.py takes the brightest pixel
+ * under each band of each of the five images and solves for the least alpha
+ * that clears WCAG AA — 3:1 for the 27px title, 4.5:1 for the 15px copy. The
+ * worst case across the five is 0.48 under the title and 0.61 under the copy
+ * (three of the five put a pure white pixel under both), and the stops below
+ * hold 0.50 through the title band and reach 0.64 before the copy band starts.
+ * Re-run the script after changing a photograph.
+ */
+const SCRIM =
+    'background: linear-gradient(180deg,' +
+    ' rgba(35,32,27,0.54) 0%,' +
+    ' rgba(35,32,27,0.50) 24%,' +
+    ' rgba(35,32,27,0.24) 44%,' +
+    ' rgba(35,32,27,0.64) 60%,' +
+    ' rgba(35,32,27,0.74) 100%)'
+---
+
+<section class="gutter flex flex-col items-center bg-cream pt-18 pb-18 lg:pt-24 lg:pb-26">
+    <SectionHeading heading={TRAVEL_STYLES.heading} body={TRAVEL_STYLES.body} />
+
+    {/* Six columns rather than three, so five cards fill two rows with no hole
+        in either: the first three span two columns each, the last two span
+        three. The bottom pair is half as wide again as the top three, so those
+        two photographs are cropped landscape and the others portrait — which
+        is how the reference (abercrombiekent.com) sets the same five-card
+        grid, and it keeps both rows about the same height.
+
+        The shape follows the position rather than a field on the card: it is
+        the grid that decides how wide a slot is. Reordering TRAVEL_STYLES
+        therefore means re-cropping — the last two images are 3:2, the rest
+        3:4. */}
+    <ul class="shell mt-10 grid grid-cols-1 gap-5.5 sm:grid-cols-2 lg:mt-13 lg:grid-cols-6">
+        {
+            TRAVEL_STYLES.items.map((style, index) => {
+                const wide = index >= 3
+                /* At `sm` the grid is two columns, which leaves the fifth card
+                   alone in a half-width slot; it takes the whole row there
+                   instead. Its frame is landscape, so a full-width card is not
+                   a tall one. */
+                return (
+                <li
+                    class:list={[
+                        wide ? 'lg:col-span-3' : 'lg:col-span-2',
+                        index === 4 && 'sm:col-span-2',
+                    ]}
+                >
+                    <a
+                        href={`/enquire/?plan=${style.slug}`}
+                        class="group relative block overflow-hidden"
+                    >
+                        <img
+                            src={style.image}
+                            alt={style.imageAlt}
+                            width={wide ? '1400' : '900'}
+                            height={wide ? '933' : '1200'}
+                            loading="lazy"
+                            decoding="async"
+                            class:list={[
+                                'w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]',
+                                wide ? 'aspect-[3/2]' : 'aspect-[3/4]',
+                            ]}
+                        />
+                        <div class="absolute inset-0" style={SCRIM} aria-hidden="true"></div>
+                        <div class="absolute inset-0 flex flex-col justify-between gap-6 p-6 text-center lg:p-7">
+                            <h3 class="font-display text-[27px] leading-9 font-light text-white lg:text-[30px] lg:leading-10">
+                                {style.title}
+                            </h3>
+                            <p class="text-[15px] leading-6.5 text-white">{style.blurb}</p>
+                        </div>
+                    </a>
+                </li>
+                )
+            })
+        }
+    </ul>
+</section>

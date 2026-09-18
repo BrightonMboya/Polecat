@@ -26,6 +26,8 @@ export const GET: APIRoute = async ({ site }) => {
         { path: '/safari-packages/', priority: '0.9', changefreq: 'weekly' },
         { path: '/enquire/', priority: '0.8', changefreq: 'monthly' },
         { path: '/about/', priority: '0.7', changefreq: 'monthly' },
+        { path: '/safari-add-ons/', priority: '0.7', changefreq: 'monthly' },
+        { path: '/travel-information/', priority: '0.7', changefreq: 'monthly' },
         ...PACKAGES.map((pkg) => ({
             path: `/safari-packages/${pkg.slug}/`,
             priority: '0.8',

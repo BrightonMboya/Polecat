@@ -9,13 +9,53 @@
  * this site's data records drive times or altitudes, so the slots here are
  * Meals / Overnight / Highlight — the three it does record.
  *
+ * kan sets each slot as a label stacked over its value in a fixed-width column,
+ * so the slots line up down the page. That was ported and then dropped: the
+ * columns were 186px, and the two values that are always there did not fit in
+ * one — "Breakfast, lunch & dinner" and a camp name with its region ("Lion's
+ * Paw by Karibu Camps, Ngorongoro Crater rim" is the longest at 49 characters)
+ * both wrapped to two lines on every single day. The strip now runs the label
+ * and its value on one line and lets each slot take the width it needs, which
+ * costs the column alignment and buys a meta strip that is one line per fact.
+ * Highlight is the long one (up to 79 characters) so it wraps to its own line
+ * when the three together outrun the measure.
+ *
  * The lodge photography (StayGallery) and the optional extras are this site's
  * own and have no counterpart in kan; they keep their place inside the day
  * body rather than being dropped to make the port tidier.
  */
 import StayGallery from './StayGallery.astro'
 import { findAccommodation } from '../content/accommodations'
+import { findAddon } from '../content/addons'
+import type { DayExtra } from '../content/packages'
 import type { SafariPackage } from '../content/packages'
+
+/**
+ * An "Optional today" row. A catalogue slug resolves to the add-on's name and
+ * its price, duration and age limits; the day may override the price and add a
+ * note of its own, which is how the operator's own itinerary wording survives.
+ * A bare string is a one-off with no catalogue entry and no meta line.
+ *
+ * The meta line is deliberately three facts at most — how long, from how much,
+ * who cannot do it. Everything else the client wrote about these fourteen
+ * activities is at /safari-add-ons/, which the name links into.
+ */
+function resolveExtra(extra: DayExtra) {
+    if (typeof extra === 'string') return { label: extra, meta: null, href: null }
+
+    const addon = findAddon(extra.addon)
+    const meta = [
+        addon.duration,
+        extra.price ?? (addon.price === 'On request' ? 'Price on request' : addon.price),
+        addon.who,
+    ].filter(Boolean)
+
+    return {
+        label: extra.note ? `${addon.name} — ${extra.note}` : addon.name,
+        meta: meta.join(' · '),
+        href: `/safari-add-ons/#${addon.slug}`,
+    }
+}
 
 interface Props {
     pkg: SafariPackage
@@ -78,10 +118,10 @@ const { pkg } = Astro.props
                             ))}
 
                             {(day.meals || day.overnight || day.highlight) && (
-                                <dl class="flex flex-col gap-6 py-1 sm:flex-row sm:gap-0">
+                                <dl class="flex flex-col gap-3 py-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-10 sm:gap-y-3">
                                     {day.meals && (
-                                        <div class="flex shrink-0 flex-col gap-1.25 sm:w-46.5 sm:pr-6">
-                                            <dt class="text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
+                                        <div class="flex items-baseline gap-2.5">
+                                            <dt class="shrink-0 text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
                                                 Meals
                                             </dt>
                                             <dd class="text-[14px] leading-5.5 text-ink">
@@ -91,8 +131,8 @@ const { pkg } = Astro.props
                                     )}
 
                                     {day.overnight && (
-                                        <div class="flex shrink-0 flex-col gap-1.25 sm:w-46.5 sm:pr-6">
-                                            <dt class="text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
+                                        <div class="flex items-baseline gap-2.5">
+                                            <dt class="shrink-0 text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
                                                 Overnight
                                             </dt>
                                             <dd
@@ -112,8 +152,8 @@ const { pkg } = Astro.props
                                     )}
 
                                     {day.highlight && (
-                                        <div class="flex min-w-0 flex-1 flex-col gap-1.25">
-                                            <dt class="text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
+                                        <div class="flex min-w-0 items-baseline gap-2.5">
+                                            <dt class="shrink-0 text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
                                                 Highlight
                                             </dt>
                                             <dd class="text-[14px] leading-5.5 font-medium text-ink">
@@ -139,15 +179,39 @@ const { pkg } = Astro.props
                                     <p class="text-[10px] leading-3.5 font-medium tracking-[0.24em] text-muted/70 uppercase">
                                         Optional today
                                     </p>
-                                    <ul class="flex flex-col gap-2.5">
-                                        {day.optional.map((extra) => (
-                                            <li class="flex items-start gap-3 text-[15px] leading-6 text-muted">
-                                                <span class="text-muted/60" aria-hidden="true">
-                                                    +
-                                                </span>
-                                                {extra}
-                                            </li>
-                                        ))}
+                                    <ul class="flex flex-col gap-3">
+                                        {day.optional.map((extra) => {
+                                            const { label, meta, href } = resolveExtra(extra)
+                                            return (
+                                                <li class="flex items-start gap-3">
+                                                    <span
+                                                        class="mt-0.5 text-[15px] leading-6 text-muted/60"
+                                                        aria-hidden="true"
+                                                    >
+                                                        +
+                                                    </span>
+                                                    <div class="flex min-w-0 flex-col gap-0.5">
+                                                        {href ? (
+                                                            <a
+                                                                href={href}
+                                                                class="text-[15px] leading-6 text-ink underline decoration-line decoration-1 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary"
+                                                            >
+                                                                {label}
+                                                            </a>
+                                                        ) : (
+                                                            <span class="text-[15px] leading-6 text-muted">
+                                                                {label}
+                                                            </span>
+                                                        )}
+                                                        {meta && (
+                                                            <span class="text-[12.5px] leading-5 text-muted/80">
+                                                                {meta}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </li>
+                                            )
+                                        })}
                                     </ul>
                                 </div>
                             )}
