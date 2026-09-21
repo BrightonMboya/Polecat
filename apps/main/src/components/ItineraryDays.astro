@@ -117,8 +117,22 @@ const { pkg } = Astro.props
                                 <p class="text-[16px] leading-7.5 text-muted">{paragraph}</p>
                             ))}
 
-                            {(day.meals || day.overnight || day.highlight) && (
+                            {(day.stats?.length || day.meals || day.overnight || day.highlight) && (
                                 <dl class="flex flex-col gap-3 py-1 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-10 sm:gap-y-3">
+                                    {/* The climb figures — elevation, distance,
+                                        hours, habitat — lead the row, because on
+                                        a trek they are what the day is. */}
+                                    {day.stats?.map((stat) => (
+                                        <div class="flex items-baseline gap-2.5">
+                                            <dt class="shrink-0 text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">
+                                                {stat.label}
+                                            </dt>
+                                            <dd class="text-[14px] leading-5.5 text-ink">
+                                                {stat.value}
+                                            </dd>
+                                        </div>
+                                    ))}
+
                                     {day.meals && (
                                         <div class="flex items-baseline gap-2.5">
                                             <dt class="shrink-0 text-[10px] leading-3.5 font-medium tracking-[0.22em] text-muted/70 uppercase">

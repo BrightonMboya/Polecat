@@ -1,8 +1,14 @@
 ---
 /**
- * The parent of the itinerary pages: every package we sell, as the same cards
- * the homepage uses. Exists so the homepage's "All Safari Packages" button and
- * the breadcrumb on each itinerary have somewhere to land.
+ * The safari side of the Journeys menu: the ten northern-Tanzania itineraries,
+ * as the same cards the homepage uses. Exists so the homepage's "All Safari
+ * Packages" button and the breadcrumb on each itinerary have somewhere to
+ * land.
+ *
+ * The five Kilimanjaro climbs are not here — they have their own index at
+ * /kilimanjaro. Their itinerary pages still live under /safari-packages/,
+ * because that is where they were first built and indexed; only the listing
+ * is split. See SAFARIS/TREKS in src/content/packages.ts.
  */
 import Layout from '../../layouts/Layout.astro'
 import Header from '../../components/Header.astro'
@@ -11,12 +17,12 @@ import Newsletter from '../../components/Newsletter.astro'
 import PackageCard from '../../components/PackageCard.astro'
 import SectionHeading from '../../components/SectionHeading.astro'
 import { PACKAGES as PACKAGES_SECTION } from '../../content/home'
-import { PACKAGES as ALL_PACKAGES } from '../../content/packages'
+import { SAFARIS } from '../../content/packages'
 ---
 
 <Layout
     title="Safari Packages — Tanzania Honeymoon, Family and Migration Safaris | Polecat Safaris"
-    description="Every itinerary we sell across northern Tanzania and Zanzibar — honeymoon, family and Great Migration safaris from six to thirteen days, each one private, with day-by-day detail and rates."
+    description="Every safari we sell across northern Tanzania and Zanzibar — honeymoon, family and Great Migration itineraries from six to thirteen days, each one private, with day-by-day detail and rates. Kilimanjaro climbs are listed separately."
 >
     <Header />
     <main>
@@ -29,7 +35,7 @@ import { PACKAGES as ALL_PACKAGES } from '../../content/packages'
 
             <ul class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-11.5 lg:grid-cols-3">
                 {
-                    ALL_PACKAGES.map((pkg, index) => (
+                    SAFARIS.map((pkg, index) => (
                         <PackageCard pkg={pkg} loading={index < 3 ? 'eager' : 'lazy'} />
                     ))
                 }

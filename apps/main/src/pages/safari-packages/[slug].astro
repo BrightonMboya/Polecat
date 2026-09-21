@@ -44,7 +44,18 @@ interface Props {
 
 const { pkg } = Astro.props
 
-const related = PACKAGES.filter((p) => p.slug !== pkg.slug).slice(0, 3)
+/*
+ * Three more from the same line, because the two lines are bought by
+ * different people: somebody reading a Kilimanjaro route is not shopping for
+ * a honeymoon lodge, and the foot of the page used to offer them exactly
+ * that. Falls back to the rest of the catalogue if a line ever holds fewer
+ * than four itineraries.
+ */
+const sameLine = (p: SafariPackage) =>
+    p.routes.includes('trekking') === pkg.routes.includes('trekking')
+
+const others = PACKAGES.filter((p) => p.slug !== pkg.slug)
+const related = [...others.filter(sameLine), ...others.filter((p) => !sameLine(p))].slice(0, 3)
 
 const hasFaqs = pkg.faqs != null && pkg.faqs.length > 0
 

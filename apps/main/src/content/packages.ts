@@ -4,18 +4,26 @@
  *
  * Everything here — routes, lodges, day-by-day and rates — comes from the
  * operator's own itinerary documents, transcribed rather than invented. The
- * honeymoon itineraries lead, then the family and migration ones, longest last
- * within each group.
+ * honeymoon itineraries lead, then the family and migration ones, then the
+ * five Kilimanjaro climbs, longest last within each group.
  *
- * Two things are still outstanding and are marked where they occur:
+ * Three things are still outstanding and are marked where they occur:
  *   - The 8-Day Tanzania Family Safari came to us without a rate, so it quotes
  *     "on request" rather than a number.
- *   - The card photography now shows the travellers rather than the wildlife —
- *     couples on the honeymoon itineraries, families on the family ones — which
+ *   - None of the five Kilimanjaro documents carried a rate. The operator gave
+ *     one afterwards as a day rate — US$ 360 per person per day on the
+ *     mountain — so each climb's price is that figure times the length of the
+ *     route, computed by `trekTotal` rather than written out. The climbs are
+ *     also the one place where a field is not transcribed: the documents give
+ *     no travel window, so `bestTime` on each of them is the standard
+ *     Kilimanjaro season rather than the operator's own words. Confirm it.
+ *   - The card photography shows the travellers rather than the wildlife —
+ *     couples on the honeymoon itineraries, families on the family ones, and
+ *     on each climb a photograph of something that route actually does — which
  *     is what these trips are sold on. Every `imageAlt` describes the
  *     photograph that is actually there, so none of it claims to be a place it
- *     is not, but it is still stock: real Polecat and property photography
- *     should replace it.
+ *     is not, but the safari images are still stock and real Polecat property
+ *     photography should replace them.
  *
  * Card-level fields (name, region, duration, price, image) are the same records
  * the homepage uses — src/content/home.ts re-exports from here so a price can
@@ -47,6 +55,18 @@ export interface PriceLine {
  */
 export type DayExtra = string | { addon: AddonSlug; price?: string; note?: string }
 
+/**
+ * A labelled figure for a day, shown in the same wrapping row as Meals and
+ * Overnight. The safari itineraries have nothing to put here; the Kilimanjaro
+ * climbs have the numbers the operator's documents lead with — the elevation
+ * gained, the distance walked, the hours on foot and the habitat crossed —
+ * and those are the figures people compare routes on.
+ */
+export interface DayStat {
+    label: string
+    value: string
+}
+
 /** One day of an itinerary, or a grouped range like "Days 5–6". */
 export interface Day {
     /** Numeral shown in the left rail. */
@@ -55,6 +75,8 @@ export interface Day {
     label: string
     title: string
     paragraphs: string[]
+    /** Elevation, distance, hours, habitat — see `DayStat`. Trek days only. */
+    stats?: DayStat[]
     /** The species the day's drives are built around, as the operator lists them. */
     wildlife?: string[]
     /** Add-ons offered on the day — catalogue slugs, or free text for one-offs. */
@@ -86,9 +108,15 @@ export interface Route {
 
 /**
  * The three journeys the homepage's destination cards sell. An itinerary can
- * belong to more than one: every one of these is a northern-circuit safari,
- * four of them put you on foot with a ranger or on the Marangu route, and
- * three either end on Zanzibar or extend onto it.
+ * belong to more than one: the ten safaris are all northern-circuit, and three
+ * of those either end on Zanzibar or extend onto it.
+ *
+ * `trekking` means the mountain, and only the mountain — the five Kilimanjaro
+ * climbs and nothing else. It used to mean "days on foot", which pulled in the
+ * four safaris carrying a walking safari or the Marangu day hike; once the
+ * climbs went on the site that read as a mistake, because somebody filtering
+ * for Trekking is looking for Uhuru Peak, not a ranger walk in Arusha NP.
+ * Those safaris keep their on-foot days and are found under Northern Circuit.
  */
 export type RouteTag = 'northern-circuit' | 'trekking' | 'zanzibar'
 
@@ -158,6 +186,35 @@ const PT = {
     materuni: { name: 'Materuni Village, Kilimanjaro', coordinates: [37.3167, -3.2333] as [number, number] },
     marangu: { name: 'Marangu Gate, Kilimanjaro', coordinates: [37.524, -3.26] as [number, number] },
     chemka: { name: 'Chemka (Kikuletwa) Hot Springs', coordinates: [37.1667, -3.5] as [number, number] },
+    moshi: { name: 'Moshi', coordinates: [37.3333, -3.35] as [number, number] },
+
+    // Kilimanjaro: the gates, the camps and the summit. Same standard as the
+    // rest of PT — the gates and Uhuru Peak are the real positions, the camps
+    // are close enough to draw the shape of a route around the mountain.
+    kiliMachameGate: { name: 'Machame Gate', coordinates: [37.2356, -3.1697] as [number, number] },
+    kiliLondorossiGate: { name: 'Londorossi Gate', coordinates: [37.1, -3.0333] as [number, number] },
+    kiliRongaiGate: { name: 'Rongai Gate (Nalemoru)', coordinates: [37.5622, -2.9689] as [number, number] },
+    kiliMwekaGate: { name: 'Mweka Gate', coordinates: [37.3492, -3.2233] as [number, number] },
+    kiliMandara: { name: 'Mandara Hut', coordinates: [37.5167, -3.2333] as [number, number] },
+    kiliHorombo: { name: 'Horombo Hut', coordinates: [37.5167, -3.15] as [number, number] },
+    kiliKibo: { name: 'Kibo Hut', coordinates: [37.3667, -3.0667] as [number, number] },
+    kiliMachameCamp: { name: 'Machame Camp', coordinates: [37.2683, -3.1489] as [number, number] },
+    kiliShira1: { name: 'Shira 1 Camp', coordinates: [37.1897, -3.0508] as [number, number] },
+    kiliShira2: { name: 'Shira 2 Camp', coordinates: [37.2367, -3.0644] as [number, number] },
+    kiliMtiMkubwa: { name: 'Mti Mkubwa Camp', coordinates: [37.1483, -3.0181] as [number, number] },
+    kiliLavaTower: { name: 'Lava Tower', coordinates: [37.3269, -3.0672] as [number, number] },
+    kiliBarranco: { name: 'Barranco Camp', coordinates: [37.3161, -3.0964] as [number, number] },
+    kiliKaranga: { name: 'Karanga Camp', coordinates: [37.3444, -3.0975] as [number, number] },
+    kiliBarafu: { name: 'Barafu Camp', coordinates: [37.3653, -3.0925] as [number, number] },
+    kiliMwekaCamp: { name: 'Mweka Camp', coordinates: [37.3494, -3.1636] as [number, number] },
+    kiliMoir: { name: 'Moir Hut', coordinates: [37.3053, -3.0286] as [number, number] },
+    kiliBuffalo: { name: 'Buffalo Camp', coordinates: [37.3556, -3.0075] as [number, number] },
+    kiliThirdCave: { name: 'Third Cave Camp', coordinates: [37.4083, -3.0244] as [number, number] },
+    kiliSchoolHut: { name: 'School Hut', coordinates: [37.3722, -3.0439] as [number, number] },
+    kiliSimba: { name: 'Simba Camp', coordinates: [37.5417, -2.9944] as [number, number] },
+    kiliKikelewa: { name: 'Kikelewa Cave Camp', coordinates: [37.5017, -3.0294] as [number, number] },
+    kiliMawenziTarn: { name: 'Mawenzi Tarn Camp', coordinates: [37.4544, -3.0919] as [number, number] },
+    kiliUhuru: { name: 'Uhuru Peak (5,895 m)', coordinates: [37.3556, -3.0674] as [number, number] },
 }
 
 /*
@@ -198,6 +255,109 @@ const FAQ_CUSTOMISE: Faq = {
     answer:
         'Yes. Because it is private, the nights, the lodges, the activities and the pace can all move. Tell us what you have in mind and we will redraft it.',
 }
+
+/* ------------------------------------------------------------- Kilimanjaro */
+/*
+ * The five Kilimanjaro climbs share a support model — the same guides, crew,
+ * cook, oximeter and emergency oxygen, the same park and rescue fees, the same
+ * hot shower and massage at the bottom — so the inclusions are assembled from
+ * the parts below rather than written out five times. What differs between
+ * routes is only where you sleep, which is why the accommodation and the
+ * camping or hut fee are passed in per itinerary.
+ */
+const TREK_INCLUDED_HEAD = [
+    'Airport transfers from Kilimanjaro International Airport or Arusha Airport',
+    'Hotel-to-gate and return transfers',
+    'A professional mountain guide',
+    'An experienced mountain crew and adequate porters',
+    'A mountain cook, and fresh meals throughout the trek',
+    'Kilimanjaro National Park entrance and conservation fees',
+    'Rescue fees',
+]
+
+const TREK_INCLUDED_TAIL = [
+    'A sleeping mattress',
+    'Walking poles',
+    'An oximeter and an emergency oxygen cylinder, with daily altitude monitoring',
+    'A medical kit',
+    'Drinking water, approximately 3 litres a day',
+    'Storage for excess luggage not needed on the mountain',
+    'A hot shower and a complimentary massage after the descent',
+    'VAT and applicable government taxes',
+]
+
+/** `stay` is the accommodation line, `fees` the camping or hut fee line. */
+const trekIncluded = (fees: string, ...stay: string[]) => [
+    ...TREK_INCLUDED_HEAD,
+    fees,
+    ...stay,
+    ...TREK_INCLUDED_TAIL,
+]
+
+const TREK_EXCLUDED = [
+    'International or domestic flights',
+    'Personal hiking and mountain equipment',
+    'Travel insurance',
+    'Tips for the mountain crew',
+    'A private toilet, available at an additional cost',
+    'Additional porter services',
+    'Personal expenses',
+]
+
+const FAQ_TREK_EXPERIENCE: Faq = {
+    question: 'Do I need mountaineering experience?',
+    answer:
+        'No. Kilimanjaro is a trek rather than a technical climb, and no route on it needs ropes or rock skills. What it does need is preparation, determination and a good level of fitness — and enough days on the mountain to acclimatise, which is why we sell the longer versions of each route.',
+}
+
+const FAQ_TREK_ALTITUDE: Faq = {
+    question: 'What happens about the altitude?',
+    answer:
+        'Your guide checks your oxygen saturation and pulse with an oximeter every day and sets the pace off what he sees. An emergency oxygen cylinder and a medical kit go up the mountain with the crew. Every itinerary here is built around acclimatisation — the extra night, the climb-high-sleep-low day at Lava Tower — rather than the shortest line to the summit.',
+}
+
+const FAQ_TREK_DIET: Faq = {
+    question: 'Can you cater for my diet?',
+    answer:
+        'Yes. Vegetarian, vegan, halal and gluten-free meals can all be arranged with advance notice — tell us when you book and the mountain cook will carry what he needs.',
+}
+
+const FAQ_TREK_EXTEND: Faq = {
+    question: 'Can I add a safari or Zanzibar afterwards?',
+    answer:
+        'Most people do. The climb ends back in Arusha or Moshi, an easy transfer from the northern circuit, so it joins straight onto a private safari through Tarangire, Ngorongoro and the Serengeti — or onto a flight to Zanzibar for a few days by the Indian Ocean. Tell us at the enquiry stage and we will draft the whole thing as one journey.',
+}
+
+const TREK_FAQS = [FAQ_TREK_EXPERIENCE, FAQ_TREK_ALTITUDE, FAQ_TREK_DIET, FAQ_TREK_EXTEND]
+
+/*
+ * The climbs are sold on a day rate rather than a price per itinerary: US$ 360
+ * per person per day on the mountain. Every trek rate below is that figure
+ * multiplied by the length of the route and worked out here rather than typed
+ * out five times, so changing the day rate changes all five climbs at once —
+ * the card, the hero, the price rail and the note cannot drift apart.
+ */
+const TREK_DAY_RATE = 360
+
+const money = (n: number) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+/** e.g. "US$ 2,160" for a six-day route. */
+const trekTotal = (days: number) => `US$ ${money(TREK_DAY_RATE * days)}`
+
+/** The card line, e.g. "From US$ 2,160 pp". */
+const trekCardPrice = (days: number) => `From ${trekTotal(days)} pp`
+
+const trekPriceLines = (): PriceLine[] => [
+    { label: 'Day rate on the mountain', amount: `US$ ${TREK_DAY_RATE} pp per day` },
+    { label: 'Private toilet tent', amount: 'On request' },
+    { label: 'Additional porters', amount: 'On request' },
+    { label: 'Single supplement', amount: 'On request' },
+]
+
+const trekPriceNote = (days: number) =>
+    `The climb is priced at US$ ${TREK_DAY_RATE} per person per day on the mountain, so ${days} days comes to ${trekTotal(days)} per person. Tell us your dates and the size of your party and we will confirm it, with or without a safari or Zanzibar on the end.`
+
+
 
 export const PACKAGES: SafariPackage[] = [
     /* ---------------------------------------------------------------- Honeymoon */
@@ -739,7 +899,7 @@ export const PACKAGES: SafariPackage[] = [
         name: '9-Day Romantic Luxury Safari',
         region: 'Arusha, Serengeti & the Crater Highlands',
         category: 'Honeymoon',
-        routes: ['northern-circuit', 'trekking', 'zanzibar'],
+        routes: ['northern-circuit', 'zanzibar'],
         duration: '9 Days / 8 Nights',
         days: 9,
         nights: 8,
@@ -1348,7 +1508,7 @@ export const PACKAGES: SafariPackage[] = [
         name: '8-Day Tanzania Family Safari',
         region: 'Arusha, Tarangire, Serengeti & Ngorongoro',
         category: 'Family Safari',
-        routes: ['northern-circuit', 'trekking'],
+        routes: ['northern-circuit'],
         duration: '8 Days / 7 Nights',
         days: 8,
         nights: 7,
@@ -1830,7 +1990,7 @@ export const PACKAGES: SafariPackage[] = [
         name: '10-Day Tanzania Family Safari',
         region: 'Northern Tanzania & Kilimanjaro',
         category: 'Family Safari',
-        routes: ['northern-circuit', 'trekking'],
+        routes: ['northern-circuit'],
         duration: '10 Days / 9 Nights',
         days: 10,
         nights: 9,
@@ -2080,7 +2240,7 @@ export const PACKAGES: SafariPackage[] = [
         name: '13-Day Great Migration Safari',
         region: 'Lake Natron, the Serengeti & Kilimanjaro',
         category: 'Great Migration',
-        routes: ['northern-circuit', 'trekking'],
+        routes: ['northern-circuit'],
         duration: '13 Days / 12 Nights',
         days: 13,
         nights: 12,
@@ -2393,4 +2553,1021 @@ export const PACKAGES: SafariPackage[] = [
         ],
         featured: true,
     },
+    /* -------------------------------------------------------- Kilimanjaro */
+    {
+        slug: '6-day-marangu-route-kilimanjaro',
+        name: '6-Day Marangu Route',
+        region: 'Kilimanjaro National Park',
+        category: 'Kilimanjaro Trek',
+        routes: ['trekking'],
+        duration: '6 Days / 5 Nights',
+        days: 6,
+        nights: 5,
+        price: trekCardPrice(6),
+        image: '/images/kili-heath-traverse.webp',
+        imageAlt:
+            'A line of trekkers with poles and packs climbing a heathland traverse on Kilimanjaro, cloud banked against the ridge behind them',
+        summary:
+            'The classic way up Kilimanjaro, and the only main route where you sleep in permanent huts rather than tents. Six days rather than five, so there is an extra acclimatisation night at Horombo before the summit — rainforest, heathland and the alpine desert of the Saddle, then Uhuru Peak at 5,895 metres.',
+        priceFrom: trekTotal(6),
+        priceUnit: 'Per person sharing',
+        priceLines: trekPriceLines(),
+        priceNote: trekPriceNote(6),
+        bestTime: 'January – March & June – October',
+        highlights: [
+            'The classic Kilimanjaro route, and the most established on the mountain',
+            'Mountain huts every night rather than tents',
+            'An extra acclimatisation night at Horombo before the summit stages',
+            'Rainforest, open heathland and the alpine desert of the Saddle in six days',
+            'Uhuru Peak at 5,895 metres — the highest point in Africa',
+            'A private mountain guide, a full crew and a mountain cook',
+            'Daily oxygen-level monitoring, with emergency oxygen carried throughout',
+            'A hot shower and a complimentary massage waiting at the bottom',
+        ],
+        destinations: [
+            'Arusha',
+            'Marangu Gate',
+            'Mandara Hut',
+            'Horombo Hut',
+            'Kibo Hut',
+            'Uhuru Peak',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Start' },
+                { ...PT.marangu, label: 'Day 1' },
+                { ...PT.kiliMandara, label: 'Day 1' },
+                { ...PT.kiliHorombo, label: 'Days 2–3' },
+                { ...PT.kiliKibo, label: 'Day 4' },
+                { ...PT.kiliUhuru, label: 'Day 5' },
+                { ...PT.kiliHorombo, label: 'Day 5' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arusha – Marangu Gate – Mandara Hut',
+                paragraphs: [
+                    'Your climb begins with a transfer from Arusha to Marangu Gate, where registration and the park formalities are done.',
+                    'From the gate you walk up through lush rainforest towards Mandara Hut, with birdlife along the trail and, often, the blue colobus monkeys the forest is known for.',
+                    'The afternoon is yours — rest around the huts, or walk up to the nearby Maundi Crater for the view north towards Kenya.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '1,860 m – 2,700 m' },
+                    { label: 'Distance', value: 'Approx. 8 km' },
+                    { label: 'Hiking', value: '4–5 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                wildlife: ['Blue colobus monkey', 'Forest birdlife'],
+                overnight: 'Mandara Hut',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Mandara Hut – Horombo Hut',
+                paragraphs: [
+                    'After breakfast the forest thins and gives way to open heathland, and the mountain opens up with it — Kibo and Mawenzi ahead of you for much of the day.',
+                    'The trail climbs steadily to Horombo Hut. This is usually where the altitude first makes itself felt, so the pace stays deliberate and the water bottle stays in your hand.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '2,700 m – 3,700 m' },
+                    { label: 'Distance', value: 'Approx. 12 km' },
+                    { label: 'Hiking', value: '5–6 hours' },
+                    { label: 'Habitat', value: 'Heathland' },
+                ],
+                overnight: 'Horombo Hut',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Horombo Hut – Acclimatisation Day',
+                paragraphs: [
+                    'A second night at Horombo, and a day given over to letting your body catch up with the altitude.',
+                    'Depending on conditions and on how you are feeling, your guide will take you on a gradual acclimatisation walk towards the Mawenzi side of the mountain before you drop back to camp.',
+                    'This is the day that makes the six-day Marangu a better bet than the five.',
+                ],
+                stats: [
+                    { label: 'Habitat', value: 'Heathland / alpine zone' },
+                ],
+                highlight: 'An extra day at 3,700 m, spent acclimatising rather than climbing',
+                overnight: 'Horombo Hut',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Horombo Hut – Kibo Hut',
+                paragraphs: [
+                    'Today you cross the Saddle, the high-altitude desert lying between Mawenzi and Kibo. The vegetation gives out almost entirely and the landscape turns to rock and dust.',
+                    'Kibo Hut sits at roughly 4,700 metres. Dinner is early, and so is bed — you will be woken not long after midnight.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,700 m – 4,700 m' },
+                    { label: 'Distance', value: 'Approx. 9 km' },
+                    { label: 'Hiking', value: '5–6 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                overnight: 'Kibo Hut',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Kibo Hut – Uhuru Peak – Horombo Hut',
+                paragraphs: [
+                    'Summit day starts shortly after midnight with a hot drink and a light meal, and then the climb under the stars.',
+                    'The trail works its way up to Gilman’s Point and Stella Point on the crater rim, and from there along the rim to Uhuru Peak. At 5,895 metres it is the highest point in Africa.',
+                    'Take the time you need at the top, then begin the long descent — back down to Kibo Hut, and on to Horombo for the night.',
+                ],
+                stats: [
+                    { label: 'Summit', value: '5,895 m — Uhuru Peak' },
+                    { label: 'Ascent', value: 'Approx. 5–7 hours' },
+                    { label: 'Descent', value: 'Approx. 5–6 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                highlight: 'Uhuru Peak at sunrise — the Roof of Africa',
+                overnight: 'Horombo Hut',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'Horombo Hut – Marangu Gate – Arusha',
+                paragraphs: [
+                    'The last descent runs back down through the heathland and the rainforest to Marangu Gate.',
+                    'At the gate you collect your Kilimanjaro certificate and mark the climb with the crew who got you up it.',
+                    'Your private transfer then takes you back to Arusha or Moshi, and a shower, a massage and a bed that is not a bunk.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,700 m – 1,860 m' },
+                    { label: 'Distance', value: 'Approx. 20 km' },
+                    { label: 'Hiking', value: '4–6 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: trekIncluded(
+            'Hut fees',
+            'Mountain hut accommodation',
+            'Mess and cooking facilities',
+        ),
+        excluded: TREK_EXCLUDED,
+        faqs: [
+            {
+                question: 'What is the accommodation like on Marangu?',
+                answer:
+                    'Marangu is the only main Kilimanjaro route with permanent huts, so you sleep in a bunk under a roof rather than in a tent — at Mandara, Horombo and Kibo. Sleeping mattresses are provided; a warm sleeping bag is not, and you should bring one rated for sub-zero nights.',
+            },
+            ...TREK_FAQS,
+        ],
+    },
+    {
+        slug: '7-day-machame-route-kilimanjaro',
+        name: '7-Day Machame Route',
+        region: 'Kilimanjaro National Park',
+        category: 'Kilimanjaro Trek',
+        routes: ['trekking'],
+        duration: '7 Days / 6 Nights',
+        days: 7,
+        nights: 6,
+        price: trekCardPrice(7),
+        image: '/images/kili-ash-ridge-cloud.webp',
+        imageAlt:
+            'A file of trekkers working up a ridge of black volcanic ash in thick cloud, high on the mountain',
+        summary:
+            'The Whisky Route, and the most scenic way up the mountain — rainforest, the Shira moorland, the Lava Tower acclimatisation climb, the Barranco Wall, and a summit push from Barafu. Seven days rather than six, which is the difference between arriving at the crater rim acclimatised and arriving at it hoping.',
+        priceFrom: trekTotal(7),
+        priceUnit: 'Per person sharing',
+        priceLines: trekPriceLines(),
+        priceNote: trekPriceNote(7),
+        bestTime: 'January – March & June – October',
+        highlights: [
+            'The most scenic of Kilimanjaro’s routes, and the one most people climb',
+            'Four habitats in seven days — rainforest, moorland, alpine desert and the summit zone',
+            'A climb-high-sleep-low acclimatisation day at Lava Tower, 4,640 m',
+            'The Barranco Wall — a scramble rather than a technical climb',
+            'A seventh day, so the ascent is gradual rather than rushed',
+            'Uhuru Peak at 5,895 metres, reached at sunrise',
+            'Quality mountain tents, mess and cooking tents, camping chairs and tables',
+            'A hot shower and a complimentary massage waiting at the bottom',
+        ],
+        destinations: [
+            'Arusha',
+            'Machame Gate',
+            'Shira',
+            'Barranco',
+            'Barafu',
+            'Uhuru Peak',
+            'Mweka',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Start' },
+                { ...PT.kiliMachameGate, label: 'Day 1' },
+                { ...PT.kiliMachameCamp, label: 'Day 1' },
+                { ...PT.kiliShira2, label: 'Day 2' },
+                { ...PT.kiliLavaTower, label: 'Day 3' },
+                { ...PT.kiliBarranco, label: 'Day 3' },
+                { ...PT.kiliKaranga, label: 'Day 4' },
+                { ...PT.kiliBarafu, label: 'Day 5' },
+                { ...PT.kiliUhuru, label: 'Day 6' },
+                { ...PT.kiliMwekaCamp, label: 'Day 6' },
+                { ...PT.kiliMwekaGate, label: 'Day 7' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arusha – Machame Gate – Machame Camp',
+                paragraphs: [
+                    'After breakfast your private transfer takes you from Arusha to Machame Gate for registration and the park formalities.',
+                    'The trek starts in thick rainforest, on a beautiful trail beneath the canopy — birdlife the whole way, and colobus monkeys if you are lucky.',
+                    'Five or six hours in you reach Machame Camp, and your first night on the mountain.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '1,811 m – 3,021 m (+1,210 m)' },
+                    { label: 'Hiking', value: '5–6 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                wildlife: ['Colobus monkey', 'Forest birdlife'],
+                overnight: 'Machame Camp',
+                meals: 'Lunch & dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Machame Camp – Shira Camp',
+                paragraphs: [
+                    'The rainforest gives way to open moorland as the trail climbs, and the mountain gets very much bigger around you.',
+                    'By the time you reach Shira Camp the landscape is wide open, with Kibo ahead and the highlands falling away behind. There is time to rest and take it in.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,021 m – 3,839 m (+818 m)' },
+                    { label: 'Hiking', value: '4–5 hours' },
+                    { label: 'Habitat', value: 'Moorland' },
+                ],
+                overnight: 'Shira Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Shira Camp – Lava Tower – Barranco Camp',
+                paragraphs: [
+                    'The most important day of the climb for acclimatisation, and one of the most memorable to walk.',
+                    'You climb gradually to Lava Tower at around 4,640 metres, then descend towards Barranco Camp. Gaining the altitude and then giving it back is what teaches your body to cope with it.',
+                    'The volcanic landscape up here is the strangest on the mountain.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,839 m – Lava Tower – approx. 3,986 m' },
+                    { label: 'Hiking', value: '5–7 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                highlight: 'Lava Tower at 4,640 m — climb high, sleep low',
+                overnight: 'Barranco Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Barranco Camp – Karanga Camp',
+                paragraphs: [
+                    'The day starts with the Barranco Wall. It looks worse from below than it is — a steady scramble with your hands on rock in places, and no technical climbing at all.',
+                    'Above the wall the trail carries on through the Karanga Valley to camp. It is a short day on purpose: the rest and the altitude are doing more for you than the distance would.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,986 m – 4,034 m' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                highlight: 'The Barranco Wall',
+                overnight: 'Karanga Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Karanga Camp – Barafu Camp',
+                paragraphs: [
+                    'On through the alpine desert to Barafu, the last camp before the summit. The ground is bare and the scale of the thing is unmistakable from here.',
+                    'You eat well, lay out your summit gear and sleep early. You will be up again around midnight.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '4,034 m – 4,662 m (+628 m)' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                overnight: 'Barafu Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'Barafu Camp – Uhuru Peak – Mweka Camp',
+                paragraphs: [
+                    'Around midnight your guides wake you for a hot drink and a light meal, and the summit push begins in the dark.',
+                    'You climb towards Stella Point on the crater rim, and from there on to Uhuru Peak at 5,895 metres. The sun comes up over Africa somewhere along the way.',
+                    'After time at the top you descend to Barafu for a rest and a meal, then carry on down to Mweka Camp for your last night on the mountain.',
+                ],
+                stats: [
+                    { label: 'Summit', value: '5,895 m (+1,233 m)' },
+                    { label: 'Ascent', value: '5–7 hours' },
+                    { label: 'Descent', value: '5–6 hours, approx. 2,789 m lost' },
+                    { label: 'Habitat', value: 'High alpine & summit zone' },
+                ],
+                highlight: 'Sunrise from Uhuru Peak, the highest point in Africa',
+                overnight: 'Mweka Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'Mweka Camp – Arusha',
+                paragraphs: [
+                    'A last descent through the rainforest to Mweka Gate, where your driver is waiting.',
+                    'From there it is the transfer back to Arusha or Moshi — a hot shower, a proper bed, and a climb behind you.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,106 m – 1,633 m (−1,473 m)' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: trekIncluded(
+            'Camping fees',
+            'Accommodation in quality mountain tents',
+            'Mess and cooking tents, with camping chairs and tables',
+        ),
+        excluded: TREK_EXCLUDED,
+        faqs: [
+            {
+                question: 'How hard is the Barranco Wall?',
+                answer:
+                    'Less hard than it looks from the camp below it. It is a steady scramble — you will use your hands on a few sections — rather than a technical climb, and no ropes or equipment are needed. Your guide sets the pace and the crew go up it carrying everything.',
+            },
+            ...TREK_FAQS,
+        ],
+    },
+    {
+        slug: '7-day-rongai-route-kilimanjaro',
+        name: '7-Day Rongai Route',
+        region: 'Kilimanjaro National Park',
+        category: 'Kilimanjaro Trek',
+        routes: ['trekking'],
+        duration: '7 Days / 6 Nights',
+        days: 7,
+        nights: 6,
+        price: trekCardPrice(7),
+        image: '/images/kili-saddle-kibo-ahead.webp',
+        imageAlt:
+            'Trekkers on a rocky trail down towards the Saddle, the wide cone of Kibo filling the horizon ahead of them',
+        summary:
+            'The only major route that comes at Kilimanjaro from the north, starting near the Kenyan border. Quieter trails, open country, and an extra acclimatisation day at Mawenzi Tarn beneath the most dramatic camp on the mountain — then across the Saddle to Kibo and the summit.',
+        priceFrom: trekTotal(7),
+        priceUnit: 'Per person sharing',
+        priceLines: trekPriceLines(),
+        priceNote: trekPriceNote(7),
+        bestTime: 'January – March & June – October',
+        highlights: [
+            'The only main Kilimanjaro route approaching from the north',
+            'The quietest trails on the mountain, and a different view of it',
+            'Comparatively drier going when the southern slopes are getting the rain',
+            'An extra acclimatisation day at Mawenzi Tarn, beneath Mawenzi Peak',
+            'The Saddle — the high desert between Mawenzi and Kibo — crossed on foot',
+            'Uhuru Peak at 5,895 metres, reached at sunrise',
+            'A descent by the Marangu route, so you come down a different side',
+            'A hot shower and a complimentary massage waiting at the bottom',
+        ],
+        destinations: [
+            'Arusha',
+            'Rongai Gate',
+            'Kikelewa',
+            'Mawenzi Tarn',
+            'Kibo Hut',
+            'Uhuru Peak',
+            'Marangu Gate',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.moshi, label: 'Start' },
+                { ...PT.kiliRongaiGate, label: 'Day 1' },
+                { ...PT.kiliSimba, label: 'Day 1' },
+                { ...PT.kiliKikelewa, label: 'Day 2' },
+                { ...PT.kiliMawenziTarn, label: 'Days 3–4' },
+                { ...PT.kiliKibo, label: 'Day 5' },
+                { ...PT.kiliUhuru, label: 'Day 6' },
+                { ...PT.kiliHorombo, label: 'Day 6' },
+                { ...PT.marangu, label: 'Day 7' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arusha or Moshi – Rongai Gate – Simba Camp',
+                paragraphs: [
+                    'After breakfast you drive out to Rongai Gate, close to the Kenyan border, for registration and the park formalities.',
+                    'From the gate the trail climbs gently through forest and the northern foothills, with birdlife and forest game along the way.',
+                    'You reach Simba Camp in the afternoon and settle in for your first evening on the mountain.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '1,997 m – 2,635 m (+638 m)' },
+                    { label: 'Distance', value: 'Approx. 7 km' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                wildlife: ['Forest birdlife'],
+                overnight: 'Simba Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Simba Camp – Kikelewa Cave',
+                paragraphs: [
+                    'The longest day of the climb. The forest opens into moorland as the trail works its way up towards Kikelewa Cave, with lunch somewhere along it.',
+                    'By the afternoon the country is wide and open, and the view runs right out across northern Tanzania.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '2,635 m – 3,600 m (+965 m)' },
+                    { label: 'Distance', value: 'Approx. 17 km' },
+                    { label: 'Hiking', value: '6–7 hours' },
+                    { label: 'Habitat', value: 'Moorland' },
+                ],
+                overnight: 'Kikelewa Cave Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Kikelewa Cave – Mawenzi Tarn',
+                paragraphs: [
+                    'A shorter day, but a steeper one, up through high moorland and increasingly broken ground.',
+                    'Mawenzi Tarn is the most spectacular camp on Kilimanjaro — a small tarn under the volcanic spires of Mawenzi itself. Settle in and look up.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,600 m – 4,330 m (+730 m)' },
+                    { label: 'Distance', value: 'Approx. 7 km' },
+                    { label: 'Hiking', value: '4–5 hours' },
+                    { label: 'Habitat', value: 'Semi-desert / alpine zone' },
+                ],
+                highlight: 'Camp beneath the spires of Mawenzi',
+                overnight: 'Mawenzi Tarn Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Mawenzi Tarn – Acclimatisation Day',
+                paragraphs: [
+                    'A day to slow down. You stay at Mawenzi Tarn and take a short acclimatisation walk around the area, which gives your body the time it needs before the summit stages.',
+                    'With Mawenzi Peak rising straight out of the camp, it is also the best place on the mountain to stop and take in the size of the thing.',
+                ],
+                stats: [
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                highlight: 'An extra day at 4,330 m, spent acclimatising rather than climbing',
+                overnight: 'Mawenzi Tarn Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Mawenzi Tarn – Kibo Hut',
+                paragraphs: [
+                    'You leave Mawenzi and cross the Saddle, the broad high-altitude desert between Mawenzi and Kibo. Nothing much grows up here and the walking is stark and strange.',
+                    'Kibo Hut sits at around 4,700 metres. Dinner is early and so is bed — the summit attempt starts around midnight.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '4,330 m – 4,695 m (+365 m)' },
+                    { label: 'Distance', value: 'Approx. 8 km' },
+                    { label: 'Hiking', value: '4–5 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                overnight: 'Kibo Hut',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'Kibo Hut – Uhuru Peak – Horombo Hut',
+                paragraphs: [
+                    'Shortly after midnight, a hot drink and a light meal, and then the climb under the stars.',
+                    'The trail rises to Gilman’s Point and Stella Point before following the crater rim round to Uhuru Peak. At 5,895 metres it is the highest point in Africa, and you will watch the sun come up from it.',
+                    'Then the long way down — through Kibo Hut and across the upper slopes to Horombo, where you spend the night.',
+                ],
+                stats: [
+                    { label: 'Summit', value: '5,895 m (+1,233 m)' },
+                    { label: 'Ascent', value: '5–7 hours' },
+                    { label: 'Descent', value: '5–6 hours, approx. 2,205 m lost' },
+                    { label: 'Habitat', value: 'Alpine desert / summit zone' },
+                ],
+                highlight: 'Sunrise from Uhuru Peak, the highest point in Africa',
+                overnight: 'Horombo Hut',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'Horombo Hut – Marangu Gate – Arusha or Moshi',
+                paragraphs: [
+                    'The final descent goes down through heathland and rainforest to Marangu Gate — a different side of the mountain from the one you came up.',
+                    'At the gate you collect your summit certificate and mark the climb with your crew.',
+                    'Your vehicle then takes you back to Arusha or Moshi for a well-earned rest.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: 'Approx. 3,690 m – 1,860 m' },
+                    { label: 'Distance', value: 'Approx. 15–16 km' },
+                    { label: 'Hiking', value: '5–6 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: trekIncluded(
+            'Camping and hut fees',
+            'Mountain camps and huts along the route',
+            'Quality mountain tents where the route camps rather than uses huts',
+            'Mess and cooking facilities',
+        ),
+        excluded: TREK_EXCLUDED,
+        faqs: [
+            {
+                question: 'Why climb from the north?',
+                answer:
+                    'Two reasons. Rongai is much the quietest of the main routes, so you share the trail with far fewer people than on Machame or Marangu. And the northern side sits in the mountain’s rain shadow, so when the southern slopes are wet the going up here is often noticeably drier.',
+            },
+            ...TREK_FAQS,
+        ],
+    },
+    {
+        slug: '8-day-lemosho-route-kilimanjaro',
+        name: '8-Day Lemosho Route',
+        region: 'Kilimanjaro National Park',
+        category: 'Kilimanjaro Trek',
+        routes: ['trekking'],
+        duration: '8 Days / 7 Nights',
+        days: 8,
+        nights: 7,
+        price: trekCardPrice(8),
+        image: '/images/kili-summit-glacier.webp',
+        imageAlt:
+            'Two climbers celebrating in the snow at the top of Kilimanjaro, the summit glacier wall rising behind them',
+        summary:
+            'Our preferred route for anyone who would rather arrive at the summit than merely attempt it. Eight days up the western side — rainforest, two nights crossing the Shira Plateau, Lava Tower, the Barranco Wall and Barafu — with the extra days spent acclimatising and the trails quieter than on Machame.',
+        priceFrom: trekTotal(8),
+        priceUnit: 'Per person sharing',
+        priceLines: trekPriceLines(),
+        priceNote: trekPriceNote(8),
+        bestTime: 'January – March & June – October',
+        highlights: [
+            'One of our preferred routes, and the best acclimatisation profile of the four camping climbs',
+            'Eight days, so the ascent is gradual rather than rushed',
+            'Two days crossing the Shira Plateau, one of Kilimanjaro’s great landscapes',
+            'A climb-high-sleep-low acclimatisation day at Lava Tower, 4,640 m',
+            'The Barranco Wall — a scramble rather than a technical climb',
+            'Quieter trails than the routes that start on the south side',
+            'Uhuru Peak at 5,895 metres, reached at first light',
+            'A hot shower and a complimentary massage waiting at the bottom',
+        ],
+        destinations: [
+            'Arusha',
+            'Londorossi Gate',
+            'Shira Plateau',
+            'Barranco',
+            'Barafu',
+            'Uhuru Peak',
+            'Mweka',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Start' },
+                { ...PT.kiliLondorossiGate, label: 'Day 1' },
+                { ...PT.kiliMtiMkubwa, label: 'Day 1' },
+                { ...PT.kiliShira1, label: 'Day 2' },
+                { ...PT.kiliShira2, label: 'Day 3' },
+                { ...PT.kiliLavaTower, label: 'Day 4' },
+                { ...PT.kiliBarranco, label: 'Day 4' },
+                { ...PT.kiliKaranga, label: 'Day 5' },
+                { ...PT.kiliBarafu, label: 'Day 6' },
+                { ...PT.kiliUhuru, label: 'Day 7' },
+                { ...PT.kiliMwekaCamp, label: 'Day 7' },
+                { ...PT.kiliMwekaGate, label: 'Day 8' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arusha – Londorossi Gate – Mti Mkubwa Camp',
+                paragraphs: [
+                    'After breakfast your private transfer takes you round to Londorossi Gate on the western side of the mountain, where the climb begins.',
+                    'The trail winds up through thick rainforest — colobus monkeys and forest game are both possible — and after three or four hours you reach Mti Mkubwa, "Big Tree Camp", for your first night.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '2,389 m – 2,785 m' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                wildlife: ['Colobus monkey', 'Forest birdlife'],
+                overnight: 'Mti Mkubwa Camp',
+                meals: 'Lunch & dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Mti Mkubwa – Shira 1 Camp',
+                paragraphs: [
+                    'The rainforest gives way to open moorland and heather as the trail climbs towards the Shira Plateau.',
+                    'The landscape opens dramatically on this stretch, and you get your first wide view of the mountain you are on.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '2,785 m – 3,504 m' },
+                    { label: 'Hiking', value: '4–6 hours' },
+                    { label: 'Habitat', value: 'Moorland' },
+                ],
+                overnight: 'Shira 1 Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Shira 1 – Shira 2 Camp',
+                paragraphs: [
+                    'A gentler day, and a deliberate one — it exists to let your body catch up with the altitude rather than to cover ground.',
+                    'You cross the Shira Plateau itself, an ancient collapsed caldera with sweeping views and high-altitude vegetation found almost nowhere else, and reach Shira 2 in good time.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,504 m – 3,895 m' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Low alpine zone' },
+                ],
+                highlight: 'Crossing the Shira Plateau',
+                overnight: 'Shira 2 Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Shira 2 – Lava Tower – Barranco Camp',
+                paragraphs: [
+                    'The key acclimatisation day. You climb to Lava Tower at around 4,640 metres, then drop down into the Barranco Valley to sleep — the altitude gained and then given back is what makes the summit possible.',
+                    'The valley, and the Barranco Wall standing over the camp, make this one of the most memorable stretches of the route.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,895 m – Lava Tower – approx. 4,000 m' },
+                    { label: 'Hiking', value: '5–7 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                highlight: 'Lava Tower at 4,640 m — climb high, sleep low',
+                overnight: 'Barranco Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Barranco – Karanga Camp',
+                paragraphs: [
+                    'The morning starts with the Barranco Wall — a steady scramble rather than a technical climb, and over quicker than you expect.',
+                    'Above it the trail runs on through the Karanga Valley with the mountain around you all day. It is a short day on purpose, so the afternoon goes on rest and acclimatisation.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: 'Approx. 3,986 m – 4,034 m' },
+                    { label: 'Hiking', value: '4–5 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                highlight: 'The Barranco Wall',
+                overnight: 'Karanga Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'Karanga – Barafu Camp',
+                paragraphs: [
+                    'A steady climb through the alpine desert to Barafu, the last camp before the summit.',
+                    'You eat well and settle in early. The summit push begins in the middle of the night.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '4,034 m – 4,662 m' },
+                    { label: 'Hiking', value: '4–5 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                overnight: 'Barafu Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'Barafu Camp – Uhuru Peak – Mweka Camp',
+                paragraphs: [
+                    'Around midnight your guides wake you for a hot drink and a light meal, and the climb starts in the dark.',
+                    'It is a demanding ascent, but the pace is managed carefully. You reach Stella Point on the crater rim as the first light comes up, and from there carry on to Uhuru Peak at 5,895 metres — the highest point in Africa.',
+                    'After time at the top and a rest and a meal back at Barafu, you continue down to Mweka Camp for your last night on the mountain.',
+                    'Trekking poles and gaiters earn their place today: the ascent and descent are both on loose volcanic gravel and ash.',
+                ],
+                stats: [
+                    { label: 'Summit', value: '5,895 m — Uhuru Peak' },
+                    { label: 'Ascent', value: 'Approx. 5–7 hours' },
+                    { label: 'Descent', value: 'Approx. 5–6 hours' },
+                    { label: 'Habitat', value: 'High alpine & summit zone' },
+                ],
+                highlight: 'First light from Uhuru Peak, the highest point in Africa',
+                overnight: 'Mweka Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 8,
+                label: 'Day 8',
+                title: 'Mweka Camp – Arusha',
+                paragraphs: [
+                    'A last descent through the rainforest to Mweka Gate, and a chance to mark the climb with the crew before your private transfer arrives.',
+                    'From there it is back to Arusha for a well-earned rest — or straight on to a safari or Zanzibar, if you have booked one on the end.',
+                ],
+                stats: [
+                    { label: 'Hiking', value: 'Approx. 3–4 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: trekIncluded(
+            'Camping fees',
+            'Accommodation in quality mountain tents',
+            'Mess and cooking tents, with camping chairs and tables',
+        ),
+        excluded: TREK_EXCLUDED,
+        faqs: [
+            {
+                question: 'Why Lemosho rather than Machame?',
+                answer:
+                    'Two reasons. Lemosho starts on the western side, which is much less used than the southern gates, so the first three days are quiet. And the extra day gives a gentler acclimatisation profile than the seven-day Machame — which, on a mountain where almost every failed summit is an altitude problem rather than a fitness one, is the thing that matters most.',
+            },
+            ...TREK_FAQS,
+        ],
+    },
+    {
+        slug: '9-day-northern-circuit-kilimanjaro',
+        name: '9-Day Northern Circuit Route',
+        region: 'Kilimanjaro National Park',
+        category: 'Kilimanjaro Trek',
+        routes: ['trekking'],
+        duration: '9 Days / 8 Nights',
+        days: 9,
+        nights: 8,
+        price: trekCardPrice(9),
+        image: '/images/kili-summit-ridge-climbers.webp',
+        imageAlt:
+            'Three climbers in cold-weather kit stopped on bare rock high on the mountain under a deep blue sky',
+        summary:
+            'Kilimanjaro’s longest route, and a near-complete circuit of the mountain. You come in from the west over the Shira Plateau, turn north around the quiet side — remote valleys, high wilderness, the plains running away towards Kenya — approach Uhuru Peak from the east, and come down the Mweka route.',
+        priceFrom: trekTotal(9),
+        priceUnit: 'Per person sharing',
+        priceLines: trekPriceLines(),
+        priceNote: trekPriceNote(9),
+        bestTime: 'January – March & June – October',
+        highlights: [
+            'The longest route on Kilimanjaro, and the most time at altitude before the summit',
+            'A wide clockwise circuit of the mountain, up one side and down the other',
+            'The remote northern slopes, which almost nobody walks',
+            'The Shira Plateau, Lava Tower and the Lent Hills',
+            'Views north across the plains towards the Kenyan border',
+            'A greater variety of landscape than any shorter route',
+            'Uhuru Peak at 5,895 metres, approached from the east',
+            'A hot shower and a complimentary massage waiting at the bottom',
+        ],
+        destinations: [
+            'Arusha',
+            'Londorossi Gate',
+            'Shira Plateau',
+            'Moir Hut',
+            'Buffalo Camp',
+            'School Hut',
+            'Uhuru Peak',
+            'Mweka',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Start' },
+                { ...PT.kiliLondorossiGate, label: 'Day 1' },
+                { ...PT.kiliMtiMkubwa, label: 'Day 1' },
+                { ...PT.kiliShira1, label: 'Day 2' },
+                { ...PT.kiliShira2, label: 'Day 3' },
+                { ...PT.kiliLavaTower, label: 'Day 4' },
+                { ...PT.kiliMoir, label: 'Day 4' },
+                { ...PT.kiliBuffalo, label: 'Day 5' },
+                { ...PT.kiliThirdCave, label: 'Day 6' },
+                { ...PT.kiliSchoolHut, label: 'Day 7' },
+                { ...PT.kiliUhuru, label: 'Day 8' },
+                { ...PT.kiliMwekaCamp, label: 'Day 8' },
+                { ...PT.kiliMwekaGate, label: 'Day 9' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arusha or Moshi – Londorossi Gate – Mti Mkubwa Camp',
+                paragraphs: [
+                    'The climb begins with a transfer from Arusha or Moshi to Londorossi Gate and the park formalities, then on to the trailhead.',
+                    'From there you walk up through the rainforest on the western side of the mountain. The forest is thick with birds, and blue colobus monkeys are common along the trail.',
+                    'After several hours you reach Mti Mkubwa — "Big Tree Camp" — for your first night.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '2,389 m – 2,785 m (+396 m)' },
+                    { label: 'Distance', value: 'Approx. 4.8 km' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                wildlife: ['Blue colobus monkey', 'Forest birdlife'],
+                overnight: 'Mti Mkubwa Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Mti Mkubwa Camp – Shira 1 Camp',
+                paragraphs: [
+                    'The rainforest gives way to open moorland, heather and high-altitude vegetation.',
+                    'The trail climbs steadily over rolling ground and across small streams before it reaches the Shira Plateau. As you come up to Shira 1 the country opens right out, and Kibo appears ahead for the first time.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '2,785 m – 3,504 m (+719 m)' },
+                    { label: 'Distance', value: 'Approx. 7.9 km' },
+                    { label: 'Hiking', value: '4–6 hours' },
+                    { label: 'Habitat', value: 'Moorland' },
+                ],
+                overnight: 'Shira 1 Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Shira 1 Camp – Shira 2 Camp',
+                paragraphs: [
+                    'A relatively gentle day across the Shira Plateau, which gives your body more time to adjust to the altitude.',
+                    'The trail crosses open meadows and high-altitude vegetation on its way to Shira 2. The views from up here are among the most striking on the mountain — worth the evening it takes to sit and look at them.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,504 m – 3,895 m (+391 m)' },
+                    { label: 'Distance', value: 'Approx. 7.9 km' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Low alpine / moorland' },
+                ],
+                overnight: 'Shira 2 Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Shira 2 Camp – Lava Tower – Moir Hut',
+                paragraphs: [
+                    'East towards Lava Tower, the most distinctive volcanic formation on Kilimanjaro, climbing hard before dropping to the remote Moir Hut on the northern side.',
+                    'Going high and then sleeping lower is deliberate, and it is the single most useful acclimatisation day of the route.',
+                    'Depending on conditions and what your guide makes of how you are going, there may be time for short walks in the hills around camp.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: 'Approx. 3,895 m – 4,630 m – 4,200 m' },
+                    { label: 'Distance', value: 'Approx. 14–18 km' },
+                    { label: 'Hiking', value: '5–7 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                highlight: 'Lava Tower at 4,630 m — climb high, sleep low',
+                overnight: 'Moir Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Moir Hut – Buffalo Camp',
+                paragraphs: [
+                    'Out of the Moir Valley and up towards the Lent Hills, where the trail joins the Northern Circuit proper.',
+                    'From there it crosses remote, rocky country to Buffalo Camp. The day is worth it for the view alone: the northern plains laid out below you, running all the way to the Kenyan border.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: 'Approx. 4,200 m – 4,020 m' },
+                    { label: 'Distance', value: 'Approx. 9–12 km' },
+                    { label: 'Hiking', value: '5–7 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                highlight: 'The northern plains, out towards the Kenyan border',
+                overnight: 'Buffalo Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'Buffalo Camp – Third Cave',
+                paragraphs: [
+                    'On around the northern slopes, through remote valleys and open high-altitude country towards Third Cave.',
+                    'This is the quietest stretch of the whole route, and the part that feels most like wilderness — the gradual ground means you go on acclimatising while you walk.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: 'Approx. 4,020 m – 3,936 m' },
+                    { label: 'Distance', value: 'Approx. 7 km' },
+                    { label: 'Hiking', value: '5–7 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                overnight: 'Third Cave Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'Third Cave – School Hut',
+                paragraphs: [
+                    'A gradual climb towards the Saddle, the high desert lying between Mawenzi and Kibo.',
+                    'The trail carries on to School Hut, your last camp before the summit. Dinner is early, and then a few hours of rest before you start climbing around midnight.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: '3,936 m – 4,717 m (+781 m)' },
+                    { label: 'Distance', value: 'Approx. 5 km' },
+                    { label: 'Hiking', value: '5–7 hours' },
+                    { label: 'Habitat', value: 'Alpine desert' },
+                ],
+                overnight: 'School Hut',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 8,
+                label: 'Day 8',
+                title: 'School Hut – Uhuru Peak – Mweka Camp',
+                paragraphs: [
+                    'Around midnight, a hot drink and a light meal, and then the ascent under the stars.',
+                    'The trail climbs to Gilman’s Point, then follows the crater rim round by Stella Point to Uhuru Peak. At 5,895 metres it is the highest point in Africa — take the time you need up there.',
+                    'Then the long descent towards Mweka Camp, with a stop for lunch and then down through the upper forest to your last night on the mountain.',
+                ],
+                stats: [
+                    { label: 'Summit', value: '5,895 m (+1,178 m)' },
+                    { label: 'Ascent', value: '6–8 hours' },
+                    { label: 'Descent', value: '5–6 hours' },
+                    { label: 'Habitat', value: 'Alpine desert / upper forest' },
+                ],
+                highlight: 'Uhuru Peak at sunrise, approached from the east',
+                overnight: 'Mweka Camp',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 9,
+                label: 'Day 9',
+                title: 'Mweka Camp – Mweka Gate – Arusha or Moshi',
+                paragraphs: [
+                    'The last descent runs down through the rainforest to Mweka Gate.',
+                    'At the gate you collect your Kilimanjaro summit certificate and mark nine days on the mountain with the crew who carried it with you.',
+                    'Your vehicle meets you there for the transfer back to Arusha or Moshi.',
+                ],
+                stats: [
+                    { label: 'Elevation', value: 'Approx. 3,106 m – 1,633 m' },
+                    { label: 'Distance', value: 'Approx. 9–10 km' },
+                    { label: 'Hiking', value: '3–4 hours' },
+                    { label: 'Habitat', value: 'Rainforest' },
+                ],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: trekIncluded(
+            'Camping fees',
+            'Accommodation in quality mountain tents',
+            'Mess and cooking facilities',
+        ),
+        excluded: TREK_EXCLUDED,
+        faqs: [
+            {
+                question: 'Is nine days worth it over seven or eight?',
+                answer:
+                    'If you want the best odds on the summit, yes. The Northern Circuit puts more days at altitude behind you than any other route on the mountain before you attempt Uhuru Peak, and the summit success rate reflects that. It is also the quietest and the most varied — you go up one side of Kilimanjaro and down the other.',
+            },
+            ...TREK_FAQS,
+        ],
+    },
 ]
+
+/*
+ * The two product lines the Journeys menu splits on, derived from the tag
+ * rather than listed by hand so a new itinerary lands on the right index page
+ * the moment it is written. `trekking` means the mountain and nothing else
+ * (see `RouteTag`), which is exactly the line the menu draws.
+ *
+ * /safari-packages lists SAFARIS, /kilimanjaro lists TREKS, and the itinerary
+ * pages themselves stay under /safari-packages/<slug>/ for both — the climbs
+ * were indexed there first and moving them would break links for nothing.
+ */
+export const TREKS = PACKAGES.filter((pkg) => pkg.routes.includes('trekking'))
+export const SAFARIS = PACKAGES.filter((pkg) => !pkg.routes.includes('trekking'))

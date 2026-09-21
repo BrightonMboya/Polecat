@@ -1,0 +1,56 @@
+---
+/**
+ * The trekking side of the Journeys menu: the five routes up Kilimanjaro.
+ *
+ * A sibling of /safari-packages rather than a filtered view of it. The two
+ * product lines are sold to different people — one is looking for lodges and
+ * game drives, the other for an acclimatisation profile — and "Kilimanjaro
+ * climb" is a far bigger search term than anything on the safari side, so it
+ * is worth a page with its own title and standfirst rather than an anchor.
+ *
+ * The cards link to /safari-packages/<slug>/, where the itineraries have
+ * lived since they were written. Only the listing is split; see SAFARIS and
+ * TREKS at the foot of src/content/packages.ts.
+ */
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import Newsletter from '../components/Newsletter.astro'
+import PackageCard from '../components/PackageCard.astro'
+import SectionHeading from '../components/SectionHeading.astro'
+import { TREKS } from '../content/packages'
+---
+
+<Layout
+    title="Climb Kilimanjaro — Marangu, Machame, Rongai, Lemosho & Northern Circuit | Polecat Safaris"
+    description="Five private routes to Uhuru Peak at 5,895 metres, from the six-day Marangu huts to the nine-day Northern Circuit. Professional guides, a full mountain crew, daily oxygen monitoring, and day-by-day detail on every route."
+>
+    <Header />
+    <main>
+        <section class="gutter flex flex-col items-center bg-cream pt-16 pb-20 lg:pt-24 lg:pb-28.5">
+            <SectionHeading
+                eyebrow="Trekking"
+                heading="Climb Kilimanjaro"
+                body="Africa’s highest mountain, and the highest free-standing mountain in the world. You do not need to be a mountaineer to stand on Uhuru Peak — what you need is a good level of fitness and enough days on the mountain to acclimatise, which is why every route below is the longer version of itself."
+            />
+
+            <ul class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-11.5 lg:grid-cols-3">
+                {
+                    TREKS.map((pkg, index) => (
+                        <PackageCard pkg={pkg} loading={index < 3 ? 'eager' : 'lazy'} />
+                    ))
+                }
+            </ul>
+
+            <p class="shell mt-14 max-w-180 text-center text-[16px] leading-7.25 text-muted">
+                Every climb is private and priced at US$ 360 per person per day on the mountain.
+                Not sure which route? Tell us how long you have and how you want to spend it, and
+                we will say honestly which one gives you the best chance of the summit — and add a
+                safari or Zanzibar on the end if you want one.
+            </p>
+        </section>
+
+        <Newsletter />
+    </main>
+    <Footer />
+</Layout>

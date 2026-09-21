@@ -3,51 +3,187 @@ import Wordmark from './Wordmark.astro'
 import { NAV } from '../content/home'
 
 /*
- * Three items and no Menu toggle. The design's hamburger opened a panel that
- * duplicated the footer sitemap; with a nav this small there is nothing to
- * hide behind it, so the links sit inline at every width and the panel — and
- * the JavaScript that drove it — are gone.
+ * Journeys, Blog, About Us and the Enquire button. No hamburger: the design's
+ * panel duplicated the footer sitemap, and with a nav this small there is
+ * nothing worth hiding behind a toggle, so the links sit inline at every width.
  *
- * Below `sm` the two text links tighten rather than disappear, which keeps
- * Safaris and About Us reachable on a phone without a drawer.
+ * Journeys is a dropdown over the one split the catalogue actually makes —
+ * safaris and the mountain. It is a <details>/<summary> rather than a button
+ * and a script, which means click, Enter, Space and the whole focus order
+ * work before any JavaScript loads, and keep working if it never does. The
+ * script below adds only what <details> has no opinion about: opening on
+ * hover for a mouse, and closing on Escape or a click elsewhere.
  */
 const current = Astro.url.pathname
+
 /** `/about` and `/about/` are the same page; the trailing slash is canonical. */
 const isCurrent = (href: string) =>
     href !== '/' && current.replace(/\/?$/, '/').startsWith(href)
+
+/*
+ * A parent is current when any of its children is. Journeys has to light up on
+ * /kilimanjaro/ as well as /safari-packages/, and matching only its own href
+ * would miss the mountain half of the menu entirely.
+ */
+const isBranchCurrent = (link: (typeof NAV.primary)[number]) =>
+    isCurrent(link.href) ||
+    ('children' in link && link.children.some((child) => isCurrent(child.href)))
+
+const LINK_CLASS =
+    'text-[11px] leading-4 tracking-[0.14em] whitespace-nowrap text-ink uppercase transition-colors hover:text-primary aria-[current=page]:text-primary sm:text-[12px] sm:tracking-[0.18em]'
 ---
 
 <header class="border-b border-line bg-cream">
-    {/* Below `sm` the nav drops to its own row and spreads across it. The
-        wordmark plus three items does not fit on one line at 320–430px, and
-        squeezing them wraps "About Us" and clips the button — two honest rows
-        beat one broken one. From `sm` it is the design's single row. */}
+    {/* Below `sm` the nav drops to its own row under the wordmark. Four items
+        no longer spread across that row either — Journeys, Blog, About Us and
+        the button measure about 300px at base against the 272px a 320px phone
+        leaves after the gutter — so the row wraps rather than overflowing, and
+        the button drops beneath the links on the narrowest screens. Two or
+        three honest rows beat one that scrolls sideways. From `sm` it is the
+        design's single row again. */}
     <div
         class="shell gutter flex flex-col items-start gap-3.5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-6.5"
     >
         <Wordmark size="header" />
 
         <nav
-            class="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-end sm:gap-7 lg:gap-8.5"
+            class="flex w-full flex-wrap items-center gap-x-5 gap-y-3 sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-7 lg:gap-8.5"
             aria-label="Primary"
         >
             {
-                NAV.primary.map((link) => (
-                    <a
-                        href={link.href}
-                        aria-current={isCurrent(link.href) ? 'page' : undefined}
-                        class="text-[11px] leading-4 tracking-[0.14em] whitespace-nowrap text-ink uppercase transition-colors hover:text-primary aria-[current=page]:text-primary sm:text-[12px] sm:tracking-[0.18em]"
-                    >
-                        {link.label}
-                    </a>
-                ))
+                NAV.primary.map((link) =>
+                    'children' in link ? (
+                        <details class="nav-menu relative">
+                            <summary
+                                aria-current={isBranchCurrent(link) ? 'page' : undefined}
+                                class={`flex cursor-pointer list-none items-center gap-1.5 ${LINK_CLASS}`}
+                            >
+                                {link.label}
+                                <svg
+                                    class="nav-menu__chevron mt-px size-2.5 shrink-0 transition-transform duration-200"
+                                    viewBox="0 0 10 6"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M1 1L5 5L9 1"
+                                        stroke="currentColor"
+                                        stroke-width="1.4"
+                                        stroke-linecap="square"
+                                    />
+                                </svg>
+                            </summary>
+
+                            {/* Left-aligned under the trigger on a phone, where
+                                the nav starts its own row, and right-aligned
+                                from `sm`, where it hangs off the end of the bar
+                                and would otherwise run off the screen. The pt-3
+                                is the hover bridge: it keeps the pointer inside
+                                the menu on the way down to the panel. */}
+                            <div class="absolute top-full left-0 z-30 w-60 pt-3 sm:right-0 sm:left-auto">
+                                <ul class="flex flex-col border border-line bg-white py-1.5 shadow-[0_12px_32px_-12px_rgba(16,24,20,0.28)]">
+                                    {link.children.map((child) => (
+                                        <li>
+                                            <a
+                                                href={child.href}
+                                                aria-current={
+                                                    isCurrent(child.href) ? 'page' : undefined
+                                                }
+                                                class="group flex flex-col gap-0.5 px-5 py-3 transition-colors hover:bg-cream aria-[current=page]:bg-cream"
+                                            >
+                                                <span class="text-[12px] leading-4 tracking-[0.18em] text-ink uppercase transition-colors group-hover:text-primary">
+                                                    {child.label}
+                                                </span>
+                                                <span class="text-[12px] leading-4.5 text-muted normal-case">
+                                                    {child.note}
+                                                </span>
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </details>
+                    ) : (
+                        <a
+                            href={link.href}
+                            aria-current={isCurrent(link.href) ? 'page' : undefined}
+                            class={LINK_CLASS}
+                        >
+                            {link.label}
+                        </a>
+                    )
+                )
             }
             <a
                 href={NAV.enquire.href}
-                class="flex shrink-0 items-center justify-center bg-primary px-5 py-2.75 text-[11px] leading-4 font-medium tracking-[0.14em] whitespace-nowrap text-white uppercase transition-colors hover:bg-[#083329] sm:px-6.5 sm:py-3 sm:text-[12px] sm:tracking-[0.18em]"
+                class="flex shrink-0 items-center justify-center bg-primary px-4 py-2.75 text-[11px] leading-4 font-medium tracking-[0.14em] whitespace-nowrap text-white uppercase transition-colors hover:bg-[#083329] sm:px-6.5 sm:py-3 sm:text-[12px] sm:tracking-[0.18em]"
             >
                 {NAV.enquire.label}
             </a>
         </nav>
     </div>
 </header>
+
+<style>
+    /* Safari still paints the default disclosure triangle without this. */
+    .nav-menu > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .nav-menu[open] .nav-menu__chevron {
+        transform: rotate(180deg);
+    }
+</style>
+
+<script>
+    /*
+     * <details> already handles click, Enter, Space and the focus order. This
+     * adds the three things it has no opinion about: opening on hover for a
+     * mouse, closing on Escape, and closing when the click lands elsewhere.
+     *
+     * Hover is bound only where the device actually has it, so a tap on a
+     * phone toggles once rather than opening under the finger and then being
+     * closed again by the same gesture.
+     */
+    const menus = Array.from(document.querySelectorAll<HTMLDetailsElement>('details.nav-menu'))
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)')
+
+    for (const menu of menus) {
+        let closeTimer: ReturnType<typeof setTimeout> | undefined
+
+        menu.addEventListener('pointerenter', () => {
+            if (!canHover.matches) return
+            clearTimeout(closeTimer)
+            menu.open = true
+        })
+
+        // Leaving the summary on the way into the panel crosses the gap between
+        // them, so closing waits a moment rather than snapping shut mid-travel.
+        menu.addEventListener('pointerleave', () => {
+            if (!canHover.matches) return
+            clearTimeout(closeTimer)
+            closeTimer = setTimeout(() => {
+                menu.open = false
+            }, 140)
+        })
+
+        menu.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape' || !menu.open) return
+            menu.open = false
+            menu.querySelector('summary')?.focus()
+        })
+
+        // Tabbing out closes it, and so does a click anywhere outside.
+        menu.addEventListener('focusout', (event) => {
+            if (canHover.matches && !menu.contains(event.relatedTarget as Node | null)) {
+                menu.open = false
+            }
+        })
+    }
+
+    document.addEventListener('click', (event) => {
+        for (const menu of menus) {
+            if (menu.open && !menu.contains(event.target as Node)) menu.open = false
+        }
+    })
+</script>

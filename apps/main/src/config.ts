@@ -15,9 +15,14 @@ export const SITE = {
      *
      * `tagline` below does a different job and both stay: the slogan is the
      * brand line, said in the operator's voice; the tagline is the sentence
-     * that states what the business actually sells, and it is what the meta
-     * description and the share card carry. A slogan cannot do that work —
-     * "Travel Deep. Feel More." tells a search result nothing about Tanzania.
+     * that states what the business actually sells. A slogan cannot do that
+     * work — "Travel Deep. Feel More." tells a search result nothing about
+     * Tanzania.
+     *
+     * The tagline no longer appears anywhere on the page: it was removed from
+     * the footer by request, and its remaining job is the default meta
+     * description and the `description` in the TravelAgency schema, both in
+     * Layout.astro. It is still load-bearing, just invisible.
      */
     slogan: 'Travel Deep. Feel More.',
     tagline: 'Private, tailor-made safaris across northern Tanzania and Zanzibar.',

@@ -24,6 +24,7 @@ export const GET: APIRoute = async ({ site }) => {
     const entries: Entry[] = [
         { path: '/', priority: '1.0', changefreq: 'weekly' },
         { path: '/safari-packages/', priority: '0.9', changefreq: 'weekly' },
+        { path: '/kilimanjaro/', priority: '0.9', changefreq: 'weekly' },
         { path: '/enquire/', priority: '0.8', changefreq: 'monthly' },
         { path: '/about/', priority: '0.7', changefreq: 'monthly' },
         { path: '/safari-add-ons/', priority: '0.7', changefreq: 'monthly' },

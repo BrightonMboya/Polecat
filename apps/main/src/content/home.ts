@@ -171,7 +171,7 @@ export const TRAVEL_STYLES: {
         {
             slug: 'trekking',
             title: 'Trekking',
-            blurb: 'Days on foot: a walking safari with an armed ranger, the crater rim at dawn, a day on the Marangu route.',
+            blurb: 'Days on foot: Kilimanjaro by Marangu, Machame, Rongai, Lemosho or the Northern Circuit — and, on the safaris, a walking safari with an armed ranger.',
             image: '/images/style-trekking.webp',
             imageAlt:
                 'A Maasai guide and two guests walking across a rock outcrop at sunset, the plains below them',
@@ -208,9 +208,10 @@ export const DESTINATIONS: { heading: string; body: string; items: Destination[]
         {
             name: 'Trekking',
             route: 'trekking',
-            blurb: 'Days spent on foot: a walking safari with an armed ranger in Arusha National Park, the Ngorongoro Crater rim, and a day hike on the Marangu route up Kilimanjaro.',
-            image: '/images/namibia-desert-dunes.webp',
-            imageAlt: 'A lone walker crossing high ground below a bare mountain range',
+            blurb: 'Kilimanjaro on foot. Five routes to Uhuru Peak at 5,895 metres — the classic Marangu huts, the scenic Machame, the quiet northern Rongai, the gradual Lemosho, and the nine-day Northern Circuit right around the mountain.',
+            image: '/images/kili-moorland-trail.webp',
+            imageAlt:
+                'A file of trekkers and porters climbing a trail through giant heather on Kilimanjaro under a clear sky',
         },
         {
             name: 'Zanzibar',
@@ -251,20 +252,21 @@ export const IMPACT = {
  * disagree about a price.
  *
  * The homepage shows the six itineraries flagged `featured` — the honeymoons
- * first, then the shortest family safari and the migration flagship. All ten
- * are on /safari-packages behind the button.
+ * first, then the shortest family safari and the migration flagship. All
+ * fifteen — the ten safaris and the five Kilimanjaro climbs — are on
+ * /safari-packages behind the button.
  */
 export const PACKAGES: {
     heading: string
     body: string
     /** The six shown by default. */
     items: SafariPackage[]
-    /** All ten, so a route filter can reach the ones that aren't featured. */
+    /** All fifteen, so a route filter can reach the ones that aren't featured. */
     all: SafariPackage[]
     cta: Cta
 } = {
     heading: 'Safari packages',
-    body: 'Every itinerary here is private — your own guide, your own vehicle, and days that can move. Honeymoons first, then the family safaris, and the twelve nights it takes to follow the migration properly.',
+    body: 'Every itinerary here is private — your own guide, your own vehicle, and days that can move. Honeymoons first, then the family safaris, the twelve nights it takes to follow the migration properly, and five routes up Kilimanjaro.',
     cta: { label: 'All Safari Packages', href: '/safari-packages/' },
     items: PACKAGE_ITEMS.filter((pkg) => pkg.featured),
     all: PACKAGE_ITEMS,
@@ -379,10 +381,31 @@ export const NEWSLETTER = {
     note: 'We keep your details to ourselves. Unsubscribe any time.',
 } as const
 
+/**
+ * The header. `primary` is read in order; an item with `children` renders as a
+ * dropdown, one without renders as a plain link.
+ *
+ * Journeys is the only item with children, and it splits on the one line the
+ * catalogue actually draws: safaris on the northern circuit, and the mountain.
+ * Its own `href` points at the safari index so the parent is never a dead
+ * click — on a phone, where there is no hover, tapping it goes somewhere
+ * sensible instead of doing nothing.
+ */
 export const NAV = {
-    /** The two text links in the header, beside the Enquire button. */
     primary: [
-        { label: 'Safaris', href: '/safari-packages/' },
+        {
+            label: 'Journeys',
+            href: '/safari-packages/',
+            children: [
+                {
+                    label: 'Safaris',
+                    href: '/safari-packages/',
+                    note: 'Northern Tanzania & Zanzibar',
+                },
+                { label: 'Trekking', href: '/kilimanjaro/', note: 'Five routes up Kilimanjaro' },
+            ],
+        },
+        { label: 'Blog', href: '/blogs/' },
         { label: 'About Us', href: '/about/' },
     ],
     enquire: { label: 'Enquire', href: '/enquire/' },
@@ -415,13 +438,14 @@ export const FOOTER_COLUMNS = [
             { label: 'The Great Migration', href: '/safari-packages/13-day-great-migration-safari/' },
             { label: 'All safari packages', href: '/safari-packages/' },
             { label: 'Safari add-ons', href: '/safari-add-ons/' },
+            { label: 'Climb Kilimanjaro', href: '/kilimanjaro/' },
         ],
     },
     {
         heading: 'Where We Travel',
         links: [
             { label: 'Northern Circuit', href: '/#route-northern-circuit' },
-            { label: 'Trekking', href: '/#route-trekking' },
+            { label: 'Kilimanjaro', href: '/kilimanjaro/' },
             { label: 'Zanzibar', href: '/#route-zanzibar' },
             { label: 'Guest reviews', href: '/about/#reviews' },
         ],
