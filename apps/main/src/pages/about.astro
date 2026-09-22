@@ -67,12 +67,23 @@ const pageSchema = {
     description: `${SITE.legalName} is an owner-run safari operator based in Arusha, selling private, tailor-made journeys through northern Tanzania and Zanzibar.`,
     url: 'https://africanpolecatsafaris.com/about/',
 }
+
+/*
+ * The intro photograph is one of the package images and ships at the same
+ * three widths they do. Here it is half the shell on a wide screen and the
+ * full column below that.
+ */
+const INTRO_SRCSET =
+    '/images/family-walk-maasai-guide-900.webp 900w, /images/family-walk-maasai-guide-1400.webp 1400w, /images/family-walk-maasai-guide-1920.webp 1920w'
+const INTRO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
 ---
 
 <Layout
     title="About Us — An Arusha safari company, private safaris only | Polecat Safaris"
     description="African Polecat Safaris is an owner-run operator based in Arusha. We sell private, tailor-made safaris through northern Tanzania and Zanzibar — our own guides, our own vehicles, and no group departures."
-    preloadImage="/images/family-walk-maasai-guide.webp"
+    preloadImage="/images/family-walk-maasai-guide-1400.webp"
+    preloadImageSrcset={INTRO_SRCSET}
+    preloadImageSizes={INTRO_SIZES}
     pageSchema={pageSchema}
 >
     <Header />
@@ -130,10 +141,12 @@ const pageSchema = {
                 </div>
 
                 <img
-                    src="/images/family-walk-maasai-guide.webp"
+                    src="/images/family-walk-maasai-guide-1400.webp"
+                    srcset={INTRO_SRCSET}
+                    sizes={INTRO_SIZES}
                     alt="A grandfather and his granddaughter out on foot with their guide and two Maasai men, zebra grazing on the plain behind them"
-                    width="1200"
-                    height="858"
+                    width="1400"
+                    height="1001"
                     fetchpriority="high"
                     decoding="async"
                     class="aspect-[3/2] w-full min-w-0 object-cover lg:w-1/2"

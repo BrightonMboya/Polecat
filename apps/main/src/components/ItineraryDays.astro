@@ -26,6 +26,8 @@
  */
 import StayGallery from './StayGallery.astro'
 import { findAccommodation } from '../content/accommodations'
+import ZoneImage from './ZoneImage.astro'
+import { findTrekZone } from '../content/trek-zones'
 import { findAddon } from '../content/addons'
 import type { DayExtra } from '../content/packages'
 import type { SafariPackage } from '../content/packages'
@@ -93,6 +95,21 @@ const { pkg } = Astro.props
                 const stay = findAccommodation(day.overnight)
                 const arriving =
                     stay != null && findAccommodation(previous?.overnight)?.slug !== stay.slug
+                const showStay = arriving && stay != null && stay.images.length > 0
+
+                /*
+                 * A climb whose camp has no photography shows the band it
+                 * walks through instead, off the day's own `Habitat` stat.
+                 * Safari days never reach this: they have no `Habitat`.
+                 * See src/content/trek-zones.ts for why, and for the one
+                 * band — rainforest — that still has no frame.
+                 */
+                const zone = showStay
+                    ? undefined
+                    : findTrekZone(
+                          day.stats?.find((stat) => stat.label === 'Habitat')?.value,
+                          index
+                      )
 
                 return (
                     <article class="flex flex-col gap-7 border-t border-line py-13 md:flex-row md:gap-14">
@@ -182,9 +199,15 @@ const { pkg } = Astro.props
                                 StayGallery already captions itself over the
                                 foot of the frame, so a label here would say it
                                 twice. */}
-                            {arriving && stay && (
+                            {showStay && stay && (
                                 <div class="pt-1.5">
                                     <StayGallery stay={stay} />
+                                </div>
+                            )}
+
+                            {zone && (
+                                <div class="pt-1.5">
+                                    <ZoneImage label={zone.label} frame={zone.frame} />
                                 </div>
                             )}
 

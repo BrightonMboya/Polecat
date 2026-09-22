@@ -12,6 +12,11 @@
  * their own, so the chapter passes `surface` — the colour notes and cards need
  * in order not to disappear into whatever the chapter is standing on — and
  * `first`, which suppresses the rule above the section that opens a chapter.
+ *
+ * A `figure` block puts photographs in the right-hand column, one across it or
+ * two side by side, with the caption under them. They are the client's ask for
+ * a page with pictures on it; they illustrate the copy beside them and are
+ * every one of them lazy, so the guide still costs what it costs to read.
  */
 import type { TravelSection } from '../content/travel-info'
 
@@ -148,6 +153,45 @@ const eyebrow =
                                     </li>
                                 ))}
                             </ol>
+                        )}
+
+                        {block.type === 'figure' && (
+                            <figure
+                                class:list={[
+                                    'flex flex-col gap-3',
+                                    blockIndex > 0 && 'pt-2',
+                                ]}
+                            >
+                                <div
+                                    class:list={[
+                                        'grid grid-cols-1 gap-5.5',
+                                        block.items.length > 1 && 'sm:grid-cols-2',
+                                    ]}
+                                >
+                                    {block.items.map((image) => (
+                                        <img
+                                            src={image.src}
+                                            srcset={image.srcset}
+                                            sizes={
+                                                block.items.length > 1
+                                                    ? '(min-width: 1024px) 26rem, (min-width: 640px) 44vw, 92vw'
+                                                    : '(min-width: 1024px) 54rem, 92vw'
+                                            }
+                                            alt={image.alt}
+                                            width="1400"
+                                            height="933"
+                                            loading="lazy"
+                                            decoding="async"
+                                            class="aspect-[3/2] w-full object-cover"
+                                        />
+                                    ))}
+                                </div>
+                                {block.caption && (
+                                    <figcaption class="text-[14px] leading-6.5 text-muted/85 italic">
+                                        {block.caption}
+                                    </figcaption>
+                                )}
+                            </figure>
                         )}
 
                         {block.type === 'table' && (

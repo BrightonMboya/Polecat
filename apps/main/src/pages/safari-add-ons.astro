@@ -20,7 +20,15 @@ import { CONTACT } from '../config'
 import { NAV } from '../content/home'
 import { ADDONS } from '../content/addons'
 
-const HERO_IMAGE = '/images/honeymoon-sundowner-toast.webp'
+const HERO_IMAGE = '/images/honeymoon-sundowner-toast-1400.webp'
+/*
+ * Also a package card image, so it ships at the widths they do — this one's
+ * source frame runs out at 1400. Half the shell on a wide screen, the full
+ * column below that.
+ */
+const HERO_SRCSET =
+    '/images/honeymoon-sundowner-toast-900.webp 900w, /images/honeymoon-sundowner-toast-1400.webp 1400w'
+const HERO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
 
 const eyebrow = 'text-[11px] leading-3.5 font-medium tracking-[0.22em] text-primary uppercase'
 const term = 'text-[10px] leading-3 font-medium tracking-[0.2em] text-muted/70 uppercase'
@@ -45,6 +53,8 @@ const pageSchema = {
     title="Safari Add-ons — Balloon Flights, Night Drives, Walking Safaris | Polecat Safaris"
     description="Fourteen activities you can add to a Tanzania safari: balloon flights, night game drives, walking safaris, bush breakfasts, sundowners, Maasai visits, ziplining and more — where each is offered, how long it takes and what it costs."
     preloadImage={HERO_IMAGE}
+    preloadImageSrcset={HERO_SRCSET}
+    preloadImageSizes={HERO_SIZES}
     pageSchema={pageSchema}
 >
     <Header />
@@ -88,9 +98,11 @@ const pageSchema = {
 
                 <img
                     src={HERO_IMAGE}
+                    srcset={HERO_SRCSET}
+                    sizes={HERO_SIZES}
                     alt="A couple standing arm in arm with champagne at a private sundowner table on a rocky outcrop, the sky turning red behind them"
-                    width="1200"
-                    height="858"
+                    width="1400"
+                    height="1001"
                     fetchpriority="high"
                     decoding="async"
                     class="aspect-[3/2] w-full min-w-0 object-cover lg:w-1/2"

@@ -12,11 +12,15 @@
  *
  * The path has no WordPress ancestor — the old site had no equivalent page —
  * so it is a new URL and is in the sitemap and the footer as one.
+ *
+ * It is also the one page with no newsletter band at the foot of it. The
+ * client asked for it to come off: by the time a guest is reading this they
+ * have already booked, and "Letters from the wild places" is asking someone
+ * mid-packing to subscribe to a mailing list. Every other page still has it.
  */
 import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
-import Newsletter from '../components/Newsletter.astro'
 import SectionHeading from '../components/SectionHeading.astro'
 import TravelSection from '../components/TravelSection.astro'
 import { CONTACT, SITE, whatsappLink } from '../config'
@@ -211,13 +215,22 @@ const pageSchema = {
                             </div>
 
                             {chapter.images && (
-                                <ul class="mt-10 grid grid-cols-1 gap-5.5 sm:grid-cols-2 lg:mt-12">
+                                <ul
+                                    class:list={[
+                                        'mt-10 grid grid-cols-1 gap-5.5 sm:grid-cols-2 lg:mt-12',
+                                        chapter.images.length % 3 === 0 && 'lg:grid-cols-3',
+                                    ]}
+                                >
                                     {chapter.images.map((image) => (
                                         <li>
                                             <img
                                                 src={image.src}
                                                 srcset={image.srcset}
-                                                sizes="(min-width: 640px) 50vw, 100vw"
+                                                sizes={
+                                                    chapter.images!.length % 3 === 0
+                                                        ? '(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 92vw'
+                                                        : '(min-width: 640px) 46vw, 92vw'
+                                                }
                                                 alt={image.alt}
                                                 width="1400"
                                                 height="933"
@@ -232,13 +245,36 @@ const pageSchema = {
 
                             <div class="mt-12 lg:mt-14">
                                 {chapter.id === 'faqs' ? (
-                                    <dl class="grid grid-cols-1 gap-x-16 gap-y-0 lg:grid-cols-2">
+                                    /* Ten questions, closed. They used to sit
+                                       open in two columns, which was most of a
+                                       screen of answers to questions the reader
+                                       had not asked; as an accordion the whole
+                                       chapter is a list you can run your eye
+                                       down, and you open the two that are
+                                       yours. Native <details>, so it works
+                                       with no JavaScript, opens to Ctrl+F and
+                                       to the keyboard, and prints. The answers
+                                       are in the FAQPage node above whether
+                                       they are open or not. */
+                                    <div class="flex max-w-215 flex-col">
                                         {TRAVEL_FAQS.map((faq) => (
-                                            <div class="flex flex-col gap-3 border-t border-line py-8">
-                                                <dt class="font-display text-[21px] leading-7.5 font-light text-ink lg:text-[23px] lg:leading-8">
-                                                    {faq.question}
-                                                </dt>
-                                                <dd class="flex flex-col gap-3.5">
+                                            <details class="group border-t border-line last:border-b">
+                                                <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-6 [&::-webkit-details-marker]:hidden">
+                                                    <h3 class="font-display text-[21px] leading-7.5 font-light text-ink transition-colors group-hover:text-primary lg:text-[23px] lg:leading-8">
+                                                        {faq.question}
+                                                    </h3>
+                                                    {/* A plus that loses its
+                                                        upright when the answer
+                                                        is open. */}
+                                                    <span
+                                                        class="relative mt-2.5 size-3.5 shrink-0 lg:mt-3"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <span class="absolute top-1/2 left-0 h-px w-full -translate-y-1/2 bg-primary" />
+                                                        <span class="absolute top-0 left-1/2 h-full w-px -translate-x-1/2 bg-primary transition-transform duration-200 group-open:scale-y-0" />
+                                                    </span>
+                                                </summary>
+                                                <div class="flex flex-col gap-3.5 pb-8 lg:pr-12">
                                                     {faq.answer.map((paragraph) => (
                                                         <p class="text-[15px] leading-7 text-muted">
                                                             {paragraph}
@@ -259,10 +295,10 @@ const pageSchema = {
                                                             ))}
                                                         </ul>
                                                     )}
-                                                </dd>
-                                            </div>
+                                                </div>
+                                            </details>
                                         ))}
-                                    </dl>
+                                    </div>
                                 ) : (
                                     sectionsOf(chapter.sections).map((section, sectionIndex) => (
                                         <TravelSection
@@ -412,7 +448,6 @@ const pageSchema = {
             </div>
         </section>
 
-        <Newsletter />
     </main>
     <Footer />
 </Layout>

@@ -14,9 +14,26 @@ interface Props {
      * featured, so its route filter has something to reveal.
      */
     hidden?: boolean
+    /**
+     * Where the card sits in the page's outline. The homepage section and
+     * /kilimanjaro put these straight under their own <h2>, so 3 is right.
+     * /safari-packages groups them under a labelled <h3> per product line,
+     * and a card under that is a level deeper.
+     */
+    headingLevel?: 3 | 4
 }
 
-const { pkg, loading = 'lazy', hidden = false } = Astro.props
+const { pkg, loading = 'lazy', hidden = false, headingLevel = 3 } = Astro.props
+const Heading = `h${headingLevel}` as 'h3' | 'h4'
+
+/*
+ * The card's own width, so the browser takes the 900w file rather than the
+ * hero-sized one. Three columns inside the 1336px shell with a 26px gap is
+ * the 428px the aspect ratio above is named for; below that the grid is two
+ * columns and then one, each a share of the viewport less the gutter.
+ */
+const SIZES =
+    '(min-width: 1440px) 428px, (min-width: 1024px) 30vw, (min-width: 640px) 46vw, calc(100vw - 48px)'
 ---
 
 <li
@@ -29,6 +46,8 @@ const { pkg, loading = 'lazy', hidden = false } = Astro.props
         <div class="overflow-hidden">
             <img
                 src={pkg.image}
+                srcset={pkg.imageSrcset}
+                sizes={SIZES}
                 alt={pkg.imageAlt}
                 loading={loading}
                 decoding="async"
@@ -39,9 +58,9 @@ const { pkg, loading = 'lazy', hidden = false } = Astro.props
             <p class="text-[11px] leading-3.5 tracking-[0.16em] text-primary uppercase">
                 {pkg.region}
             </p>
-            <h3 class="font-display text-[27px] leading-8.5 text-ink">
+            <Heading class="font-display text-[27px] leading-8.5 text-ink">
                 {pkg.name}
-            </h3>
+            </Heading>
             <p class="flex flex-wrap items-center gap-2.5 pt-1.5 text-[13px] leading-4 text-muted">
                 <span>{pkg.duration}</span>
                 <span class="h-3 w-px shrink-0 bg-line" aria-hidden="true"></span>

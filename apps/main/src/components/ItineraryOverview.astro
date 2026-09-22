@@ -17,8 +17,6 @@ interface Props {
 
 const { pkg } = Astro.props
 
-const onRequest = pkg.priceFrom === 'On request'
-
 /* The same five figures the old sticky sidebar carried, in kan's fact grid. */
 const facts: [string, string][] = [
     ['Duration', `${pkg.days} days, ${pkg.nights} nights`],
@@ -78,10 +76,11 @@ const facts: [string, string][] = [
 
         <aside class="lg:sticky lg:top-24 lg:self-start" aria-label="Price and enquiry">
             <div class="border border-line bg-stone p-7 lg:p-8">
-                <p class="text-[10px] leading-3 font-medium tracking-[0.2em] text-muted/70 uppercase">
-                    {onRequest ? 'Rate' : 'From, per person sharing'}
-                </p>
-                <p class="font-display mt-3 text-[34px] leading-10 font-light text-ink">
+                {/* No label over the figure. It used to read "From, per
+                    person sharing", which said the same thing twice on a
+                    climb — the unit is on the line under the price — and the
+                    hero above already gives the figure with its unit. */}
+                <p class="font-display text-[34px] leading-10 font-light text-ink">
                     {pkg.priceFrom}
                 </p>
                 <p class="mt-1.5 text-[12px] leading-4.5 text-muted">
@@ -102,8 +101,11 @@ const facts: [string, string][] = [
                 }
 
                 <div class="mt-8 flex flex-col gap-3">
+                    {/* Straight to the planner, with this itinerary named in
+                        the query so /enquire/ opens knowing which journey the
+                        enquiry is about. */}
                     <a
-                        href="#enquire"
+                        href={`/enquire/?itinerary=${pkg.slug}`}
                         class="flex items-center justify-center bg-primary px-7 py-4 text-center text-[12px] leading-4 font-medium tracking-[0.18em] text-white uppercase transition-colors hover:bg-[#083329]"
                     >
                         Request This Journey

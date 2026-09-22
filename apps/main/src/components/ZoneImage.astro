@@ -1,0 +1,50 @@
+---
+/**
+ * The band a climb's day walks through, shown where a safari day shows its
+ * lodge. Same frame and same scrim as StayGallery so the two sit at the same
+ * weight down the page, but a single photograph rather than a rotating
+ * gallery, and captioned with the zone rather than a property — it is not
+ * claiming to be the camp you sleep at. See src/content/trek-zones.ts.
+ */
+import type { TrekZoneFrame } from '../content/trek-zones'
+
+interface Props {
+    label: string
+    frame: TrekZoneFrame
+}
+
+const { label, frame } = Astro.props
+
+/*
+ * The day column runs to about 1,130px inside the shell and is the full
+ * viewport less the gutter below `md`, where the date column stacks above it.
+ */
+const SIZES = '(min-width: 1024px) 1130px, calc(100vw - 48px)'
+---
+
+<figure class="relative h-80 w-full overflow-hidden bg-ink md:h-96 lg:h-112">
+    <img
+        src={frame.image}
+        srcset={frame.srcset}
+        sizes={SIZES}
+        alt={frame.alt}
+        loading="lazy"
+        decoding="async"
+        class="absolute inset-0 size-full object-cover"
+    />
+
+    <div
+        class="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent"
+        aria-hidden="true"
+    >
+    </div>
+
+    <figcaption class="absolute inset-x-6 bottom-6 max-w-2xl">
+        <p class="text-[10px] leading-3 font-medium tracking-[0.28em] text-white/80 uppercase">
+            The Day’s Ground
+        </p>
+        <p class="font-display mt-1.5 text-[24px] leading-8 font-light text-white lg:text-[27px]">
+            {label}
+        </p>
+    </figcaption>
+</figure>

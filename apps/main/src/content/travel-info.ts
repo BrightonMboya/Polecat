@@ -18,7 +18,7 @@
  *     operator sends guests to them, so renaming one breaks a link someone
  *     has.
  *
- * Shape: four chapters — Seasons, What to Pack, Questions, Before You Fly —
+ * Shape: four chapters — Seasons, What to Pack, FAQs, Before You Fly —
  * after legendaryexpeditions.co.tz/travel-info, which the client asked this
  * page to read like. `TRAVEL_CHAPTERS` decides the order and which sections
  * sit inside each one; `TRAVEL_SECTIONS` holds the sections themselves, and a
@@ -29,6 +29,32 @@
  * question rather than reading top to bottom.
  */
 import { SITE } from '../config'
+
+/**
+ * One photograph, anywhere on this page.
+ *
+ * `srcset` is absent for the few images in the library that were never cut
+ * into widths — they are small enough to serve whole, and every `alt`
+ * describes the photograph rather than claiming the place it was taken.
+ */
+export interface TravelFrame {
+    src: string
+    srcset?: string
+    alt: string
+}
+
+/** A frame from the responsive set `<name>-<width>.webp`, as `home.ts` does it. */
+const frame = (name: string, widths: readonly number[], alt: string): TravelFrame => ({
+    src: `/images/${name}-${widths.includes(1400) ? 1400 : widths[widths.length - 1]}.webp`,
+    srcset: widths.map((w) => `/images/${name}-${w}.webp ${w}w`).join(', '),
+    alt,
+})
+
+/** A frame with no responsive set of its own, served at its one width. */
+const single = (file: string, alt: string): TravelFrame => ({
+    src: `/images/${file}`,
+    alt,
+})
 
 /** The renderable pieces a section is built from. See TravelSection.blocks. */
 export type TravelBlock =
@@ -55,6 +81,12 @@ export type TravelBlock =
           columns: readonly string[]
           rows: readonly (readonly string[])[]
       }
+    /**
+     * Photographs inside a section — one across the column, or two side by
+     * side. They carry nothing the copy does not say, so they are lazy, they
+     * are described, and the page reads the same with them switched off.
+     */
+    | { type: 'figure'; items: readonly TravelFrame[]; caption?: string }
 
 /** One question in the FAQ chapter. `list` renders under the paragraphs. */
 export interface TravelFaq {
@@ -109,7 +141,7 @@ export const TRAVEL_INTRO = {
  * The four chapters, in order, and the sections inside each. A chapter is a
  * band on the page with its own heading; `sections` are the ids it renders,
  * in the order given here rather than the order they happen to sit in
- * TRAVEL_SECTIONS. The Questions chapter has no sections — it renders
+ * TRAVEL_SECTIONS. The FAQs chapter has no sections — it renders
  * TRAVEL_FAQS instead.
  */
 export const TRAVEL_CHAPTERS: readonly {
@@ -119,7 +151,7 @@ export const TRAVEL_CHAPTERS: readonly {
     standfirst: string
     sections: readonly string[]
     /** Photographs under the chapter head, before its first section. */
-    images?: readonly { src: string; srcset: string; alt: string }[]
+    images?: readonly TravelFrame[]
 }[] = [
     {
         id: 'seasons',
@@ -128,6 +160,23 @@ export const TRAVEL_CHAPTERS: readonly {
         standfirst:
             'Tanzania is a year-round safari destination. The season you choose changes the safari more than anything else you will decide, so it comes first.',
         sections: ['weather'],
+        /* Dry, green and the hour everyone remembers — the three things the
+           four cards below describe, in the order they describe them. */
+        images: [
+            single(
+                'serengeti-migration-game-drive.jpg',
+                'A small herd of wildebeest grazing beside an open safari vehicle under a lone flat-topped acacia, the plains running hazy to the horizon'
+            ),
+            single(
+                'impact-materuni.webp',
+                'A tall waterfall dropping down a rock face into dense green forest, with one small figure on the path at the foot of it'
+            ),
+            frame(
+                'hero-acacia-chairs',
+                [900, 1400, 1920],
+                'Two guests in safari chairs on a camp deck, glasses of wine on a table between them, looking out at an acacia and a flat-topped hill across the grass'
+            ),
+        ],
     },
     {
         id: 'what-to-pack',
@@ -153,27 +202,40 @@ export const TRAVEL_CHAPTERS: readonly {
          * contradiction goes away.
          */
         images: [
-            {
-                src: '/images/packing-kit-flatlay-1400.webp',
-                srcset:
-                    '/images/packing-kit-flatlay-900.webp 900w, /images/packing-kit-flatlay-1400.webp 1400w',
-                alt: 'Outdoor kit laid out in rows on a wooden floor: a red rucksack, walking boots, a folded blue jacket and jeans, a camera and lens, binoculars, a water bottle, a phone, a watch, sunglasses and a radio',
-            },
-            {
-                src: '/images/packing-bag-flatlay-1400.webp',
-                srcset:
-                    '/images/packing-bag-flatlay-900.webp 900w, /images/packing-bag-flatlay-1400.webp 1400w',
-                alt: 'A red framed rucksack lying on floorboards with a pair of telescopic walking poles above it',
-            },
+            frame(
+                'packing-kit-flatlay',
+                [900, 1400],
+                'Outdoor kit laid out in rows on a wooden floor: a red rucksack, walking boots, a folded blue jacket and jeans, a camera and lens, binoculars, a water bottle, a phone, a watch, sunglasses and a radio'
+            ),
+            frame(
+                'packing-bag-flatlay',
+                [900, 1400],
+                'A red framed rucksack lying on floorboards with a pair of telescopic walking poles above it'
+            ),
         ],
     },
     {
         id: 'faqs',
-        label: 'Questions',
-        heading: 'Questions we are asked',
+        /* "FAQs", in the chapter bar and over the chapter, at the client's
+           request. It read "Questions we are asked" until they asked for the
+           plainer word; the anchor is unchanged, so every link still lands. */
+        label: 'FAQs',
+        heading: 'FAQs',
         standfirst:
             'Health, money, visas and the local rules. Where an answer depends on your nationality or your doctor, we say so rather than answer for them.',
         sections: [],
+        images: [
+            frame(
+                'hero-lodge-games',
+                [900, 1400],
+                'Four people around a wooden table under a thatched roof, mid-game with tiles laid out between them and forest behind'
+            ),
+            frame(
+                'family-lunch-under-acacia',
+                [900, 1400],
+                'A family at a long lunch table set in the shade of an acacia, with the lake and hills beyond'
+            ),
+        ],
     },
     {
         id: 'before-you-fly',
@@ -182,6 +244,15 @@ export const TRAVEL_CHAPTERS: readonly {
         standfirst:
             'What to carry, what to leave a copy of, and how to arrive in a state to enjoy the first morning.',
         sections: ['before-you-depart', 'jet-lag'],
+        /*
+         * No frames under this chapter head. It had three — breakfast at
+         * sunrise, a lantern dinner, trekkers on the mountain — and none of
+         * them said anything about a passport, a travel pouch or a time
+         * zone, which is what the two sections under it are about. There is
+         * no photograph in the library that does. The jet-lag section keeps
+         * its own pair, because "arrive in a state to enjoy the first
+         * morning" is a thing a photograph can show.
+         */
     },
 ] as const
 
@@ -205,6 +276,16 @@ export const TRAVEL_SECTIONS: readonly TravelSection[] = [
             {
                 type: 'text',
                 body: 'Soft bags are strongly recommended. They are easier to store in safari vehicles and aircraft luggage compartments than hard suitcases.',
+            },
+            {
+                type: 'figure',
+                items: [
+                    single(
+                        'style-fly-in.webp',
+                        'A pilot in uniform carrying two kit bags away from a single-engine Cessna parked on a gravel bush airstrip'
+                    ),
+                ],
+                caption: 'The reason for the soft bag: on a bush flight it has to fit the hold of an aircraft this size.',
             },
             {
                 type: 'note',
@@ -289,6 +370,21 @@ export const TRAVEL_SECTIONS: readonly TravelSection[] = [
             {
                 type: 'text',
                 body: 'Avoid excessively bright colours and camouflage-style clothing.',
+            },
+            {
+                type: 'figure',
+                items: [
+                    single(
+                        'serengeti-bush-coffee.jpg',
+                        'A guest in a linen shirt and hat leaning on the front of a safari vehicle above a river while two guides pour coffee from a flask at a laid table'
+                    ),
+                    frame(
+                        'guided-walk-termite-mound',
+                        [900, 1400, 1920],
+                        'Four guests in sun hats standing with their guide at a termite mound under an acacia, white wildflowers across the grass around them'
+                    ),
+                ],
+                caption: 'Khaki, beige, olive, soft grey — and a hat, on every one of them.',
             },
             {
                 type: 'sub',
@@ -395,6 +491,21 @@ export const TRAVEL_SECTIONS: readonly TravelSection[] = [
                 ],
             },
             {
+                type: 'figure',
+                items: [
+                    single(
+                        'serengeti-cheetah-plains.jpg',
+                        'A cheetah standing on open Serengeti grassland in early morning light'
+                    ),
+                    frame(
+                        'family-walk-maasai-guide',
+                        [900, 1400, 1920],
+                        'A Maasai guide leading a family on a walking safari, a herd of zebra grazing in the grass behind them'
+                    ),
+                ],
+                caption: 'A pair of binoculars changes what you see out here more than any lens you can carry.',
+            },
+            {
                 type: 'text',
                 body: 'And, of course, your sense of curiosity. You never quite know what the next bend in the road will reveal.',
             },
@@ -426,6 +537,21 @@ export const TRAVEL_SECTIONS: readonly TravelSection[] = [
                         body: 'The short rains refresh the landscape, bringing new greenery and beautiful skies. Wildlife remains present, while visitor numbers can be lower in many areas.',
                     },
                 ],
+            },
+            {
+                type: 'figure',
+                items: [
+                    frame(
+                        'migration-herd-vehicle',
+                        [900, 1400, 1920],
+                        'A column of wildebeest and zebra walking past an open safari vehicle, with thousands more spread across the plain behind them'
+                    ),
+                    single(
+                        'hero-lionesses.webp',
+                        'Two lionesses lying together in dry golden grass under a thicket, both watching the camera'
+                    ),
+                ],
+                caption: 'June to October: pale grass, thin cover and the wildlife gathered on what water is left.',
             },
             {
                 type: 'table',
@@ -496,12 +622,28 @@ export const TRAVEL_SECTIONS: readonly TravelSection[] = [
                     },
                 ],
             },
+            {
+                type: 'figure',
+                items: [
+                    frame(
+                        'family-mess-tent-dinner',
+                        [900, 1400],
+                        'Three generations of a family passing dishes around a long table in the mess tent'
+                    ),
+                    frame(
+                        'hero-firepit-dinner',
+                        [900, 1400, 1920],
+                        'A couple laughing over dinner at a table laid out in the bush, a fire burning in the foreground and lanterns hung in the trees behind them'
+                    ),
+                ],
+                caption: 'Land with a day in hand and the first dinner is the trip beginning rather than the flight ending.',
+            },
         ],
     },
 ] as const
 
 /**
- * The Questions chapter. These were six sections of their own before the page
+ * The FAQs chapter. These were six sections of their own before the page
  * was reshaped; as questions they are easier to scan and easier to link a
  * guest to, and nothing was dropped in the move.
  *

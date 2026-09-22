@@ -141,6 +141,23 @@ export interface SafariPackage {
     /** Card price line — the shorthand, e.g. "From US$ 4,306 pp". */
     price: string
     image: string
+    /**
+     * The same photograph at the widths on disk. Every package image is a
+     * full-bleed hero on its own page as well as a 428px card, so one file
+     * cannot serve both: at card size a hero-sized file is wasted bytes, and
+     * at hero size a card-sized one is an upscale. Five of them stop at
+     * 1400w because that is all their source frame holds.
+     */
+    imageSrcset: string
+    /**
+     * Where the itinerary hero holds the photograph, as an object-position.
+     * The hero is a 2.4:1 band and these are 1.4:1 frames, so it shows a
+     * little over half of one and `50% 55%` — the default, which suits most
+     * of them — cuts the top quarter away. Set this on any photograph whose
+     * subject sits high enough that the default takes its head off. Only the
+     * y matters; the x stays centred.
+     */
+    imageFocus?: string
     imageAlt: string
     summary: string
     priceFrom: string
@@ -335,7 +352,16 @@ const TREK_FAQS = [FAQ_TREK_EXPERIENCE, FAQ_TREK_ALTITUDE, FAQ_TREK_DIET, FAQ_TR
  * per person per day on the mountain. Every trek rate below is that figure
  * multiplied by the length of the route and worked out here rather than typed
  * out five times, so changing the day rate changes all five climbs at once —
- * the card, the hero, the price rail and the note cannot drift apart.
+ * the card, the hero and the price rail cannot drift apart.
+ *
+ * The rail on a climb is now the total and nothing else. It used to carry a
+ * `priceNote` spelling the arithmetic out again ("360 a day, so 7 days comes
+ * to 2,520") over a `priceLines` table of the day rate, the toilet tent, the
+ * extra porters and the single supplement — all four either restating the
+ * figure above them or saying "On request". Both were removed by request, so
+ * `priceLines` is empty on every climb and the rail falls back to the same
+ * "Per person sharing" the safaris show. ItineraryOverview already skips the
+ * table when the list is empty, so nothing needed changing there.
  */
 const TREK_DAY_RATE = 360
 
@@ -346,17 +372,6 @@ const trekTotal = (days: number) => `US$ ${money(TREK_DAY_RATE * days)}`
 
 /** The card line, e.g. "From US$ 2,160 pp". */
 const trekCardPrice = (days: number) => `From ${trekTotal(days)} pp`
-
-const trekPriceLines = (): PriceLine[] => [
-    { label: 'Day rate on the mountain', amount: `US$ ${TREK_DAY_RATE} pp per day` },
-    { label: 'Private toilet tent', amount: 'On request' },
-    { label: 'Additional porters', amount: 'On request' },
-    { label: 'Single supplement', amount: 'On request' },
-]
-
-const trekPriceNote = (days: number) =>
-    `The climb is priced at US$ ${TREK_DAY_RATE} per person per day on the mountain, so ${days} days comes to ${trekTotal(days)} per person. Tell us your dates and the size of your party and we will confirm it, with or without a safari or Zanzibar on the end.`
-
 
 
 export const PACKAGES: SafariPackage[] = [
@@ -371,7 +386,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 6,
         nights: 5,
         price: 'From US$ 4,306 pp',
-        image: '/images/guided-walk-termite-mound.webp',
+        image: '/images/guided-walk-termite-mound-1400.webp',
+        imageSrcset:
+            '/images/guided-walk-termite-mound-900.webp 900w, /images/guided-walk-termite-mound-1400.webp 1400w, /images/guided-walk-termite-mound-1920.webp 1920w',
         imageAlt:
             'Four guests in sun hats standing with their guide at a termite mound under an acacia, white wildflowers across the grass around them',
         summary:
@@ -523,7 +540,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 7,
         nights: 6,
         price: 'From US$ 4,828 pp',
-        image: '/images/honeymoon-deck-sunrise.webp',
+        image: '/images/honeymoon-deck-sunrise-1400.webp',
+        imageSrcset:
+            '/images/honeymoon-deck-sunrise-900.webp 900w, /images/honeymoon-deck-sunrise-1400.webp 1400w, /images/honeymoon-deck-sunrise-1920.webp 1920w',
         imageAlt:
             'A couple taking breakfast on a lodge deck at sunrise, the plains opening out below them',
         summary:
@@ -697,7 +716,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 8,
         nights: 7,
         price: 'From US$ 6,279 pp',
-        image: '/images/honeymoon-beach-dinner-sunset.webp',
+        image: '/images/honeymoon-beach-dinner-sunset-1400.webp',
+        imageSrcset:
+            '/images/honeymoon-beach-dinner-sunset-900.webp 900w, /images/honeymoon-beach-dinner-sunset-1400.webp 1400w',
         imageAlt:
             'A table laid for two on the sand at sunset, a couple in white walking hand in hand towards the water beneath a palm',
         summary:
@@ -904,7 +925,10 @@ export const PACKAGES: SafariPackage[] = [
         days: 9,
         nights: 8,
         price: 'From US$ 6,242 pp',
-        image: '/images/honeymoon-sundowner-toast.webp',
+        image: '/images/honeymoon-sundowner-toast-1400.webp',
+        imageSrcset:
+            '/images/honeymoon-sundowner-toast-900.webp 900w, /images/honeymoon-sundowner-toast-1400.webp 1400w',
+        imageFocus: '50% 40%', // the couple do, and the sunset behind them is worth keeping
         imageAlt:
             'A couple standing arm in arm with champagne at a private sundowner table on a rocky outcrop, the sky turning red behind them',
         summary:
@@ -1140,7 +1164,10 @@ export const PACKAGES: SafariPackage[] = [
         days: 6,
         nights: 5,
         price: 'From US$ 2,975 pp',
-        image: '/images/family-deck-viewpoint.webp',
+        image: '/images/family-deck-viewpoint-1400.webp',
+        imageSrcset:
+            '/images/family-deck-viewpoint-900.webp 900w, /images/family-deck-viewpoint-1400.webp 1400w',
+        imageFocus: '50% 30%', // the mother and daughter stand at the very top of this frame
         imageAlt:
             'A family of four leaning on a lodge railing, the parents and children pointing out something in the bush below',
         summary:
@@ -1316,7 +1343,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 7,
         nights: 6,
         price: 'From US$ 4,200 pp',
-        image: '/images/family-lunch-under-acacia.webp',
+        image: '/images/family-lunch-under-acacia-1400.webp',
+        imageSrcset:
+            '/images/family-lunch-under-acacia-900.webp 900w, /images/family-lunch-under-acacia-1400.webp 1400w',
         imageAlt:
             'A family at a long lunch table set in the shade of an acacia, with the lake and hills beyond',
         summary:
@@ -1513,7 +1542,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 8,
         nights: 7,
         price: 'Price on request',
-        image: '/images/family-mess-tent-dinner.webp',
+        image: '/images/family-mess-tent-dinner-1400.webp',
+        imageSrcset:
+            '/images/family-mess-tent-dinner-900.webp 900w, /images/family-mess-tent-dinner-1400.webp 1400w',
         imageAlt:
             'Three generations of a family passing dishes around a long table in the mess tent',
         summary:
@@ -1748,7 +1779,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 9,
         nights: 8,
         price: 'From US$ 4,605 pp',
-        image: '/images/family-firepit-sundowners.webp',
+        image: '/images/family-firepit-sundowners-1400.webp',
+        imageSrcset:
+            '/images/family-firepit-sundowners-900.webp 900w, /images/family-firepit-sundowners-1400.webp 1400w, /images/family-firepit-sundowners-1920.webp 1920w',
         imageAlt:
             'Guests and their guides around a fire pit on the open plains, drinks in hand as the sun sets',
         summary:
@@ -2000,7 +2033,9 @@ export const PACKAGES: SafariPackage[] = [
            It replaced a stock shot of San people on a southern-African salt
            pan. The rest of the card imagery in this file is still inherited
            stock — see the file header. */
-        image: '/images/family-walk-maasai-guide.webp',
+        image: '/images/family-walk-maasai-guide-1400.webp',
+        imageSrcset:
+            '/images/family-walk-maasai-guide-900.webp 900w, /images/family-walk-maasai-guide-1400.webp 1400w, /images/family-walk-maasai-guide-1920.webp 1920w',
         imageAlt:
             'A Maasai guide leading a family on a walking safari, a herd of zebra grazing in the grass behind them',
         summary:
@@ -2245,7 +2280,9 @@ export const PACKAGES: SafariPackage[] = [
         days: 13,
         nights: 12,
         price: 'From US$ 6,943 pp',
-        image: '/images/migration-herd-vehicle.webp',
+        image: '/images/migration-herd-vehicle-1400.webp',
+        imageSrcset:
+            '/images/migration-herd-vehicle-900.webp 900w, /images/migration-herd-vehicle-1400.webp 1400w, /images/migration-herd-vehicle-1920.webp 1920w',
         imageAlt:
             'A column of wildebeest and zebra walking past an open safari vehicle, with thousands more spread across the plain behind them',
         summary:
@@ -2564,15 +2601,16 @@ export const PACKAGES: SafariPackage[] = [
         days: 6,
         nights: 5,
         price: trekCardPrice(6),
-        image: '/images/kili-heath-traverse.webp',
+        image: '/images/kili-heath-traverse-1400.webp',
+        imageSrcset:
+            '/images/kili-heath-traverse-900.webp 900w, /images/kili-heath-traverse-1400.webp 1400w, /images/kili-heath-traverse-1920.webp 1920w',
         imageAlt:
             'A line of trekkers with poles and packs climbing a heathland traverse on Kilimanjaro, cloud banked against the ridge behind them',
         summary:
             'The classic way up Kilimanjaro, and the only main route where you sleep in permanent huts rather than tents. Six days rather than five, so there is an extra acclimatisation night at Horombo before the summit — rainforest, heathland and the alpine desert of the Saddle, then Uhuru Peak at 5,895 metres.',
         priceFrom: trekTotal(6),
         priceUnit: 'Per person sharing',
-        priceLines: trekPriceLines(),
-        priceNote: trekPriceNote(6),
+        priceLines: [],
         bestTime: 'January – March & June – October',
         highlights: [
             'The classic Kilimanjaro route, and the most established on the mountain',
@@ -2737,15 +2775,16 @@ export const PACKAGES: SafariPackage[] = [
         days: 7,
         nights: 6,
         price: trekCardPrice(7),
-        image: '/images/kili-ash-ridge-cloud.webp',
+        image: '/images/kili-ash-ridge-cloud-1400.webp',
+        imageSrcset:
+            '/images/kili-ash-ridge-cloud-900.webp 900w, /images/kili-ash-ridge-cloud-1400.webp 1400w, /images/kili-ash-ridge-cloud-1920.webp 1920w',
         imageAlt:
             'A file of trekkers working up a ridge of black volcanic ash in thick cloud, high on the mountain',
         summary:
             'The Whisky Route, and the most scenic way up the mountain — rainforest, the Shira moorland, the Lava Tower acclimatisation climb, the Barranco Wall, and a summit push from Barafu. Seven days rather than six, which is the difference between arriving at the crater rim acclimatised and arriving at it hoping.',
         priceFrom: trekTotal(7),
         priceUnit: 'Per person sharing',
-        priceLines: trekPriceLines(),
-        priceNote: trekPriceNote(7),
+        priceLines: [],
         bestTime: 'January – March & June – October',
         highlights: [
             'The most scenic of Kilimanjaro’s routes, and the one most people climb',
@@ -2929,15 +2968,16 @@ export const PACKAGES: SafariPackage[] = [
         days: 7,
         nights: 6,
         price: trekCardPrice(7),
-        image: '/images/kili-saddle-kibo-ahead.webp',
+        image: '/images/kili-saddle-kibo-ahead-1400.webp',
+        imageSrcset:
+            '/images/kili-saddle-kibo-ahead-900.webp 900w, /images/kili-saddle-kibo-ahead-1400.webp 1400w, /images/kili-saddle-kibo-ahead-1920.webp 1920w',
         imageAlt:
             'Trekkers on a rocky trail down towards the Saddle, the wide cone of Kibo filling the horizon ahead of them',
         summary:
             'The only major route that comes at Kilimanjaro from the north, starting near the Kenyan border. Quieter trails, open country, and an extra acclimatisation day at Mawenzi Tarn beneath the most dramatic camp on the mountain — then across the Saddle to Kibo and the summit.',
         priceFrom: trekTotal(7),
         priceUnit: 'Per person sharing',
-        priceLines: trekPriceLines(),
-        priceNote: trekPriceNote(7),
+        priceLines: [],
         bestTime: 'January – March & June – October',
         highlights: [
             'The only main Kilimanjaro route approaching from the north',
@@ -3123,15 +3163,16 @@ export const PACKAGES: SafariPackage[] = [
         days: 8,
         nights: 7,
         price: trekCardPrice(8),
-        image: '/images/kili-summit-glacier.webp',
+        image: '/images/kili-summit-glacier-1400.webp',
+        imageSrcset:
+            '/images/kili-summit-glacier-900.webp 900w, /images/kili-summit-glacier-1400.webp 1400w, /images/kili-summit-glacier-1920.webp 1920w',
         imageAlt:
             'Two climbers celebrating in the snow at the top of Kilimanjaro, the summit glacier wall rising behind them',
         summary:
             'Our preferred route for anyone who would rather arrive at the summit than merely attempt it. Eight days up the western side — rainforest, two nights crossing the Shira Plateau, Lava Tower, the Barranco Wall and Barafu — with the extra days spent acclimatising and the trails quieter than on Machame.',
         priceFrom: trekTotal(8),
         priceUnit: 'Per person sharing',
-        priceLines: trekPriceLines(),
-        priceNote: trekPriceNote(8),
+        priceLines: [],
         bestTime: 'January – March & June – October',
         highlights: [
             'One of our preferred routes, and the best acclimatisation profile of the four camping climbs',
@@ -3331,15 +3372,16 @@ export const PACKAGES: SafariPackage[] = [
         days: 9,
         nights: 8,
         price: trekCardPrice(9),
-        image: '/images/kili-summit-ridge-climbers.webp',
+        image: '/images/kili-summit-ridge-climbers-1400.webp',
+        imageSrcset:
+            '/images/kili-summit-ridge-climbers-900.webp 900w, /images/kili-summit-ridge-climbers-1400.webp 1400w, /images/kili-summit-ridge-climbers-1920.webp 1920w',
         imageAlt:
             'Three climbers in cold-weather kit stopped on bare rock high on the mountain under a deep blue sky',
         summary:
             'Kilimanjaro’s longest route, and a near-complete circuit of the mountain. You come in from the west over the Shira Plateau, turn north around the quiet side — remote valleys, high wilderness, the plains running away towards Kenya — approach Uhuru Peak from the east, and come down the Mweka route.',
         priceFrom: trekTotal(9),
         priceUnit: 'Per person sharing',
-        priceLines: trekPriceLines(),
-        priceNote: trekPriceNote(9),
+        priceLines: [],
         bestTime: 'January – March & June – October',
         highlights: [
             'The longest route on Kilimanjaro, and the most time at altitude before the summit',
@@ -3560,14 +3602,20 @@ export const PACKAGES: SafariPackage[] = [
 ]
 
 /*
- * The two product lines the Journeys menu splits on, derived from the tag
- * rather than listed by hand so a new itinerary lands on the right index page
- * the moment it is written. `trekking` means the mountain and nothing else
- * (see `RouteTag`), which is exactly the line the menu draws.
+ * The two product lines, derived from the tag rather than listed by hand so a
+ * new itinerary lands in the right band the moment it is written. `trekking`
+ * means the mountain and nothing else (see `RouteTag`).
  *
- * /safari-packages lists SAFARIS, /kilimanjaro lists TREKS, and the itinerary
- * pages themselves stay under /safari-packages/<slug>/ for both — the climbs
- * were indexed there first and moving them would break links for nothing.
+ * /safari-packages lists both, in a band each: SAFARIS, then TREKS. It is the
+ * only page that carries the whole catalogue. /kilimanjaro lists TREKS on
+ * their own, because "Kilimanjaro climb" is a far bigger search term than
+ * anything on the safari side and a trekker is reading for acclimatisation
+ * and crew rather than for camps.
+ *
+ * The itinerary pages themselves stay under /safari-packages/<slug>/ for both
+ * — the climbs were indexed there first and moving them would break links for
+ * nothing. That is also why their breadcrumb reads "Safari Packages", which
+ * now lands somewhere that actually lists them.
  */
 export const TREKS = PACKAGES.filter((pkg) => pkg.routes.includes('trekking'))
 export const SAFARIS = PACKAGES.filter((pkg) => !pkg.routes.includes('trekking'))

@@ -143,14 +143,6 @@ export const TRAVEL_STYLES: {
     body: 'Five ways people travel with us. Start with the one that sounds like your trip and the planner opens with it already filled in.',
     items: [
         {
-            slug: 'private',
-            title: 'Private Safaris',
-            blurb: 'Your own guide, your own vehicle, your own hours. Every safari we sell is private — there are no group departures.',
-            image: '/images/style-private-safaris.webp',
-            imageAlt:
-                'A guide in uniform waiting beside an open safari vehicle as his guests walk up to join him',
-        },
-        {
             slug: 'family',
             title: 'Family',
             blurb: 'Shorter drives, earlier dinners, and guides who know how to hold a seven-year-old’s attention all morning.',
@@ -169,6 +161,19 @@ export const TRAVEL_STYLES: {
             preset: { occasion: ['honeymoon'], interests: ['romance'] },
         },
         {
+            /* The photograph is the frame to the left of the one the 13-Day
+               Great Migration card carries further down this page — herd and
+               plains, no vehicle — so the two do not read as the same
+               picture twice. */
+            slug: 'migration',
+            title: 'Migration',
+            blurb: 'Twelve nights following the herds: Lake Natron, the Mara River in the northern Serengeti, then west and central as they move.',
+            image: '/images/style-migration.webp',
+            imageAlt:
+                'A column of wildebeest walking up a track towards the camera, zebra behind them and thousands more spread along the horizon',
+            preset: { see: ['serengeti'], interests: ['migration'] },
+        },
+        {
             slug: 'trekking',
             title: 'Trekking',
             blurb: 'Days on foot: Kilimanjaro by Marangu, Machame, Rongai, Lemosho or the Northern Circuit — and, on the safaris, a walking safari with an armed ranger.',
@@ -178,13 +183,15 @@ export const TRAVEL_STYLES: {
             preset: { see: ['kilimanjaro'], interests: ['summit'] },
         },
         {
-            slug: 'solo',
-            title: 'Solo Journeys',
-            blurb: 'Travelling alone, not on your own — your own guide and vehicle, and a table with company whenever you want it.',
-            image: '/images/style-solo.webp',
+            /* No preset: the planner asks what you want to see and who is
+               travelling, not how you get between the parks. The card still
+               carries its title into /enquire/ as the stated intent. */
+            slug: 'fly-in',
+            title: 'Fly-In',
+            blurb: 'An hour in a light aircraft instead of a day in a vehicle — a scheduled bush flight straight onto the Serengeti plains, and the drive from the airstrip is your first game drive.',
+            image: '/images/style-fly-in.webp',
             imageAlt:
-                'A Tanzanian woman and a guest laughing together over a length of printed fabric they are working on',
-            preset: { occasion: ['solo'] },
+                'A pilot in uniform carrying two kit bags away from a single-engine Cessna parked on a gravel bush airstrip',
         },
     ],
 }
@@ -382,30 +389,18 @@ export const NEWSLETTER = {
 } as const
 
 /**
- * The header. `primary` is read in order; an item with `children` renders as a
- * dropdown, one without renders as a plain link.
- *
- * Journeys is the only item with children, and it splits on the one line the
- * catalogue actually draws: safaris on the northern circuit, and the mountain.
- * Its own `href` points at the safari index so the parent is never a dead
- * click — on a phone, where there is no hover, tapping it goes somewhere
- * sensible instead of doing nothing.
+ * The header. `primary` is read in order and every item is a plain link —
+ * there is no dropdown any more. It used to open on Journeys, which split the
+ * catalogue into safaris and the mountain; the client asked for Travel
+ * Information, Journal and About Us instead, so both of those pages are now
+ * reached from the footer and from the homepage's own sections rather than
+ * from the bar. If Journeys ever comes back, so does the <details> menu in
+ * Header.astro — it is in the history, not commented out here.
  */
 export const NAV = {
     primary: [
-        {
-            label: 'Journeys',
-            href: '/safari-packages/',
-            children: [
-                {
-                    label: 'Safaris',
-                    href: '/safari-packages/',
-                    note: 'Northern Tanzania & Zanzibar',
-                },
-                { label: 'Trekking', href: '/kilimanjaro/', note: 'Five routes up Kilimanjaro' },
-            ],
-        },
-        { label: 'Blog', href: '/blogs/' },
+        { label: 'Travel Information', href: '/travel-information/' },
+        { label: 'Journal', href: '/blogs/' },
         { label: 'About Us', href: '/about/' },
     ],
     enquire: { label: 'Enquire', href: '/enquire/' },

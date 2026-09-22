@@ -1,14 +1,27 @@
 ---
 /**
- * The safari side of the Journeys menu: the ten northern-Tanzania itineraries,
- * as the same cards the homepage uses. Exists so the homepage's "All Safari
- * Packages" button and the breadcrumb on each itinerary have somewhere to
- * land.
+ * Every itinerary the operator sells: the ten northern-Tanzania safaris, then
+ * the five Kilimanjaro climbs. Same cards the homepage uses.
  *
- * The five Kilimanjaro climbs are not here — they have their own index at
- * /kilimanjaro. Their itinerary pages still live under /safari-packages/,
- * because that is where they were first built and indexed; only the listing
- * is split. See SAFARIS/TREKS in src/content/packages.ts.
+ * The climbs used to be left off here and reached only from /kilimanjaro,
+ * which was the split the Journeys menu drew. That menu is gone from the
+ * header, so this page is now the one place the whole catalogue is listed —
+ * which is also what the comment above PACKAGES in src/content/home.ts has
+ * always claimed of it, and what the "Safari Packages" breadcrumb on a climb's
+ * own itinerary page has always implied.
+ *
+ * One page, not two bands. The climbs first arrived here as their own
+ * section — second background, second full-size heading, its own closing
+ * paragraph — and it read as a different page stapled on the end, with the
+ * safaris' sign-off stranded in the middle of the catalogue. So the two lines
+ * are groups now: one background, one rhythm, a labelled rule over each grid,
+ * and a single sign-off after the last card. The label treatment is the one
+ * the itinerary page uses over its own bands.
+ *
+ * /kilimanjaro stays. It is not a filtered view of this page: "Kilimanjaro
+ * climb" is a far bigger search term than anything on the safari side, and it
+ * carries the acclimatisation and crew detail that a trekker is actually
+ * reading for. The group below is the listing, not a replacement for it.
  */
 import Layout from '../../layouts/Layout.astro'
 import Header from '../../components/Header.astro'
@@ -17,31 +30,73 @@ import Newsletter from '../../components/Newsletter.astro'
 import PackageCard from '../../components/PackageCard.astro'
 import SectionHeading from '../../components/SectionHeading.astro'
 import { PACKAGES as PACKAGES_SECTION } from '../../content/home'
-import { SAFARIS } from '../../content/packages'
+import { SAFARIS, TREKS } from '../../content/packages'
+
+/*
+ * The two groups, in the order the page reads. `note` is the line ranged
+ * against the label — what the group is and how much of it there is, so the
+ * rule carries the orientation a second standfirst used to.
+ */
+const GROUPS = [
+    {
+        id: 'safaris',
+        label: 'Safaris',
+        note: 'Ten itineraries · Northern Tanzania & Zanzibar',
+        items: SAFARIS,
+    },
+    {
+        id: 'trekking',
+        label: 'Kilimanjaro climbs',
+        note: 'Five routes · Six to nine days on the mountain',
+        items: TREKS,
+    },
+]
 ---
 
 <Layout
-    title="Safari Packages — Tanzania Honeymoon, Family and Migration Safaris | Polecat Safaris"
-    description="Every safari we sell across northern Tanzania and Zanzibar — honeymoon, family and Great Migration itineraries from six to thirteen days, each one private, with day-by-day detail and rates. Kilimanjaro climbs are listed separately."
+    title="Safari Packages — Tanzania Safaris and Kilimanjaro Climbs | Polecat Safaris"
+    description="Every itinerary we sell: ten private safaris across northern Tanzania and Zanzibar — honeymoon, family and Great Migration, six to thirteen days — and five routes up Kilimanjaro, each with day-by-day detail and rates."
 >
     <Header />
     <main>
         <section class="gutter flex flex-col items-center bg-cream pt-16 pb-20 lg:pt-24 lg:pb-28.5">
-            <SectionHeading
-                eyebrow={PACKAGES_SECTION.eyebrow}
-                heading={PACKAGES_SECTION.heading}
-                body={PACKAGES_SECTION.body}
-            />
+            <SectionHeading heading={PACKAGES_SECTION.heading} body={PACKAGES_SECTION.body} />
 
-            <ul class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-11.5 lg:grid-cols-3">
-                {
-                    SAFARIS.map((pkg, index) => (
-                        <PackageCard pkg={pkg} loading={index < 3 ? 'eager' : 'lazy'} />
-                    ))
-                }
-            </ul>
+            {
+                GROUPS.map((group, groupIndex) => (
+                    <div
+                        id={group.id}
+                        class:list={[
+                            'shell w-full scroll-mt-8',
+                            groupIndex === 0 ? 'mt-12 lg:mt-14' : 'mt-16 lg:mt-20',
+                        ]}
+                    >
+                        {/* Label left, what-and-how-many right, a rule under
+                            both. Stacks on a phone, where the two would
+                            otherwise collide. */}
+                        <div class="flex flex-col gap-1.5 border-b border-line pb-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+                            <h3 class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
+                                {group.label}
+                            </h3>
+                            <p class="text-[12px] leading-4.5 text-muted">{group.note}</p>
+                        </div>
 
-            <p class="shell mt-14 max-w-180 text-center text-[16px] leading-7.25 text-muted">
+                        <ul class="mt-6.5 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:grid-cols-3">
+                            {group.items.map((pkg, index) => (
+                                <PackageCard
+                                    pkg={pkg}
+                                    loading={groupIndex === 0 && index < 3 ? 'eager' : 'lazy'}
+                                    headingLevel={4}
+                                />
+                            ))}
+                        </ul>
+                    </div>
+                ))
+            }
+
+            {/* One sign-off, after the last card rather than between the two
+                grids. It answers for both lines, so it stays general. */}
+            <p class="shell mt-14 max-w-180 text-center text-[16px] leading-7.25 text-muted lg:mt-16">
                 Nothing here quite right? Every one of these is private, so the days, the camps and
                 the season can all move. Tell us roughly what you have in mind and we will draft
                 something against it.

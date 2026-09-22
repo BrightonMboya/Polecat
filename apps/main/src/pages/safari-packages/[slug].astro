@@ -59,14 +59,26 @@ const related = [...others.filter(sameLine), ...others.filter((p) => !sameLine(p
 
 const hasFaqs = pkg.faqs != null && pkg.faqs.length > 0
 
+/*
+ * The related cards stand the landscape photograph up in a 5:6 frame, so
+ * `object-cover` scales it until its *height* fills — which makes the image
+ * about 1.68x wider than the card it sits in. These sizes describe that
+ * rendered width rather than the card's, or the browser picks a file a third
+ * too small and the crop goes soft.
+ */
+const RELATED_SIZES = '(min-width: 1440px) 718px, (min-width: 640px) 50vw, 168vw'
+
 // The bar only offers sections this itinerary actually renders.
 const tabs = [
     { label: 'Overview', href: '#overview' },
     { label: 'Route', href: '#route' },
     { label: 'Day by Day', href: '#day-by-day' },
     { label: "What's Included", href: '#included' },
-    ...(hasFaqs ? [{ label: 'Questions', href: '#questions' }] : []),
-    { label: 'Enquire', href: '#enquire' },
+    ...(hasFaqs ? [{ label: 'FAQs', href: '#faqs' }] : []),
+    /* The only tab that leaves the page: enquiries are made on /enquire/,
+       not in a second form down here. ItineraryTabs skips it when it works
+       out which section the bar is standing over. */
+    { label: 'Enquire', href: `/enquire/?itinerary=${pkg.slug}` },
 ]
 ---
 
@@ -74,6 +86,8 @@ const tabs = [
     title={`${pkg.name} — ${pkg.duration} | Polecat Safaris`}
     description={pkg.summary}
     preloadImage={pkg.image}
+    preloadImageSrcset={pkg.imageSrcset}
+    preloadImageSizes="100vw"
 >
     <Header />
 
@@ -90,12 +104,12 @@ const tabs = [
         {
             hasFaqs && (
                 <section
-                    id="questions"
+                    id="faqs"
                     class="gutter scroll-mt-16 border-t border-line bg-white py-20 lg:py-24"
                 >
                     <div class="shell grid grid-cols-1 gap-10 lg:grid-cols-[16rem_1fr] lg:gap-16">
                         <h2 class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
-                            Questions
+                            FAQs
                         </h2>
                         <dl class="flex flex-col gap-2">
                             {pkg.faqs!.map((faq) => (
@@ -135,6 +149,8 @@ const tabs = [
                                     <div class="aspect-[5/6] w-full overflow-hidden">
                                         <img
                                             src={other.image}
+                                            srcset={other.imageSrcset}
+                                            sizes={RELATED_SIZES}
                                             alt={other.imageAlt}
                                             loading="lazy"
                                             decoding="async"

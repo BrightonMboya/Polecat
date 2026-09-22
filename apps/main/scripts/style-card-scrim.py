@@ -22,11 +22,11 @@ from pathlib import Path
 SCRIM = (35, 32, 27)
 IMAGES = Path(__file__).resolve().parent.parent / 'public' / 'images'
 CARDS = [
-    'style-private-safaris.webp',
     'style-family.webp',
     'style-honeymoon.webp',
+    'style-migration.webp',
     'style-trekking.webp',
-    'style-solo.webp',
+    'style-fly-in.webp',
 ]
 
 # Percentages of the card's height. The title is pinned to the top of the

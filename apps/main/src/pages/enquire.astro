@@ -173,6 +173,31 @@ const plans = Object.fromEntries(
     })
 )
 
+/*
+ * The itinerary pages no longer carry a form of their own: every "Enquire"
+ * on /safari-packages/<slug>/ lands here as /enquire/?itinerary=<slug>.
+ *
+ * A slug that matches buys three things — the planner says on screen which
+ * journey it is answering for, the contact screen's itinerary list opens on
+ * it, and the trip length starts at the itinerary's own rather than at seven.
+ * It also puts the itinerary's URL in the email, which `Page URL` cannot do:
+ * that field can only ever say /enquire/, and the page someone enquired from
+ * is the most useful line in the message.
+ *
+ * Built from PACKAGES, like the select on the contact screen, so this can
+ * never name an itinerary the site has stopped selling. A slug that does not
+ * match is ignored and the planner opens as it does for everybody else.
+ */
+const itineraries = Object.fromEntries(
+    PACKAGES.map((pkg) => {
+        const path = `/safari-packages/${pkg.slug}/`
+        return [
+            pkg.slug,
+            { name: pkg.name, days: pkg.days, path, url: new URL(path, Astro.site).href },
+        ]
+    })
+)
+
 const whatsapp = whatsappLink(
     'Hello Polecat Safaris — I would like to plan a safari in Tanzania.'
 )
@@ -185,6 +210,36 @@ const whatsapp = whatsappLink(
     <Header />
     <main class="bg-cream" data-planner>
         <h1 class="sr-only">Plan your Tanzania safari</h1>
+
+        {/* Filled in and unhidden by the script below when the visitor
+            arrived from an itinerary page, so the first thing they see is
+            that the planner already knows which journey they mean — and the
+            way back to the page they left, in case they came here by
+            accident. Stays put across all six screens. */}
+        <aside
+            class="gutter hidden border-b border-line bg-white py-4"
+            data-source
+            aria-label="What you are enquiring about"
+        >
+            <div
+                class="shell flex flex-col gap-x-4 gap-y-1.5 sm:flex-row sm:flex-wrap sm:items-baseline"
+            >
+                <p class="text-[11px] leading-4 font-medium tracking-[0.2em] text-primary uppercase">
+                    Enquiring about
+                </p>
+                <p class="text-[15px] leading-6 text-ink">
+                    <a
+                        data-source-link
+                        class="underline decoration-line underline-offset-4 transition-colors hover:text-primary hover:decoration-primary"
+                        href="/safari-packages/"></a>
+                </p>
+                <p
+                    class="text-[13px] leading-6 break-all text-muted/75 sm:ml-auto"
+                    data-source-url
+                >
+                </p>
+            </div>
+        </aside>
 
         {/* Steps */}
         {
@@ -632,6 +687,7 @@ const whatsapp = whatsappLink(
         daysMax: DAYS_MAX,
         daysInitial: DAYS_INITIAL,
         plans,
+        itineraries,
     }}
 >
     const root = document.querySelector('[data-planner]')
@@ -656,11 +712,38 @@ const whatsapp = whatsappLink(
             days: [String(daysInitial)],
         }
 
+        const params = new URLSearchParams(window.location.search)
+
+        /* Which itinerary page sent them here, if any. `source` is carried
+           into the email as the page the enquiry was made from; the strip at
+           the top of the planner says the same thing to the visitor, so
+           nobody has to trust that a query string did its job. */
+        let source = null
+        const sourceStrip = root.querySelector('[data-source]')
+        const itinerary = itineraries[params.get('itinerary') ?? '']
+
+        function showSource(entry) {
+            source = entry
+            if (!sourceStrip) return
+            if (!entry) {
+                sourceStrip.classList.add('hidden')
+                return
+            }
+            const link = sourceStrip.querySelector('[data-source-link]')
+            const url = sourceStrip.querySelector('[data-source-url]')
+            if (link) {
+                link.textContent = entry.name
+                link.href = entry.path
+            }
+            if (url) url.textContent = entry.url
+            sourceStrip.classList.remove('hidden')
+        }
+
         /* Which card sent them here, if any — reported to the inbox as the
            stated intent. The answers a plan presets are visible as selected
            chips, so the summary does not restate them. */
         let intent = null
-        const plan = plans[new URLSearchParams(window.location.search).get('plan') ?? '']
+        const plan = plans[params.get('plan') ?? '']
         if (plan) {
             intent = plan.label
             for (const [stepId, values] of Object.entries(plan.answers)) {
@@ -858,6 +941,23 @@ const whatsapp = whatsappLink(
         commitDays(Number(daysField?.value))
         syncArrival()
 
+        /* Now that the stepper holds a value, an itinerary from the query
+           string can overwrite it. Applied here rather than beside the plan
+           block above, because `commitDays` reads fields that are const and
+           declared between the two. */
+        if (itinerary) {
+            showSource(itinerary)
+            intent = intent ?? itinerary.name
+            commitDays(itinerary.days)
+            const select = form?.elements.namedItem('itinerary')
+            /* Only if the list still offers it. Both are built from
+               PACKAGES, so it does — but a select silently holding "" while
+               the strip above names a journey would be the worst of both. */
+            if (select && [...select.options].some((o) => o.value === itinerary.name)) {
+                select.value = itinerary.name
+            }
+        }
+
         /* The date step can be passed with nothing chosen — there is a skip
            link for it — so it is the one step whose Next is never disabled. */
         function syncNext(screen) {
@@ -893,6 +993,7 @@ const whatsapp = whatsappLink(
                 answers.occasion = []
                 answers.arrival = []
                 intent = null
+                showSource(null)
                 commitDays(daysInitial)
                 root.querySelectorAll('[data-option]').forEach((c) => {
                     c.removeAttribute('data-selected')
@@ -956,6 +1057,11 @@ const whatsapp = whatsappLink(
                         'Travelling as': labelsFor('occasion')[0] ?? '—',
                         Itinerary: field('itinerary')?.value || 'Not specified',
                         Message: field('message')?.value || '—',
+                        // The itinerary page the enquiry was made from, where
+                        // there was one. `Page URL` below is always /enquire/,
+                        // so without this the inbox cannot tell a visitor who
+                        // read a whole itinerary from one who arrived cold.
+                        'Requested from': source?.url ?? 'Came straight to /enquire/',
                         // The full URL, so any utm_* the visit carried survives
                         // into the inbox alongside the fields.
                         'Page URL': window.location.href,

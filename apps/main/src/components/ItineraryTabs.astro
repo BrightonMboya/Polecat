@@ -8,7 +8,7 @@
  * follows the scroll position instead, because a bar that stays pinned while
  * you read is claiming to say where you are.
  *
- * `tabs` is filtered by the page: an itinerary without FAQs has no Questions
+ * `tabs` is filtered by the page: an itinerary without FAQs has no FAQs
  * section to point at.
  */
 interface Props {
@@ -50,8 +50,14 @@ const { tabs } = Astro.props
 
     if (bar) {
         const tabs = Array.from(bar.querySelectorAll<HTMLAnchorElement>('[data-tab]'))
+        /* A tab may point off the page — Enquire goes to /enquire/ — and
+           only the anchors name a section to watch. Passing a URL to
+           querySelector throws, so they are filtered out before it is
+           called, not after. */
         const sections = tabs
-            .map((tab) => document.querySelector<HTMLElement>(tab.dataset.tab ?? ''))
+            .map((tab) => tab.dataset.tab ?? '')
+            .filter((href) => href.startsWith('#') && href.length > 1)
+            .map((href) => document.querySelector<HTMLElement>(href))
             .filter((section): section is HTMLElement => section != null)
 
         const mark = (id: string) => {

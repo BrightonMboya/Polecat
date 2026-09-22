@@ -19,32 +19,53 @@ const { pkg } = Astro.props
 // One itinerary has no published rate yet. "From On request" reads wrong, so
 // that one loses the "From" label and the per-person unit.
 const onRequest = pkg.priceFrom === 'On request'
+
+// Most of these photographs sit well a little below centre; two do not. See
+// `imageFocus` in src/content/packages.ts.
+const focus = pkg.imageFocus ?? '50% 55%'
 ---
 
 <section class="relative flex h-115 w-full flex-col justify-end overflow-hidden bg-ink lg:h-150">
     <img
         src={pkg.image}
+        srcset={pkg.imageSrcset}
+        sizes="100vw"
         alt={pkg.imageAlt}
-        class="absolute inset-0 size-full object-cover object-[50%_55%]"
+        class="absolute inset-0 size-full object-cover"
+        style={`object-position: ${focus}`}
         fetchpriority="high"
         decoding="async"
     />
-    {/* Light at the top so the photograph reads, heavy at the foot so the
-        title and the facts hold against any frame. */}
+    {/* Scrim, measured by scripts/itinerary-scrim.py against all fifteen
+        photographs. Run it again after adding a package, re-cropping one of
+        these frames or changing an `imageFocus`.
+
+        This hero carries type at both ends — a breadcrumb along the top, the
+        title and the facts along the floor — and it used to meet that with
+        one ramp that opened at 0.30 and was still at 0.34 halfway down. That
+        put a flat 30% of ink over the whole photograph: the same frame
+        arrived here about a third darker and a third less saturated than it
+        does on its own card, which is exactly what it looked like.
+
+        So the ink is at the two ends and the middle is left to the
+        photograph. The top band is only as deep as the breadcrumb needs and
+        is gone by a quarter of the way down; the foot is heavier than it was,
+        because the old ramp did not in fact clear AA for the gold eyebrow or
+        the sage units beside the figures over a blown-out sky. */}
     <div
         class="absolute inset-0"
-        style="background: linear-gradient(180deg, rgba(35,32,27,0.3) 0%, rgba(35,32,27,0.34) 42%, rgba(35,32,27,0.84) 100%)"
+        style="background: linear-gradient(180deg, rgba(35,32,27,0.66) 0%, rgba(35,32,27,0.62) 9%, rgba(35,32,27,0.26) 16%, rgba(35,32,27,0.05) 24%, rgba(35,32,27,0.05) 50%, rgba(35,32,27,0.30) 62%, rgba(35,32,27,0.76) 71%, rgba(35,32,27,0.82) 84%, rgba(35,32,27,0.88) 100%)"
         aria-hidden="true"
     >
     </div>
 
     <nav
-        class="gutter absolute inset-x-0 top-0 z-10 flex items-center gap-2.5 pt-9 text-[11px] tracking-[0.18em] text-white/70 uppercase"
+        class="gutter absolute inset-x-0 top-0 z-10 flex items-center gap-2.5 pt-9 text-[11px] tracking-[0.18em] text-white uppercase"
         aria-label="Breadcrumb"
     >
-        <a href="/" class="transition-colors hover:text-white">Home</a>
-        <span aria-hidden="true">/</span>
-        <a href="/safari-packages/" class="transition-colors hover:text-white">Safari Packages</a>
+        <a href="/" class="transition-colors hover:text-gold">Home</a>
+        <span class="text-white/60" aria-hidden="true">/</span>
+        <a href="/safari-packages/" class="transition-colors hover:text-gold">Safari Packages</a>
     </nav>
 
     <div
