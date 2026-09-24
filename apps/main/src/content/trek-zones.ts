@@ -15,16 +15,20 @@
  * than asserting where on the mountain it was taken. What it must never do is
  * pass a landscape off as the camp you sleep at.
  *
- * `frames` is a list per zone rather than a single image because a route can
- * cross the same band on four separate days, and the same photograph four
- * times down one page reads worse than one. `findTrekZone` rotates through
- * them by day number — today every band holds one frame, so nothing rotates
- * yet, but adding a second to a band spreads it across a route immediately.
+ * `frames` is a list per zone because a route can cross the same band on four
+ * separate days, and the same photograph four times down one page reads worse
+ * than one. `createTrekZoneRotation` hands out a different frame each time a
+ * band comes round within one climb, so a band needs at least as many frames
+ * as the longest route spends days in it:
  *
- * Rainforest has no entry, and nor does the summit. Every route starts in
- * the forest and comes back down through it, which is eight days, and there
- * is no Kilimanjaro forest photograph in the library at all. Add one here
- * and those days light up.
+ *     Rainforest        2   every route starts and ends in it
+ *     Heath & moorland  2   Marangu crosses it on two days
+ *     Alpine desert     4   the Northern Circuit spends four days in it
+ *     Summit zone       1   no route has two summit days
+ *
+ * Two frames are the operator's own. The other eight were sourced from
+ * Wikimedia Commons; the file each one came from is recorded beside it below,
+ * so the original is findable without opening this repo's history.
  */
 
 export interface TrekZoneFrame {
@@ -47,8 +51,11 @@ const frame = (name: string, widths: number[], alt: string): TrekZoneFrame => ({
     alt,
 })
 
+const W = [900, 1400, 1920]
+
 /*
- * Two frames, not seven. Five were cut on the first review of them:
+ * The operator's own library gave up two frames and no more. Five were cut on
+ * the first review of it:
  *
  *   - a camp at sunrise carried a *competing Kilimanjaro operator's* logo on
  *     a water bottle, front and centre, plus an apparel mark on the jacket;
@@ -60,36 +67,70 @@ const frame = (name: string, widths: number[], alt: string): TrekZoneFrame => ({
  *     Kilimanjaro moorland either.
  *
  * Nobody else's mark goes on this site, and a photograph here may not claim
- * to be somewhere it is not. Both rules cost more than they are comfortable
- * to, which is why `Summit zone` is now an empty band.
+ * to be somewhere it is not. Both rules held when the Commons frames below
+ * were picked: every one of them is catalogued as Kilimanjaro, and the two
+ * with a figure close enough to read were checked at full size for legible
+ * brands before being cropped.
  */
 const ZONES: TrekZone[] = [
     {
+        label: 'Montane rainforest',
+        frames: [
+            // Commons: Lascar_Montane_rainforests_biome_(4466414438).jpg
+            frame('zone-forest-mossy-trail', W,
+                'A trail running into montane forest between trees hung with moss and lichen'),
+            // Commons: Lascar_Exuberant_vegetation_(Montane_rainforests_biome)_(4460864208).jpg
+            frame('zone-forest-understory', W,
+                'Dense forest understory, every branch thick with moss and the canopy closed overhead'),
+        ],
+    },
+    {
         label: 'Heath & moorland',
         frames: [
-            frame('zone-heath-trail', [900, 1400, 1920],
+            frame('zone-heath-trail', W,
                 'A line of trekkers strung out along a trail through low heath scrub under a deep blue sky'),
+            // Commons: Shira_moorlands_on_Kilimanjaro.jpg
+            frame('zone-shira-moorland-trail', W,
+                'A worn path climbing between silver-leaved everlasting shrubs and dark lava rock, cloud building over the ridge'),
         ],
     },
     {
         label: 'Alpine desert',
         frames: [
-            frame('zone-alpine-boulders', [900, 1400, 1920],
+            frame('zone-alpine-boulders', W,
                 'Trekkers picking a way between pale boulders with towering cloud building over the ridge above'),
+            // Commons: Lava_Tower.jpg
+            frame('zone-lava-tower', W,
+                'Two trekkers on a stony path crossing open ground below a dark crag, tussock grass and mist behind them'),
+            // Commons: Mweka_Route_to_Barafu_Huts.jpg
+            frame('zone-barafu-approach', W,
+                'A single trekker walking up a bare grey slope toward a rock ridge, with nothing growing anywhere in the frame'),
+            // Commons: Lascar_As_we_climb_we_see_less_vegetation..._(4464694182).jpg
+            frame('zone-alpine-last-vegetation', W,
+                'A meltwater channel running down through lava boulders and the last of the scrub, a snow-streaked cone on the skyline'),
         ],
     },
-    /* No frame yet — see the note above. A summit day falls through to the
-       alpine desert below it, which it does in fact cross. */
-    { label: 'Summit zone', frames: [] },
+    {
+        label: 'Summit zone',
+        frames: [
+            // Commons: Lascar_Amazing_landscape_-_Descending_from_the_summit_(4468190865).jpg
+            frame('zone-summit-descent', W,
+                'A trekker on a broad scree slope high above a sea of cloud, the plains far below showing through the haze'),
+        ],
+    },
 ]
 
 /*
  * The `Habitat` values the itineraries actually use, in the operator's own
  * wording: "Rainforest", "Heathland", "Moorland", "Heathland / alpine zone",
- * "Alpine desert", "Semi-desert / alpine zone", "Alpine desert / summit
- * zone". Matched on the first of these that appears in the string, so a
- * compound like "Alpine desert / summit zone" resolves to the summit rather
- * than to the band below it.
+ * "Low alpine zone", "Low alpine / moorland", "Alpine desert", "Semi-desert /
+ * alpine zone", "High alpine & summit zone", "Alpine desert / summit zone",
+ * "Alpine desert / upper forest". Matched on the first of these that appears
+ * in the string, so a compound like "Alpine desert / summit zone" resolves to
+ * the summit rather than to the band below it, and "Alpine desert / upper
+ * forest" resolves to the desert rather than to the forest it is descending
+ * into. "Rainforest" is matched in full for that reason — a bare "forest"
+ * would catch that last one too.
  */
 const MATCHES: [needle: string, label: string][] = [
     ['summit', 'Summit zone'],
@@ -98,32 +139,49 @@ const MATCHES: [needle: string, label: string][] = [
     ['moorland', 'Heath & moorland'],
     ['heathland', 'Heath & moorland'],
     ['heath', 'Heath & moorland'],
+    ['rainforest', 'Montane rainforest'],
 ]
 
 const BY_LABEL = new Map(ZONES.map((zone) => [zone.label, zone]))
 
-/**
- * The zone photograph for a day, or undefined where there is none — today
- * that means rainforest, and any habitat wording nobody has mapped yet.
- *
- * `index` spreads the frames within a zone across the days of one route, so a
- * climb that spends four days in the alpine desert does not show the same
- * boulder field four times.
- */
-export function findTrekZone(
-    habitat: string | undefined,
-    index: number
-): { label: string; frame: TrekZoneFrame } | undefined {
+/** The band a habitat falls in, or undefined if nothing maps it. */
+function resolveZone(habitat: string | undefined): TrekZone | undefined {
     if (!habitat) return undefined
     const needle = habitat.toLowerCase()
-    // First match that both applies and has a photograph. "Alpine desert /
-    // summit zone" hits the summit band first, which is empty, so it falls
-    // through to the alpine desert — a band that day genuinely crosses.
+    // First match that both applies and has a photograph, so a band added to
+    // MATCHES before its frames exist falls through to the one below it
+    // rather than showing nothing.
     for (const [term, label] of MATCHES) {
         if (!needle.includes(term)) continue
         const zone = BY_LABEL.get(label)
         if (!zone || zone.frames.length === 0) continue
-        return { label: zone.label, frame: zone.frames[index % zone.frames.length] }
+        return zone
     }
     return undefined
+}
+
+/**
+ * A rotation over the days of one climb.
+ *
+ * Picking the frame by day number cannot keep two days off the same
+ * photograph: every route walks the rainforest on its first day and again on
+ * its last, and no arithmetic on 1 and 7 lands them on different frames of a
+ * two-frame band. So the rotation counts how many days of *this* climb have
+ * already shown each band and hands out the next frame in the list, which
+ * makes every day distinct as long as the band holds enough frames.
+ *
+ * Create one per itinerary and call it in day order. A day showing its own
+ * camp's photography must not call it at all — it would take the frame the
+ * next day in that band should have had.
+ */
+export function createTrekZoneRotation() {
+    const shown = new Map<string, number>()
+
+    return (habitat: string | undefined) => {
+        const zone = resolveZone(habitat)
+        if (!zone) return undefined
+        const seen = shown.get(zone.label) ?? 0
+        shown.set(zone.label, seen + 1)
+        return { label: zone.label, frame: zone.frames[seen % zone.frames.length] }
+    }
 }

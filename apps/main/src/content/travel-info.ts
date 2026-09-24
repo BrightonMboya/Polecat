@@ -167,9 +167,10 @@ export const TRAVEL_CHAPTERS: readonly {
                 'serengeti-migration-game-drive.jpg',
                 'A small herd of wildebeest grazing beside an open safari vehicle under a lone flat-topped acacia, the plains running hazy to the horizon'
             ),
-            single(
-                'impact-materuni.webp',
-                'A tall waterfall dropping down a rock face into dense green forest, with one small figure on the path at the foot of it'
+            frame(
+                'green-season-river-chairs',
+                [900, 1400],
+                'Four guests sitting in camp chairs set out in the shallows of a river running high and silty, dense green forest and a hillside rising behind them'
             ),
             frame(
                 'hero-acacia-chairs',

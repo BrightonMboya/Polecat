@@ -51,8 +51,10 @@ export const HERO = {
      * only one with alt text; the rest fade in behind it on a loop and are
      * marked decorative (see Hero.astro).
      *
-     * The first is stock and the three after it are the operator's own
-     * photography.
+     * The loop mixes stock with the operator's own photography, and is
+     * ordered so that no two frames of the same subject sit next to each
+     * other — two lantern-lit dinner tables back to back read as one
+     * photograph shown twice.
      *
      * Every `imageAlt` describes the photograph rather than claiming a place
      * it cannot vouch for. Adding, removing or re-cropping a slide means
@@ -62,10 +64,10 @@ export const HERO = {
      */
     slides: [
         {
-            image: '/images/hero-firepit-dinner-1400.webp',
+            image: '/images/hero-acacia-game-drive-1400.webp',
             srcset:
-                '/images/hero-firepit-dinner-900.webp 900w, /images/hero-firepit-dinner-1400.webp 1400w, /images/hero-firepit-dinner-1920.webp 1920w',
-            alt: 'A couple laughing over dinner at a table laid out in the bush, a fire burning in the foreground and lanterns hung in the trees behind them',
+                '/images/hero-acacia-game-drive-900.webp 900w, /images/hero-acacia-game-drive-1400.webp 1400w, /images/hero-acacia-game-drive-1920.webp 1920w',
+            alt: 'A guide and a guest standing beside an open-sided game drive vehicle under a flat-topped acacia, open plains running to the horizon behind them',
         },
         {
             image: '/images/hero-campfire-wine-1600.webp',
@@ -73,10 +75,32 @@ export const HERO = {
                 '/images/hero-campfire-wine-900.webp 900w, /images/hero-campfire-wine-1600.webp 1600w',
             alt: 'A woman sitting with a glass of red wine on cushions by a campfire on a rocky outcrop, looking out over the bush at dusk',
         },
+        {
+            image: '/images/hero-baobab-bush-brunch-1400.webp',
+            srcset:
+                '/images/hero-baobab-bush-brunch-900.webp 900w, /images/hero-baobab-bush-brunch-1400.webp 1400w',
+            alt: 'Guests standing with drinks around long tables laid for brunch in the shade of a baobab, a game drive vehicle parked behind them',
+        },
+        {
+            image: '/images/hero-long-table-lanterns-1600.webp',
+            srcset:
+                '/images/hero-long-table-lanterns-900.webp 900w, /images/hero-long-table-lanterns-1600.webp 1600w',
+            alt: 'A long table laid for dinner in a clearing at dusk, red director chairs down both sides and lanterns hung in the trees above it',
+        },
+        {
+            image: '/images/hero-lodge-games-1400.webp',
+            srcset:
+                '/images/hero-lodge-games-900.webp 900w, /images/hero-lodge-games-1400.webp 1400w',
+            alt: 'Four people around a wooden table under a thatched roof, mid-game with tiles laid out between them and forest behind',
+        },
+        {
+            image: '/images/hero-horseback-sunset-1600.webp',
+            srcset:
+                '/images/hero-horseback-sunset-900.webp 900w, /images/hero-horseback-sunset-1600.webp 1600w',
+            alt: 'Two riders on a white and a bay horse stopped side by side on open grassland, watching the sun go down',
+        },
         /* The frame the 6-Day Honeymoon card used to carry, re-cropped to 16:9
-           from the original. It sits third rather than second so it is not
-           next to the firepit dinner in slide one — same shoot, same table,
-           and back to back the loop looked like one photograph twice. */
+           from the original. */
         {
             image: '/images/hero-lantern-dinner-1600.webp',
             srcset:
@@ -84,10 +108,10 @@ export const HERO = {
             alt: 'A couple at a table laid for dinner under an acacia hung with hurricane lanterns, more lanterns along the path and a fire burning outside the tents behind them',
         },
         {
-            image: '/images/hero-lodge-games-1400.webp',
+            image: '/images/hero-shaded-lunch-table-1600.webp',
             srcset:
-                '/images/hero-lodge-games-900.webp 900w, /images/hero-lodge-games-1400.webp 1400w',
-            alt: 'Four people around a wooden table under a thatched roof, mid-game with tiles laid out between them and forest behind',
+                '/images/hero-shaded-lunch-table-900.webp 900w, /images/hero-shaded-lunch-table-1600.webp 1600w',
+            alt: 'Four guests in sun hats eating lunch at a table under dappled shade, wine poured and the garden green behind them',
         },
     ],
     imageSizes: '100vw',

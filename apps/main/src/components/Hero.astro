@@ -76,34 +76,33 @@ const slideStyles = `
     }
 
     {/* Scrim: the least that keeps white type legible, so the photographs
-        carry the frame. It is all but clear at the top and only gathers weight
-        where the copy sits.
+        carry the frame. It is all but clear at the top, gathers weight only
+        where the copy sits, and eases back off under it.
 
         Re-measured for the loop by scripts/hero-scrim.py, which renders every
         slide the way object-cover does at a 1440x780 desktop hero, finds the
         brightest pixel under the centred copy column in each band, and solves
         for the alpha that clears AA over it. Run it again after adding,
-        removing or re-cropping a slide.
+        removing or re-cropping a slide, or after moving the copy stack.
 
-        A single photograph could be fitted closely. Four cannot: every slide
+        A single photograph could be fitted closely. Eight cannot: every slide
         in this loop puts a pure-white pixel (255,255,255) under the column
-        somewhere — the blown-out fire, a cloud, a white shirt, pale thatch —
-        so the worst case is the same for all of them and the stops are set
-        once, to it:
-            headline  62px        needs 0.48 alpha  (3:1, large text)
-            sub-head  22px italic needs 0.61 alpha  (4.5:1 — at this size it is
-                                                     not large text)
-        Hence 0.52 at 40%, where the headline lands, and 0.63 from 56% down,
-        where the sub-head and the button do. Both clear by a small margin
-        rather than by rounding, which is the point of setting them to the
-        worst slide instead of the current one.
-
-        The stack is pinned to the floor of the frame, so these percentages
-        hold at phone widths too, where object-cover crops to a slice of the
-        middle and the section grows past its 620px minimum instead. */}
+        somewhere — a blown-out sky, a cloud, a white shirt, pale thatch — so
+        the worst case is the same for all of them and the stops are set once,
+        to it:
+            headline  62px        46-56%  needs 0.48  (3:1, large text)
+            sub-head  22px italic 58-68%  needs 0.61  (4.5:1 — at this size it
+                                                       is not large text)
+        Hence 0.52 where the headline opens, 0.64 where the sub-head does, and
+        both held past where each one closes. Below 68% there is only the call
+        to action — white on solid green, which no photograph can reach — and
+        then bare frame, so the ink is pulled back from there to the floor
+        rather than held at full weight. That foot is the part of every
+        photograph the old scrim buried: the fire, the laid table, the
+        ground. */}
     <div
         class="absolute inset-0"
-        style="background: linear-gradient(180deg, rgba(35,32,27,0.02) 0%, rgba(35,32,27,0.52) 40%, rgba(35,32,27,0.63) 56%, rgba(35,32,27,0.68) 74%, rgba(35,32,27,0.72) 100%)"
+        style="background: linear-gradient(180deg, rgba(35,32,27,0.02) 0%, rgba(35,32,27,0.12) 28%, rgba(35,32,27,0.52) 46%, rgba(35,32,27,0.58) 56%, rgba(35,32,27,0.64) 58%, rgba(35,32,27,0.66) 68%, rgba(35,32,27,0.56) 82%, rgba(35,32,27,0.50) 100%)"
         aria-hidden="true"
     >
     </div>
@@ -118,13 +117,16 @@ const slideStyles = `
         type: the second line pushed the stack up over the fire. The sub-head
         keeps its own max-w-215, so its measure is unchanged.
 
-        Less bottom padding at lg than below it, which reads backwards but is
-        not: the section is 780px tall there against a 620px minimum, and the
-        stack is pushed down into that extra height to get out of the couple's
-        way. At 48px its top edge sits at 478px, and the table they are sitting
-        at ends at 458px — so both faces, the table and the glasses stay in the
-        open above the headline. Raising this back up covers them. */}
-    <div class="gutter relative flex w-full max-w-240 flex-col items-center gap-6 pt-32 pb-16 lg:max-w-270 lg:gap-7 lg:pb-12">
+        The stack is on the floor of the frame and then pushed back up off it
+        by its own bottom padding, which is what sets how much photograph is
+        left in the clear underneath. At lg that is 160px, putting the
+        headline at 47% of the 780px frame, the sub-head at 59% and the button
+        at 73% — so the bottom fifth of every slide carries nothing at all.
+        That band is where this loop keeps its subject: the game drive vehicle
+        under the acacia, the laid tables, the fire. Dropping this padding
+        back down buries them again, and moving it means re-running
+        scripts/hero-scrim.py with the new bands. */}
+    <div class="gutter relative flex w-full max-w-240 flex-col items-center gap-6 pt-32 pb-28 lg:max-w-270 lg:gap-7 lg:pb-40">
         <h1
             class="font-display max-w-215 text-center text-[40px] leading-[1.08] font-medium tracking-[-0.01em] text-balance text-white sm:text-[54px] lg:max-w-none lg:text-[62px] lg:leading-[1.06]"
         >

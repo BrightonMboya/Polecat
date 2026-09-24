@@ -27,7 +27,7 @@
 import StayGallery from './StayGallery.astro'
 import { findAccommodation } from '../content/accommodations'
 import ZoneImage from './ZoneImage.astro'
-import { findTrekZone } from '../content/trek-zones'
+import { createTrekZoneRotation } from '../content/trek-zones'
 import { findAddon } from '../content/addons'
 import type { DayExtra } from '../content/packages'
 import type { SafariPackage } from '../content/packages'
@@ -64,6 +64,14 @@ interface Props {
 }
 
 const { pkg } = Astro.props
+
+/*
+ * One rotation for this itinerary, so a climb that crosses the same band on
+ * four days shows four different photographs of it. It counts as it goes, so
+ * the day loop below must call it in order and only where a band is actually
+ * shown. See src/content/trek-zones.ts.
+ */
+const nextZone = createTrekZoneRotation()
 ---
 
 <section id="day-by-day" class="gutter scroll-mt-16 bg-white py-20 lg:py-25">
@@ -101,15 +109,16 @@ const { pkg } = Astro.props
                  * A climb whose camp has no photography shows the band it
                  * walks through instead, off the day's own `Habitat` stat.
                  * Safari days never reach this: they have no `Habitat`.
-                 * See src/content/trek-zones.ts for why, and for the one
-                 * band — rainforest — that still has no frame.
+                 * See src/content/trek-zones.ts.
+                 *
+                 * `nextZone` is stateful and counts what it has handed out,
+                 * so it must be called once per day, in day order, and only
+                 * on the days that will actually show a band — hence the
+                 * guard here rather than inside it.
                  */
                 const zone = showStay
                     ? undefined
-                    : findTrekZone(
-                          day.stats?.find((stat) => stat.label === 'Habitat')?.value,
-                          index
-                      )
+                    : nextZone(day.stats?.find((stat) => stat.label === 'Habitat')?.value)
 
                 return (
                     <article class="flex flex-col gap-7 border-t border-line py-13 md:flex-row md:gap-14">

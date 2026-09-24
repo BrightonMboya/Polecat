@@ -386,11 +386,11 @@ export const PACKAGES: SafariPackage[] = [
         days: 6,
         nights: 5,
         price: 'From US$ 4,306 pp',
-        image: '/images/guided-walk-termite-mound-1400.webp',
+        image: '/images/honeymoon-festoon-dinner-1400.webp',
         imageSrcset:
-            '/images/guided-walk-termite-mound-900.webp 900w, /images/guided-walk-termite-mound-1400.webp 1400w, /images/guided-walk-termite-mound-1920.webp 1920w',
+            '/images/honeymoon-festoon-dinner-900.webp 900w, /images/honeymoon-festoon-dinner-1400.webp 1400w',
         imageAlt:
-            'Four guests in sun hats standing with their guide at a termite mound under an acacia, white wildflowers across the grass around them',
+            'A table laid for two in a clearing after dark, festoon lights strung through the trees above it and lanterns set out around the sand',
         summary:
             'Five nights across the northern circuit for couples who want the whole of it — Tarangire’s elephant herds, Lake Manyara’s forest, the crater floor, and two nights in the central Serengeti with a private candlelit dinner under the stars.',
         priceFrom: 'US$ 4,306',
@@ -925,12 +925,11 @@ export const PACKAGES: SafariPackage[] = [
         days: 9,
         nights: 8,
         price: 'From US$ 6,242 pp',
-        image: '/images/honeymoon-sundowner-toast-1400.webp',
+        image: '/images/sundowner-lake-manyara-1400.webp',
         imageSrcset:
-            '/images/honeymoon-sundowner-toast-900.webp 900w, /images/honeymoon-sundowner-toast-1400.webp 1400w',
-        imageFocus: '50% 40%', // the couple do, and the sunset behind them is worth keeping
+            '/images/sundowner-lake-manyara-900.webp 900w, /images/sundowner-lake-manyara-1400.webp 1400w, /images/sundowner-lake-manyara-1920.webp 1920w',
         imageAlt:
-            'A couple standing arm in arm with champagne at a private sundowner table on a rocky outcrop, the sky turning red behind them',
+            'Guests in camp chairs around a fire at a sundowner on the shore of Lake Manyara, two Maasai hosts standing with them and the sun going down over the water',
         summary:
             'Eight nights for couples with time to spend: a walking safari under Mount Meru, a bush flight to two nights in the Serengeti, a walk along the crater rim, the crater floor itself, then Manyara and Tarangire on the way back.',
         priceFrom: 'US$ 6,242',
@@ -2968,11 +2967,11 @@ export const PACKAGES: SafariPackage[] = [
         days: 7,
         nights: 6,
         price: trekCardPrice(7),
-        image: '/images/kili-saddle-kibo-ahead-1400.webp',
+        image: '/images/kili-snowfield-ascent-1400.webp',
         imageSrcset:
-            '/images/kili-saddle-kibo-ahead-900.webp 900w, /images/kili-saddle-kibo-ahead-1400.webp 1400w, /images/kili-saddle-kibo-ahead-1920.webp 1920w',
+            '/images/kili-snowfield-ascent-900.webp 900w, /images/kili-snowfield-ascent-1400.webp 1400w, /images/kili-snowfield-ascent-1920.webp 1920w',
         imageAlt:
-            'Trekkers on a rocky trail down towards the Saddle, the wide cone of Kibo filling the horizon ahead of them',
+            'Four trekkers in down jackets walking up a snowfield in single file with poles and full packs, the rounded summit ahead of them under a clear sky',
         summary:
             'The only major route that comes at Kilimanjaro from the north, starting near the Kenyan border. Quieter trails, open country, and an extra acclimatisation day at Mawenzi Tarn beneath the most dramatic camp on the mountain — then across the Saddle to Kibo and the summit.',
         priceFrom: trekTotal(7),
@@ -3163,11 +3162,11 @@ export const PACKAGES: SafariPackage[] = [
         days: 8,
         nights: 7,
         price: trekCardPrice(8),
-        image: '/images/kili-summit-glacier-1400.webp',
+        image: '/images/kili-snowfield-ascent-1400.webp',
         imageSrcset:
-            '/images/kili-summit-glacier-900.webp 900w, /images/kili-summit-glacier-1400.webp 1400w, /images/kili-summit-glacier-1920.webp 1920w',
+            '/images/kili-snowfield-ascent-900.webp 900w, /images/kili-snowfield-ascent-1400.webp 1400w, /images/kili-snowfield-ascent-1920.webp 1920w',
         imageAlt:
-            'Two climbers celebrating in the snow at the top of Kilimanjaro, the summit glacier wall rising behind them',
+            'Four trekkers in down jackets walking up a snowfield in single file with poles and full packs, the rounded summit ahead of them under a clear sky',
         summary:
             'Our preferred route for anyone who would rather arrive at the summit than merely attempt it. Eight days up the western side — rainforest, two nights crossing the Shira Plateau, Lava Tower, the Barranco Wall and Barafu — with the extra days spent acclimatising and the trails quieter than on Machame.',
         priceFrom: trekTotal(8),

@@ -6,7 +6,7 @@ the loop, and prints the alpha each one needs for white type to clear WCAG AA.
     python3 scripts/hero-scrim.py
 
 Run it whenever a slide is added, removed or re-cropped, and copy the worst
-case into the gradient in Hero.astro. The hero cycles five photographs now, so
+case into the gradient in Hero.astro. The hero cycles eight photographs now, so
 the scrim cannot be fitted to one of them — it has to clear the brightest
 pixel any of them puts under the copy column.
 
@@ -33,18 +33,26 @@ COLUMN = 1080
 # The scrim colour. Only its alpha is measured here.
 SCRIM = (35, 32, 27)
 
-# Bands to report, as a percentage of the frame's height. The stack is pinned
-# to the floor of the frame (justify-end), so the headline lands around 40–60%
-# and the sub-head and button below it.
-BANDS = [(40, 56), (56, 70), (70, 86), (86, 100)]
+# The two bands that actually carry type, as a percentage of the frame's
+# height, measured in the browser at this viewport. The stack sits on the
+# floor of the frame (justify-end) and is then pushed back up by its bottom
+# padding, so the headline lands at 46–56% and the sub-head at 58–68%. The
+# call to action below them is white on a solid green button, which the
+# photograph cannot reach, and the foot of the frame under it carries nothing
+# — so neither constrains the scrim and neither is measured here.
+BANDS = [(46, 56), (58, 68)]
 
 IMAGES = Path(__file__).resolve().parent.parent / 'public' / 'images'
 # Widest variant of each slide, in the order Hero.astro cycles them.
 SLIDES = [
-    'hero-firepit-dinner-1920.webp',
+    'hero-acacia-game-drive-1920.webp',
     'hero-campfire-wine-1600.webp',
-    'hero-lantern-dinner-1600.webp',
+    'hero-baobab-bush-brunch-1400.webp',
+    'hero-long-table-lanterns-1600.webp',
     'hero-lodge-games-1400.webp',
+    'hero-horseback-sunset-1600.webp',
+    'hero-lantern-dinner-1600.webp',
+    'hero-shaded-lunch-table-1600.webp',
 ]
 
 L_SMALL = 1.05 / 4.5 - 0.05   # sub-head, 22px italic — not large text
