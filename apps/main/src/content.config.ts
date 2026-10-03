@@ -15,6 +15,7 @@
  */
 import { defineCollection, z } from 'astro:content'
 import { glob } from 'astro/loaders'
+import { CATEGORY_SLUGS } from './content/categories'
 
 const blog = defineCollection({
     loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
@@ -26,7 +27,8 @@ const blog = defineCollection({
         updatedDate: z.coerce.date(),
         heroImage: z.string().optional(),
         heroImageAlt: z.string().optional(),
-        categories: z.array(z.string()).min(1),
+        /** One or more of Safari, Trekking, Zanzibar, Culture — see content/journal.ts. */
+        categories: z.array(z.enum(CATEGORY_SLUGS)).min(1),
         tags: z.array(z.string()).default([]),
         /**
          * The WordPress post id, so a re-import could match entries up. Only

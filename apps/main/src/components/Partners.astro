@@ -1,67 +1,55 @@
 ---
+/**
+ * Members and partners: a centred label, then the four platform logos in one
+ * row split by hairlines, each linking to the live listing. Laid out as the
+ * Reviews block on ~/web/mufasa_new; stacks with horizontal rules on phones.
+ */
 import { PARTNERS } from '../content/home'
 ---
 
 <section class="gutter flex flex-col items-center bg-white pt-16 pb-16 lg:pt-17.5 lg:pb-18.5">
-    <h2 class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
-        {PARTNERS.heading}
-    </h2>
-    <ul
-        class="mt-9.5 flex flex-col items-center justify-center gap-10 sm:flex-row sm:items-start lg:gap-27.5"
-    >
-        {
-            /* `w-75` is 300px — wider than the content column on a 320px phone,
-               which pushed the whole document (and so the header row) past the
-               viewport. Full width until there is room for the three-up row. */
-            PARTNERS.items.map((partner) => {
-                /* A fixed 52px slot whatever it holds, so the three roles sit
-                   on one line across the row — the two logos render at
-                   different heights, and TATO has none at all. */
-                const Mark = (
-                    <div class="flex h-13 items-center justify-center">
-                        {partner.logo ? (
-                            <img
-                                src={partner.logo}
-                                alt={partner.logoAlt ?? partner.name}
-                                width={Math.round(
-                                    (partner.height! * partner.nativeWidth!) / partner.nativeHeight!
-                                )}
-                                height={partner.height}
-                                loading="lazy"
-                                decoding="async"
-                            />
-                        ) : (
-                            <p class="text-[18px] leading-6 font-semibold tracking-[0.06em] text-primary">
-                                {partner.name}
-                            </p>
-                        )}
-                    </div>
-                )
+    <div class="shell flex flex-col">
+        <h2
+            class="mb-9.5 text-center text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase"
+        >
+            {PARTNERS.heading}
+        </h2>
 
-                return (
-                    <li class="flex w-full flex-col items-center gap-2.25 sm:w-75 sm:shrink-0">
-                        {/* Only the two with a listing to link to become links;
-                            TATO has no href, so it stays inert rather than
-                            becoming an anchor that goes nowhere. */}
-                        {partner.href ? (
-                            <a
-                                href={partner.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                aria-label={`${partner.name} — ${partner.role}`}
-                                class="opacity-90 transition-opacity hover:opacity-100"
-                            >
-                                {Mark}
-                            </a>
-                        ) : (
-                            Mark
-                        )}
-                        <p class="text-center text-[11px] leading-4 tracking-[0.14em] text-muted uppercase">
-                            {partner.role}
-                        </p>
+        <ul class="flex flex-col sm:flex-row sm:flex-wrap">
+            {
+                PARTNERS.items.map((item) => (
+                    <li class="border-line not-first:border-t sm:min-w-45 sm:flex-1 sm:not-first:border-t-0 sm:not-first:border-l">
+                        <a
+                            href={item.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Read our reviews on ${item.name}`}
+                            class="group flex flex-col items-center gap-4.5 px-4 py-6 text-center transition-transform duration-300 hover:-translate-y-0.75 lg:px-8 lg:py-10"
+                        >
+                            {/* A fixed 52px slot whatever it holds, so the
+                                links line up across the row. */}
+                            <span class="flex h-13 items-center justify-center">
+                                <img
+                                    src={item.logo}
+                                    alt={item.logoAlt}
+                                    width={Math.round((item.height * item.nativeWidth) / item.nativeHeight)}
+                                    height={item.height}
+                                    loading="lazy"
+                                    decoding="async"
+                                    class:list={[
+                                        'w-auto object-contain transition-opacity duration-300 group-hover:opacity-100',
+                                        item.badge ? 'opacity-100' : 'opacity-90',
+                                    ]}
+                                    style={`height: ${item.height}px`}
+                                />
+                            </span>
+                            <span class="text-[12px] leading-4 tracking-[0.12em] text-primary uppercase">
+                                Read reviews →
+                            </span>
+                        </a>
                     </li>
-                )
-            })
-        }
-    </ul>
+                ))
+            }
+        </ul>
+    </div>
 </section>

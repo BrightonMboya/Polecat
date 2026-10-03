@@ -15,7 +15,7 @@ const { title, description, heroImage, heroImageAlt, pubDate } = post.data
 const category = primaryCategory(post)
 ---
 
-<li class="flex flex-col bg-white">
+<li class="flex flex-col bg-white" data-categories={post.data.categories.join(' ')}>
     <a href={`/${post.id}/`} class="group flex flex-1 flex-col">
         {
             heroImage && (
@@ -45,7 +45,7 @@ const category = primaryCategory(post)
             </h3>
             <p class="flex-1 text-[15px] leading-6.75 text-muted">{description}</p>
             <span
-                class="rule-link pt-1 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
+                class="pt-1 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
                 aria-hidden="true"
             >
                 Read More

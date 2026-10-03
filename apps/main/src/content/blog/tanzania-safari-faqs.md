@@ -6,7 +6,7 @@ updatedDate: 2026-09-18
 heroImage: '/images/blog/tanzania-safari-faqs-hero.webp'
 heroImageAlt: 'A camp chef in whites presenting a bush lunch to two guests seated at a table out on the plains'
 categories:
-    - 'planning'
+    - 'safari'
 tags:
     - 'planning'
     - 'before-you-travel'
@@ -44,8 +44,6 @@ tags:
 
 <p>However, connectivity can be limited or slower in remote wilderness areas. Your safari is also a wonderful opportunity to disconnect from everyday life and reconnect with the landscape around you.</p>
 
-<p>For guests who need to stay connected, <strong>Polecat Safaris can assist with Tanzania SIM and internet arrangements</strong> where available.</p>
-
 <h2>What is included in my safari?</h2>
 
 <p>Your inclusions depend on the safari itinerary and accommodation category you choose. A typical private Polecat Safaris package may include:</p>
@@ -59,7 +57,6 @@ tags:
 <li>Airport and lodge transfers where stated</li>
 <li>Domestic flights where included</li>
 <li>Drinking water during safari</li>
-<li>Tanzania SIM and internet arrangements where included</li>
 </ul>
 
 <p>Every itinerary is individually prepared, so your <strong>personal safari quotation will clearly show what is included and excluded</strong>.</p>

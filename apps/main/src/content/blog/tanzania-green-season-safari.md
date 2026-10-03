@@ -6,7 +6,7 @@ updatedDate: 2026-09-18
 heroImage: '/images/blog/tanzania-green-season-safari-hero.webp'
 heroImageAlt: 'A column of wildebeest and zebra walking across green plains past an open safari vehicle, with thousands more spread along the horizon behind them'
 categories:
-    - 'seasons'
+    - 'safari'
 tags:
     - 'green-season'
     - 'migration'

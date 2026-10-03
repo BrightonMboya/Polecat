@@ -39,55 +39,90 @@ const pageSchema = {
     <main>
         <section class="gutter flex flex-col items-center bg-cream pt-16 pb-14 lg:pt-20 lg:pb-16">
             <div class="shell flex max-w-200 flex-col items-center gap-3">
-                <p
-                    class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase"
-                >
-                    From The Field
-                </p>
                 <h1
                     class="font-display text-center text-[40px] leading-[1.18] font-light text-ink lg:text-[56px] lg:leading-17"
                 >
                     Journal
                 </h1>
                 <p class="pt-2 text-center text-[17px] leading-7.75 text-muted">
-                    Guides to the places we travel, written by the people who guide them — {
-                        posts.length
-                    } notes from the parks, the rivers and the lakes of Tanzania.
+                    Guides to the places we travel, written by the people who guide them.
                 </p>
             </div>
 
-            <nav
+            {/* Filters the cards below in place rather than linking anywhere.
+                The choice is mirrored in ?category= so it survives a reload and
+                so a post's category link can land here pre-filtered. */}
+            <div
                 class="flex flex-wrap items-center justify-center gap-2.5 pt-9"
-                aria-label="Journal categories"
+                role="group"
+                aria-label="Filter the journal by category"
+                data-journal-filters
             >
-                <span
-                    aria-current="page"
-                    class="border border-primary bg-primary px-5 py-2.5 text-[11px] leading-4 font-medium tracking-[0.18em] text-white uppercase"
-                >
+                <button type="button" aria-pressed="true" data-filter="" class="cursor-pointer border border-line px-5 py-2.5 text-[11px] leading-4 font-medium tracking-[0.18em] text-muted uppercase transition-colors hover:border-primary hover:text-primary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-white">
                     All Notes
-                </span>
+                </button>
                 {
                     categories.map((category) => (
-                        <a
-                            href={`/category/${category.slug}/`}
-                            class="border border-line px-5 py-2.5 text-[11px] leading-4 font-medium tracking-[0.18em] text-muted uppercase transition-colors hover:border-primary hover:text-primary"
+                        <button
+                            type="button"
+                            aria-pressed="false"
+                            data-filter={category.slug}
+                            class="cursor-pointer border border-line px-5 py-2.5 text-[11px] leading-4 font-medium tracking-[0.18em] text-muted uppercase transition-colors hover:border-primary hover:text-primary aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-white"
                         >
                             {category.label}
-                        </a>
+                        </button>
                     ))
                 }
-            </nav>
+            </div>
         </section>
 
         <section class="gutter flex flex-col items-center bg-cream pb-20 lg:pb-28">
-            <ul class="shell grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:grid-cols-3">
+            <ul data-journal-posts class="shell grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:grid-cols-3">
                 {
                     posts.map((post, index) => (
                         <PostCard post={post} loading={index < 3 ? 'eager' : 'lazy'} />
                     ))
                 }
             </ul>
+            <p class="hidden pt-4 text-center text-[15px] leading-6.75 text-muted" data-journal-empty>
+                No notes here yet — new ones are on the way.
+            </p>
         </section>
     </main>
     <Footer />
 </Layout>
+
+<script>
+    const group = document.querySelector<HTMLElement>('[data-journal-filters]')
+    const cards = document.querySelectorAll<HTMLElement>('[data-journal-posts] > li')
+    const empty = document.querySelector<HTMLElement>('[data-journal-empty]')
+
+    if (group) {
+        const buttons = [...group.querySelectorAll<HTMLButtonElement>('[data-filter]')]
+        const known = new Set(buttons.map((b) => b.dataset.filter))
+
+        const apply = (slug: string) => {
+            if (!known.has(slug)) slug = ''
+            for (const b of buttons) b.setAttribute('aria-pressed', String(b.dataset.filter === slug))
+            let shown = 0
+            for (const card of cards) {
+                const match = !slug || (card.dataset.categories ?? '').split(' ').includes(slug)
+                card.style.display = match ? '' : 'none'
+                if (match) shown++
+            }
+            empty?.classList.toggle('hidden', shown > 0)
+
+            const url = new URL(location.href)
+            if (slug) url.searchParams.set('category', slug)
+            else url.searchParams.delete('category')
+            history.replaceState(null, '', url)
+        }
+
+        group.addEventListener('click', (event) => {
+            const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]')
+            if (button) apply(button.dataset.filter ?? '')
+        })
+
+        apply(new URLSearchParams(location.search).get('category') ?? '')
+    }
+</script>

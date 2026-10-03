@@ -1,10 +1,10 @@
 ---
 /**
- * Three routes, not three countries. Each card is a link to the itineraries
- * section's route filter, so the hrefs have to match the anchor ids that
- * Packages.astro renders.
+ * Three routes, not three countries. Each card links to that route's band on
+ * /safari-packages/ (see routeHref).
  */
 import { DESTINATIONS } from '../content/home'
+import { routeHref } from '../content/packages'
 ---
 
 <section class="gutter flex flex-col items-center bg-cream pb-20 lg:pb-29.5">
@@ -22,7 +22,7 @@ import { DESTINATIONS } from '../content/home'
             DESTINATIONS.items.map((destination) => (
                 <li class="flex flex-col">
                     <a
-                        href={`#route-${destination.route}`}
+                        href={routeHref(destination.route)}
                         class="group flex flex-1 flex-col"
                         aria-label={`See the ${destination.name} itineraries`}
                     >

@@ -214,12 +214,12 @@ const payload = JSON.stringify({
         if (data.start) {
             marker(
                 isRoundTrip ? { ...data.start, label: 'Start & end' } : data.start,
-                isRoundTrip ? 'GO/END' : 'GO',
+                isRoundTrip ? 'Start/End' : 'Start',
                 'start',
             )
         }
         data.points.forEach((p, i) => marker(p, String(i + 1)))
-        if (data.end && !isRoundTrip) marker(data.end, 'END', 'end')
+        if (data.end && !isRoundTrip) marker(data.end, 'End', 'end')
 
         map.on('load', () => {
             if (chain.length < 2) return

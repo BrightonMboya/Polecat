@@ -15,6 +15,7 @@
  * with the operator's own before this page takes production traffic.
  */
 
+import { TRIPADVISOR } from '../config'
 import { PACKAGES as PACKAGE_ITEMS, type RouteTag, type SafariPackage } from './packages'
 
 export interface Cta {
@@ -119,7 +120,7 @@ export const HERO = {
 } as const
 
 /**
- * One card in the "How do you want to travel?" section, after the same band
+ * One card in the "What kind of safari speaks to you?" section, after the same band
  * on abercrombiekent.com, which the client asked this to read like.
  */
 export interface TravelStyle {
@@ -131,8 +132,8 @@ export interface TravelStyle {
     imageAlt: string
     /**
      * What the planner preselects when someone arrives from this card, keyed
-     * by the id of the step that holds the answer ('see', 'interests',
-     * 'occasion' in src/pages/enquire.astro).
+     * by the id of the step that holds the answer ('trip' or 'interests' in
+     * src/pages/enquire.astro).
      *
      * Values have to be options that step actually offers — enquire.astro
      * throws at build time if one is not, so a renamed chip cannot quietly
@@ -141,7 +142,7 @@ export interface TravelStyle {
      * every itinerary on the site is private, so it implies no answer. The
      * card's title still reaches the inbox as the enquiry's stated intent.
      */
-    preset?: Partial<Record<'see' | 'interests' | 'occasion', readonly string[]>>
+    preset?: Partial<Record<'trip' | 'interests', readonly string[]>>
 }
 
 /*
@@ -163,7 +164,7 @@ export const TRAVEL_STYLES: {
     body: string
     items: readonly TravelStyle[]
 } = {
-    heading: 'How do you want to travel?',
+    heading: 'What kind of safari speaks to you?',
     body: 'Five ways people travel with us. Start with the one that sounds like your trip and the planner opens with it already filled in.',
     items: [
         {
@@ -173,7 +174,7 @@ export const TRAVEL_STYLES: {
             image: '/images/style-family.webp',
             imageAlt:
                 'A camp cook lifting a grill of roasted vegetables while a small girl in a pink jacket watches from beside him',
-            preset: { occasion: ['family'] },
+            preset: { interests: ['family'] },
         },
         {
             slug: 'honeymoon',
@@ -182,7 +183,7 @@ export const TRAVEL_STYLES: {
             image: '/images/style-honeymoon.webp',
             imageAlt:
                 'A couple reading together on the bed of a tented room, a breakfast tray beside them and the bush through the open canvas',
-            preset: { occasion: ['honeymoon'], interests: ['romance'] },
+            preset: { interests: ['honeymoon'] },
         },
         {
             /* The photograph is the frame to the left of the one the 13-Day
@@ -195,7 +196,7 @@ export const TRAVEL_STYLES: {
             image: '/images/style-migration.webp',
             imageAlt:
                 'A column of wildebeest walking up a track towards the camera, zebra behind them and thousands more spread along the horizon',
-            preset: { see: ['serengeti'], interests: ['migration'] },
+            preset: { trip: ['safari'], interests: ['migration'] },
         },
         {
             slug: 'trekking',
@@ -204,14 +205,14 @@ export const TRAVEL_STYLES: {
             image: '/images/style-trekking.webp',
             imageAlt:
                 'A Maasai guide and two guests walking across a rock outcrop at sunset, the plains below them',
-            preset: { see: ['kilimanjaro'], interests: ['summit'] },
+            preset: { trip: ['kilimanjaro'] },
         },
         {
-            /* No preset: the planner asks what you want to see and who is
-               travelling, not how you get between the parks. The card still
-               carries its title into /enquire/ as the stated intent. */
+            /* Presets the interest; the planner does not ask how you get
+               between the parks otherwise. */
             slug: 'fly-in',
             title: 'Fly-In',
+            preset: { trip: ['safari'], interests: ['fly-in'] },
             blurb: 'An hour in a light aircraft instead of a day in a vehicle — a scheduled bush flight straight onto the Serengeti plains, and the drive from the airstrip is your first game drive.',
             image: '/images/style-fly-in.webp',
             imageAlt:
@@ -292,15 +293,12 @@ export const PACKAGES: {
     body: string
     /** The six shown by default. */
     items: SafariPackage[]
-    /** All fifteen, so a route filter can reach the ones that aren't featured. */
-    all: SafariPackage[]
     cta: Cta
 } = {
-    heading: 'Safari packages',
+    heading: 'Get Inspired',
     body: 'Every itinerary here is private — your own guide, your own vehicle, and days that can move. Honeymoons first, then the family safaris, the twelve nights it takes to follow the migration properly, and five routes up Kilimanjaro.',
     cta: { label: 'All Safari Packages', href: '/safari-packages/' },
     items: PACKAGE_ITEMS.filter((pkg) => pkg.featured),
-    all: PACKAGE_ITEMS,
 }
 
 /*
@@ -336,69 +334,77 @@ export const REVIEWS: Review[] = [
 ]
 
 /*
- * Members and partners. `logo` is optional: an item without one falls back to
- * its name set as type, which is what TATO does — no TATO mark exists in the
- * assets yet, and an association's logo is not ours to redraw. Drop the file
- * in and add the three fields to switch it over.
+ * Members and partners — the logo row, laid out as on ~/web/mufasa_new's
+ * Reviews block. Each logo links to the live listing.
  *
  * `nativeWidth`/`nativeHeight` are the file's own dimensions and `height` is
- * what it renders at, which the component uses to work out the width. The two
- * are separate because SafariBookings is a 173x22 raster that must not be
- * scaled up, while Design My Safari is vector and crisp at any size.
+ * what it renders at; the component works out the width from them. `badge`
+ * marks Design My Safari, which carries its own card and border and so is set
+ * taller than the wordmarks.
  *
- * Both logos came from ~/web/mufasa_new, but neither `href` did: the listing
- * id and the utm_source in those are King Mufasa's, and sending this
- * operator's referrals under another operator's name would credit them to the
- * wrong business. p4005 is ours; the utm_source is our own domain.
+ * The logos came from mufasa_new, but none of the `href`s did: the listing
+ * ids and utm_source there are King Mufasa's, and sending this operator's
+ * referrals under another operator's name would credit the wrong business.
  */
 export const PARTNERS: {
     heading: string
     items: {
         name: string
-        role: string
-        href?: string
-        logo?: string
-        logoAlt?: string
-        nativeWidth?: number
-        nativeHeight?: number
-        height?: number
+        href: string
+        logo: string
+        logoAlt: string
+        nativeWidth: number
+        nativeHeight: number
+        height: number
+        badge?: boolean
     }[]
 } = {
-    heading: 'Members And Partners',
+    heading: 'Members and Partners',
     items: [
         {
             name: 'SafariBookings',
-            role: 'Listed Operator',
-            /* This operator's own listing — p4005, not the p6151 the mufasa
-               copy of this data points at. */
+            /* p4005 is this operator's listing, not mufasa's p6151. */
             href: 'https://www.safaribookings.com/reviews/p4005',
-            /* Ships white-on-transparent for dark surfaces; this section is
-               white, so the copy in public/images is recoloured to the brand
-               green rather than filtered at render time. */
+            /* Ships white-on-transparent; the copy in public/images is
+               recoloured to the brand green for this light surface. */
             logo: '/images/partner-safaribookings.png',
             logoAlt: 'SafariBookings',
             nativeWidth: 173,
             nativeHeight: 22,
             height: 22,
         },
-        { name: 'TATO', role: 'Tanzania Association of Tour Operators' },
+        {
+            name: 'Tripadvisor',
+            href: TRIPADVISOR.url,
+            logo: '/images/partner-tripadvisor.svg',
+            logoAlt: 'Tripadvisor',
+            nativeWidth: 7675,
+            nativeHeight: 1174,
+            height: 26,
+        },
+        {
+            name: 'Google',
+            /* No Business Profile link has been supplied, so this is a Maps
+               search for the business name, as on the mufasa page. Swap in the
+               profile's share link once there is one. */
+            href: 'https://www.google.com/maps/search/African+Polecat+Safaris+Arusha',
+            logo: '/images/partner-google.svg',
+            logoAlt: 'Google',
+            nativeWidth: 272,
+            nativeHeight: 92,
+            height: 26,
+        },
         {
             name: 'Design My Safari',
-            role: 'Design Partner',
-            /* The utm_* triple is how Design My Safari attributes a referral,
-               so `utm_source` has to name this site and not the one the link
-               was copied from. Their convention in the mufasa copy was a bare
-               slug (`kingmufasaexpeditions`); if they have issued this
-               operator a partner id of their own, it replaces the domain. */
+            /* utm_source names this site — Design My Safari attributes the
+               referral by it. If they issue a partner id, it replaces this. */
             href: 'https://www.designmysafari.com/?utm_source=africanpolecatsafaris.com&utm_medium=partner&utm_campaign=operator_partner',
-            /* A badge rather than a wordmark — it carries its own white card
-               and gold rule, so it is left unrecoloured and set taller than
-               the SafariBookings lockup to balance against it. */
             logo: '/images/partner-designmysafari.svg',
             logoAlt: 'Design My Safari — Safari Partner',
             nativeWidth: 1400,
             nativeHeight: 460,
             height: 52,
+            badge: true,
         },
     ],
 }
@@ -437,10 +443,6 @@ export const NAV = {
  * South Africa, camps or lodges: the operator sells northern Tanzania and
  * Zanzibar, and owns no property.
  *
- * The `/#route-<tag>` links drive the homepage itinerary filter (see
- * Packages.astro). They only work on the homepage — /safari-packages lists all
- * ten unfiltered — so they are written as absolute paths back to `/`.
- *
  * Three columns, and no Journal one: it used to be built in Footer.astro from
  * the categories that had posts, and was removed by request. What is back is a
  * single "Journal" link in the last column, added when the stale migrated
@@ -463,9 +465,9 @@ export const FOOTER_COLUMNS = [
     {
         heading: 'Where We Travel',
         links: [
-            { label: 'Northern Circuit', href: '/#route-northern-circuit' },
+            { label: 'Northern Circuit', href: '/safari-packages/#northern-circuit' },
             { label: 'Kilimanjaro', href: '/kilimanjaro/' },
-            { label: 'Zanzibar', href: '/#route-zanzibar' },
+            { label: 'Zanzibar', href: '/safari-packages/#zanzibar' },
             { label: 'Guest reviews', href: '/about/#reviews' },
         ],
     },

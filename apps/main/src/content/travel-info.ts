@@ -725,7 +725,7 @@ export const TRAVEL_FAQS: readonly TravelFaq[] = [
     {
         question: 'Will I have phone signal or Wi-Fi?',
         answer: [
-            'Often, but not reliably. Many of our vehicles and lodges have mobile coverage or Wi-Fi, and it varies a great deal in remote areas. Where a Tanzanian SIM or internet access is part of your package we will arrange it.',
+            'Often, but not reliably. Many of our vehicles and lodges have mobile coverage or Wi-Fi, and it varies a great deal in remote areas.',
             'Some of the best moments out there happen with the phone away, and the coverage gaps are not the worst thing about a safari.',
         ],
     },

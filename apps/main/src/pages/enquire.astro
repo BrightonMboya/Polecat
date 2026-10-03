@@ -3,25 +3,18 @@
  * /enquire/ — the destination of the header CTA, the hero's "Check
  * Availability" button and every "Enquire" link on the site.
  *
- * Ported from the trip planner on ~/web/atlas (src/pages/plan-my-trip.astro):
- * one question per screen — what you'd like to see, what draws you, who is
- * travelling, roughly when and for how long — and only then the contact
- * fields. Same screens, same interaction, restyled to this site's tokens and
- * Header/Footer. The trip length shares the date screen rather than taking a
- * fifth one, as it does in ~/web/mufasa_new.
+ * The five-step card from serengetiwakandatours.com/plan, on its own — no
+ * photographic banner and no side column. The steps are trip type, dates and
+ * length, guests, budget and interests, and contact. Restyled to this site's
+ * tokens.
  *
- * Atlas opens on a full-bleed "Let's Begin" splash; this page does not. Every
- * link that lands here is already a decision to enquire, so the first screen
- * is the first question and the h1 is visually hidden above it.
- *
- * Two things this version keeps that atlas's does not:
- *   - the answers are actually sent. Atlas's planner ends at a thank-you
- *     screen and posts nowhere; here the last screen POSTs to Web3Forms like
- *     the flat form it replaces, with the four answers carried along as
- *     labelled fields so the inbox reads like a brief.
- *   - the direct channels (phone, email, WhatsApp) stay on the contact
- *     screen. Plenty of this site's enquiries arrive that way and the flat
- *     form offered them.
+ * Kept from the planner it replaces:
+ *   - ?itinerary=<slug> from an itinerary page names the journey above the
+ *     card, presets the trip type and length, and reaches the inbox.
+ *   - ?plan=<slug> from the homepage travel-style cards presets the answers
+ *     the card's title already gives (TRAVEL_STYLES[].preset).
+ *   - the answers POST to Web3Forms as labelled fields, and on failure the
+ *     visitor is handed email and WhatsApp instead.
  *
  * No backend. The Web3Forms free tier is 250 submissions a month shared with
  * the landing page and the newsletter; move to a real inbox integration
@@ -30,141 +23,66 @@
 import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
-import { CONTACT, WEB3FORMS, SITE, whatsappLink } from '../config'
+import { CONTACT, WEB3FORMS, whatsappLink } from '../config'
 import { PACKAGES } from '../content/packages'
 import { TRAVEL_STYLES } from '../content/home'
 
-interface Option {
-    value: string
-    label: string
-}
-
-interface Step {
-    id: string
-    kind: 'single' | 'multi' | 'date'
-    title: string
-    hint: string
-    skip?: string
-    /** Omitted on "date" steps, which render a picker instead of chips. */
-    options?: Option[]
-}
-
-/*
- * Every option below is something we actually sell — the parks in
- * packages.ts' PLACES, and the three route tags (northern circuit, trekking,
- * Zanzibar). Nothing here should offer a country or an activity that no
- * itinerary on the site can deliver.
- */
-const steps: Step[] = [
-    {
-        id: 'see',
-        kind: 'multi',
-        title: 'What would you like to see?',
-        hint: 'Select one or more',
-        options: [
-            { value: 'serengeti', label: "The Serengeti's endless plains" },
-            { value: 'crater', label: 'The Ngorongoro Crater' },
-            { value: 'tarangire', label: "Tarangire's elephant herds" },
-            { value: 'manyara', label: 'Lake Manyara' },
-            { value: 'zanzibar', label: "Zanzibar's beaches" },
-            { value: 'kilimanjaro', label: 'Kilimanjaro' },
-            { value: 'culture', label: 'Maasai and Hadzabe country' },
-        ],
-    },
-    {
-        id: 'interests',
-        kind: 'multi',
-        title: 'What draws you?',
-        hint: 'Select one or more',
-        options: [
-            { value: 'migration', label: 'The great migration' },
-            { value: 'bigcats', label: 'Big cats and predators' },
-            { value: 'firsttime', label: 'A first safari, the highlights' },
-            { value: 'culture', label: 'Culture and community' },
-            { value: 'romance', label: 'Romance and seclusion' },
-            { value: 'summit', label: 'Trekking and the summit' },
-            { value: 'beach', label: 'Beach and ocean' },
-        ],
-    },
-    {
-        id: 'occasion',
-        kind: 'single',
-        title: "Who's travelling?",
-        hint: 'Select one',
-        options: [
-            { value: 'couple', label: 'Just the two of us' },
-            { value: 'honeymoon', label: 'A honeymoon' },
-            { value: 'family', label: 'With family' },
-            { value: 'friends', label: 'With friends' },
-            { value: 'solo', label: 'On my own' },
-        ],
-    },
-    {
-        id: 'arrival',
-        kind: 'date',
-        title: 'When would you like to travel?',
-        hint: 'An approximate date is fine — we can move it later',
-        skip: "I haven't decided yet",
-    },
+const TRIP_TYPES = [
+    { value: 'safari', label: 'Safari', hint: 'Serengeti, Ngorongoro & Tarangire' },
+    { value: 'kilimanjaro', label: 'Kilimanjaro', hint: 'Marangu, Machame, Lemosho & more' },
+    { value: 'zanzibar', label: 'Zanzibar', hint: 'Beach days & Stone Town' },
+    { value: 'combination', label: 'Combination', hint: 'Safari with the beach or the mountain' },
 ]
 
-const totalSteps = steps.length
+/* Up to US$ 3k covers the treks and the shortest safaris; the catalogue's
+   safaris run from about US$ 3k to 6.3k pp. */
+const BUDGETS = [
+    { value: 'under-3k', label: 'Under $3k pp' },
+    { value: '3k-5k', label: '$3k–5k pp' },
+    { value: '5k-8k', label: '$5k–8k pp' },
+    { value: '8k-plus', label: '$8k+ pp' },
+    { value: 'not-sure', label: 'Not sure yet' },
+]
+
+/* Only things an itinerary on this site can deliver. */
+const INTERESTS = [
+    { value: 'wildlife', label: 'Wildlife & Big Five' },
+    { value: 'migration', label: 'Great Migration' },
+    { value: 'honeymoon', label: 'Honeymoon' },
+    { value: 'family', label: 'Family with kids' },
+    { value: 'photography', label: 'Photography' },
+    { value: 'culture', label: 'Cultural visits' },
+    { value: 'walking', label: 'Walking safaris' },
+    { value: 'fly-in', label: 'Fly-in safaris' },
+]
+
+const STEP_COUNT = 5
 
 // Never offer a date in the past.
 const minDate = new Date().toISOString().slice(0, 10)
 
-/*
- * Trip length, asked in the same step as the date — ported from the planner in
- * ~/web/mufasa_new (PlannerFlow.astro's `duration` block on its date step): a
- * minus/number/plus stepper rather than a set of chips, so the answer is an
- * exact figure and nobody has to reply asking "how many, exactly?".
- *
- * The catalogue runs 6 to 13 days. The bounds are wider than that on purpose:
- * the planner also has to take a short private trip and a safari with a
- * Zanzibar week on the end. 7 opens the field — the length of the two
- * most-asked itineraries.
- */
-const DAYS_MIN = 3
-const DAYS_MAX = 30
-const DAYS_INITIAL = 7
-
-/*
- * Chip label lookup for the client script, so the inbox gets "The Ngorongoro
- * Crater" rather than "crater". Built here rather than in the browser because
- * the options only exist at build time.
- */
 const optionLabels: Record<string, string> = {}
-for (const step of steps) {
-    for (const option of step.options ?? []) {
-        optionLabels[`${step.id}:${option.value}`] = option.label
-    }
+for (const [step, options] of [
+    ['trip', TRIP_TYPES],
+    ['budget', BUDGETS],
+    ['interests', INTERESTS],
+] as const) {
+    for (const option of options) optionLabels[`${step}:${option.value}`] = option.label
 }
 
-/*
- * The "How do you want to travel?" cards on the homepage link here as
- * /enquire/?plan=<slug>. A plan carries two things: the card's title, which
- * reaches the inbox as the enquiry's stated intent, and the answers the
- * card's own title already gives, which arrive preselected so nobody is asked
- * something they have just told us.
- *
- * Built from TRAVEL_STYLES so the cards and the planner cannot drift, and
- * checked here rather than trusted: a preset naming a step or an option this
- * page does not offer is a build error, not a chip that quietly stops
- * lighting up when a question is reworded.
- */
+/* Presets from the homepage cards, checked at build time so a renamed option
+   is an error rather than a chip that quietly stops lighting up. */
+const presetOptions: Record<string, readonly { value: string }[]> = {
+    trip: TRIP_TYPES,
+    interests: INTERESTS,
+}
 const plans = Object.fromEntries(
     TRAVEL_STYLES.items.map((style) => {
         for (const [stepId, values] of Object.entries(style.preset ?? {})) {
-            const step = steps.find((candidate) => candidate.id === stepId)
-            if (!step) {
-                throw new Error(
-                    `TRAVEL_STYLES "${style.slug}" presets step "${stepId}", which /enquire/ does not ask.`
-                )
-            }
             for (const value of values ?? []) {
-                if (!step.options?.some((option) => option.value === value)) {
+                if (!presetOptions[stepId]?.some((option) => option.value === value)) {
                     throw new Error(
-                        `TRAVEL_STYLES "${style.slug}" presets "${value}", which step "${stepId}" does not offer.`
+                        `TRAVEL_STYLES "${style.slug}" presets "${stepId}: ${value}", which /enquire/ does not offer.`
                     )
                 }
             }
@@ -173,105 +91,193 @@ const plans = Object.fromEntries(
     })
 )
 
-/*
- * The itinerary pages no longer carry a form of their own: every "Enquire"
- * on /safari-packages/<slug>/ lands here as /enquire/?itinerary=<slug>.
- *
- * A slug that matches buys three things — the planner says on screen which
- * journey it is answering for, the contact screen's itinerary list opens on
- * it, and the trip length starts at the itinerary's own rather than at seven.
- * It also puts the itinerary's URL in the email, which `Page URL` cannot do:
- * that field can only ever say /enquire/, and the page someone enquired from
- * is the most useful line in the message.
- *
- * Built from PACKAGES, like the select on the contact screen, so this can
- * never name an itinerary the site has stopped selling. A slug that does not
- * match is ignored and the planner opens as it does for everybody else.
- */
+/* The trip type an itinerary implies: a climb is Kilimanjaro, a safari with
+   Zanzibar days on the end is a combination. */
+const tripFor = (routes: readonly string[]) =>
+    routes.includes('trekking')
+        ? 'kilimanjaro'
+        : routes.includes('zanzibar')
+          ? routes.includes('northern-circuit')
+              ? 'combination'
+              : 'zanzibar'
+          : 'safari'
+
 const itineraries = Object.fromEntries(
     PACKAGES.map((pkg) => {
         const path = `/safari-packages/${pkg.slug}/`
         return [
             pkg.slug,
-            { name: pkg.name, days: pkg.days, path, url: new URL(path, Astro.site).href },
+            {
+                name: pkg.name,
+                days: pkg.days,
+                trip: tripFor(pkg.routes),
+                path,
+                url: new URL(path, Astro.site).href,
+            },
         ]
     })
 )
 
+/*
+ * Dial codes for the phone field — the markets guests actually come from,
+ * plus East Africa. No phone library: npm is unreachable from this repo's
+ * machine, and a dial code plus a number is all the inbox needs.
+ */
+const DIAL_CODES = [
+    ['GB', 'United Kingdom', '44'],
+    ['US', 'United States', '1'],
+    ['CA', 'Canada', '1'],
+    ['FR', 'France', '33'],
+    ['DE', 'Germany', '49'],
+    ['NL', 'Netherlands', '31'],
+    ['BE', 'Belgium', '32'],
+    ['CH', 'Switzerland', '41'],
+    ['AT', 'Austria', '43'],
+    ['IT', 'Italy', '39'],
+    ['ES', 'Spain', '34'],
+    ['PT', 'Portugal', '351'],
+    ['IE', 'Ireland', '353'],
+    ['SE', 'Sweden', '46'],
+    ['NO', 'Norway', '47'],
+    ['DK', 'Denmark', '45'],
+    ['FI', 'Finland', '358'],
+    ['PL', 'Poland', '48'],
+    ['CZ', 'Czechia', '420'],
+    ['AU', 'Australia', '61'],
+    ['NZ', 'New Zealand', '64'],
+    ['ZA', 'South Africa', '27'],
+    ['TZ', 'Tanzania', '255'],
+    ['KE', 'Kenya', '254'],
+    ['UG', 'Uganda', '256'],
+    ['RW', 'Rwanda', '250'],
+    ['NG', 'Nigeria', '234'],
+    ['AE', 'United Arab Emirates', '971'],
+    ['SA', 'Saudi Arabia', '966'],
+    ['IL', 'Israel', '972'],
+    ['IN', 'India', '91'],
+    ['CN', 'China', '86'],
+    ['HK', 'Hong Kong', '852'],
+    ['SG', 'Singapore', '65'],
+    ['JP', 'Japan', '81'],
+    ['KR', 'South Korea', '82'],
+    ['BR', 'Brazil', '55'],
+    ['MX', 'Mexico', '52'],
+    ['AR', 'Argentina', '54'],
+] as const
+
+const flag = (iso: string) =>
+    String.fromCodePoint(...[...iso].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))
+
 const whatsapp = whatsappLink(
     'Hello Polecat Safaris — I would like to plan a safari in Tanzania.'
 )
+
+const label = 'text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase'
+const input =
+    'w-full border border-line bg-white px-4 py-3.5 text-[16px] leading-6 text-ink placeholder:text-muted/60 transition-colors focus:border-primary focus:outline-none'
 ---
 
 <Layout
     title="Enquire — Plan a private Tanzania safari | Polecat Safaris"
-    description="Answer four questions about what you'd love to see and who's coming. You'll get a draft itinerary with named lodges and a firm price, written by the team in Arusha who would run it."
+    description="Five short questions about the trip you have in mind. A guide in Arusha replies personally within one working day with a draft itinerary, named lodges and a firm price."
 >
     <Header />
-    <main class="bg-cream" data-planner>
-        <h1 class="sr-only">Plan your Tanzania safari</h1>
-
-        {/* Filled in and unhidden by the script below when the visitor
-            arrived from an itinerary page, so the first thing they see is
-            that the planner already knows which journey they mean — and the
-            way back to the page they left, in case they came here by
-            accident. Stays put across all six screens. */}
-        <aside
-            class="gutter hidden border-b border-line bg-white py-4"
-            data-source
-            aria-label="What you are enquiring about"
-        >
-            <div
-                class="shell flex flex-col gap-x-4 gap-y-1.5 sm:flex-row sm:flex-wrap sm:items-baseline"
-            >
-                <p class="text-[11px] leading-4 font-medium tracking-[0.2em] text-primary uppercase">
-                    Enquiring about
-                </p>
-                <p class="text-[15px] leading-6 text-ink">
-                    <a
-                        data-source-link
-                        class="underline decoration-line underline-offset-4 transition-colors hover:text-primary hover:decoration-primary"
-                        href="/safari-packages/"></a>
-                </p>
-                <p
-                    class="text-[13px] leading-6 break-all text-muted/75 sm:ml-auto"
-                    data-source-url
-                >
-                </p>
-            </div>
-        </aside>
-
-        {/* Steps */}
-        {
-            steps.map((step, i) => (
-                <section
-                    class="gutter hidden min-h-[70vh] flex-col items-center justify-center py-20 text-center lg:py-25"
-                    data-screen="step"
-                    data-step-id={step.id}
-                    data-step-kind={step.kind}
-                >
-                    <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-muted uppercase">
-                        <span class="text-primary">{i + 1}</span> / {totalSteps}
+    <main data-planner>
+        <section class="gutter flex flex-col items-center bg-cream pt-12 pb-16 lg:pt-18 lg:pb-22">
+            <h1 class="sr-only">Plan your Tanzania safari</h1>
+            <div class="w-full max-w-190">
+                <div class="border border-line bg-white p-6 sm:p-10">
+                    {/* Filled in by the script when the visitor came from an
+                        itinerary page. */}
+                    <p
+                        class="mb-6 hidden border-l-2 border-primary bg-cream py-3 pr-4 pl-4 text-[14px] leading-6 text-muted"
+                        data-source
+                    >
+                        Enquiring about <a
+                            data-source-link
+                            class="text-ink underline underline-offset-4 hover:text-primary"
+                            href="/safari-packages/"></a>
                     </p>
-                    <h2 class="font-display max-w-200 pt-4 text-[32px] leading-[1.14] font-light tracking-[-0.014em] text-balance text-ink lg:text-[46px]">
-                        {step.title}
-                    </h2>
-                    <p class="pt-3 pb-10 text-[15px] leading-7 text-muted">{step.hint}</p>
 
-                    {step.kind === 'date' ? (
-                        <div class="flex w-full flex-col items-center gap-5">
-                            <label class="relative block w-full max-w-100">
-                                <span class="sr-only">Arrival date</span>
-                                <input
-                                    type="date"
-                                    min={minDate}
-                                    class="planner-date w-full border border-line bg-white px-5 py-4 pr-14 text-center text-[17px] leading-6 text-ink transition-colors hover:border-primary/60 focus:border-primary focus:outline-none"
-                                    data-date-field
-                                />
-                                <span
-                                    aria-hidden="true"
-                                    class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-primary"
-                                >
+                    <div data-progress>
+                        <div
+                            class="flex items-baseline justify-between text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
+                        >
+                            <span>Step <span data-step-num>1</span> of {STEP_COUNT}</span>
+                            <span class="text-muted" data-step-pct>20%</span>
+                        </div>
+                        <div class="mt-3 grid grid-cols-5 gap-1.5" aria-hidden="true">
+                            {
+                                Array.from({ length: STEP_COUNT }, (_, i) => (
+                                    <span
+                                        class="h-0.5 bg-line transition-colors data-[done]:bg-primary"
+                                        data-segment={i}
+                                    />
+                                ))
+                            }
+                        </div>
+                    </div>
+
+                    <form id="enquiry-form" class="mt-8" novalidate>
+                        {/* Honeypot — Web3Forms drops any submission where
+                            this is filled. */}
+                        <input
+                            type="checkbox"
+                            name="botcheck"
+                            class="hidden"
+                            style="display:none"
+                            tabindex="-1"
+                            autocomplete="off"
+                        />
+
+                        {/* 1. Trip type */}
+                        <fieldset data-step="0" class="flex flex-col">
+                            <legend class="font-display text-[28px] leading-9 text-ink lg:text-[32px]">
+                                What kind of trip?
+                            </legend>
+                            <p class="pt-1 text-[15px] leading-6 text-muted">
+                                Pick the journey closest to the one you have in mind.
+                            </p>
+                            <div class="grid grid-cols-1 gap-3.5 pt-7 sm:grid-cols-2">
+                                {
+                                    TRIP_TYPES.map((trip) => (
+                                        <button
+                                            type="button"
+                                            class="flex cursor-pointer flex-col items-start gap-1 border border-line px-5 py-5 text-left transition-colors hover:border-primary data-[selected]:border-primary data-[selected]:bg-primary/5"
+                                            data-option="trip"
+                                            data-value={trip.value}
+                                            aria-pressed="false"
+                                        >
+                                            <span class="text-[17px] leading-6 font-medium text-ink">
+                                                {trip.label}
+                                            </span>
+                                            <span class="text-[13px] leading-5 text-muted">
+                                                {trip.hint}
+                                            </span>
+                                        </button>
+                                    ))
+                                }
+                            </div>
+                        </fieldset>
+
+                        {/* 2. When */}
+                        <fieldset data-step="1" class="hidden flex-col">
+                            <legend class="font-display text-[28px] leading-9 text-ink lg:text-[32px]">
+                                When are you travelling?
+                            </legend>
+                            <p class="pt-1 text-[15px] leading-6 text-muted">
+                                An approximate date is fine — we can move it later.
+                            </p>
+                            <div class="flex flex-col gap-2 pt-7">
+                                <label for="enquiry-arrival" class={label}>Arrival date *</label>
+                                <div class="relative">
+                                    <input
+                                        id="enquiry-arrival"
+                                        name="arrival"
+                                        type="date"
+                                        min={minDate}
+                                        class:list={[input, 'planner-date pr-12']}
+                                    />
                                     <svg
                                         width="20"
                                         height="20"
@@ -281,394 +287,326 @@ const whatsapp = whatsappLink(
                                         stroke-width="1.5"
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
+                                        class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-primary"
+                                        aria-hidden="true"
                                     >
-                                        <rect x="3" y="5" width="18" height="16" rx="2" />
-                                        <path d="M8 3v4M16 3v4M3 10h18" />
+                                        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                                        <path d="M8 3v4M16 3v4M3 10h18"></path>
                                     </svg>
-                                </span>
-                            </label>
-                            <p
-                                class="font-display min-h-8 text-[22px] leading-8 text-primary italic"
-                                data-date-pretty
-                            />
-
-                            <div class="flex w-full flex-col items-center gap-3.5 pt-1">
-                                <span class="text-[11px] leading-3.5 font-medium tracking-[0.22em] text-muted uppercase">
-                                    And how many days on safari?
-                                </span>
-                                {/* The unit sits outside the stepper so the two
-                                    buttons stay evenly spaced around the
-                                    number; on a phone there is no room beside
-                                    it, so it drops underneath. */}
-                                <div class="relative flex flex-wrap items-center justify-center gap-3">
-                                    <button
-                                        type="button"
-                                        class="flex h-14 w-12 cursor-pointer items-center justify-center border border-line bg-white text-[20px] leading-none text-ink transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-35"
-                                        data-days-step="-1"
-                                        aria-label="One day fewer"
-                                    >
-                                        &#8722;
-                                    </button>
-                                    <label class="block">
-                                        <span class="sr-only">Number of days</span>
-                                        <input
-                                            type="number"
-                                            class="planner-count h-14 w-28 border border-line bg-white px-2 text-center text-[24px] leading-8 text-ink transition-colors focus:border-primary focus:outline-none"
-                                            data-days-field
-                                            inputmode="numeric"
-                                            min={DAYS_MIN}
-                                            max={DAYS_MAX}
-                                            value={DAYS_INITIAL}
-                                        />
-                                    </label>
-                                    <button
-                                        type="button"
-                                        class="flex h-14 w-12 cursor-pointer items-center justify-center border border-line bg-white text-[20px] leading-none text-ink transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-35"
-                                        data-days-step="1"
-                                        aria-label="One day more"
-                                    >
-                                        +
-                                    </button>
-                                    <span
-                                        class="w-full text-center text-[11px] leading-3.5 font-medium tracking-[0.2em] text-muted uppercase sm:absolute sm:left-[calc(100%+0.75rem)] sm:w-auto sm:text-left"
-                                        data-days-unit
-                                    >
-                                        days
-                                    </span>
                                 </div>
-                                {/* The far end of the trip, derived from the
-                                    two answers above it. The arrival is
-                                    already spelled out over this line, so this
-                                    one names only the last day rather than
-                                    restating the span. */}
-                                <p
-                                    class="min-h-6 text-[14px] leading-6 text-muted"
-                                    data-days-span
+                                <p class="min-h-5 text-[14px] leading-5 text-primary" data-arrival-pretty></p>
+                                <label class="flex cursor-pointer items-center gap-2.5 text-[14px] leading-5 text-muted">
+                                    <input
+                                        type="checkbox"
+                                        name="undecided"
+                                        class="size-4 cursor-pointer accent-[var(--color-primary)]"
+                                    />
+                                    I haven't decided on dates yet
+                                </label>
+                            </div>
+                            <div class="flex flex-col gap-2 pt-6 sm:max-w-1/2">
+                                <label for="enquiry-days" class={label}>Number of days</label>
+                                <input
+                                    id="enquiry-days"
+                                    name="days"
+                                    type="number"
+                                    inputmode="numeric"
+                                    min="1"
+                                    max="60"
+                                    placeholder="e.g. 8"
+                                    class={input}
                                 />
                             </div>
-                        </div>
-                    ) : (
-                        <div class="flex max-w-220 flex-wrap justify-center gap-3">
-                            {step.options?.map((opt) => (
+                        </fieldset>
+
+                        {/* 3. Guests */}
+                        <fieldset data-step="2" class="hidden flex-col">
+                            <legend class="font-display text-[28px] leading-9 text-ink lg:text-[32px]">
+                                How many guests?
+                            </legend>
+                            <p class="pt-1 text-[15px] leading-6 text-muted">
+                                Every trip is private, whatever the size of the group.
+                            </p>
+                            <div class="grid grid-cols-1 gap-5 pt-7 sm:grid-cols-2">
+                                <div class="flex flex-col gap-2">
+                                    <label for="enquiry-adults" class={label}>Adults *</label>
+                                    <input
+                                        id="enquiry-adults"
+                                        name="adults"
+                                        type="number"
+                                        inputmode="numeric"
+                                        min="1"
+                                        max="40"
+                                        value="2"
+                                        required
+                                        class={input}
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="enquiry-children" class={label}>Children</label>
+                                    <input
+                                        id="enquiry-children"
+                                        name="children"
+                                        type="number"
+                                        inputmode="numeric"
+                                        min="0"
+                                        max="40"
+                                        value="0"
+                                        class={input}
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="enquiry-ages" class={label}>Children's ages</label>
+                                    <input
+                                        id="enquiry-ages"
+                                        name="ages"
+                                        type="text"
+                                        placeholder="e.g. 5, 8, 12"
+                                        class={input}
+                                    />
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        {/* 4. Budget and interests */}
+                        <fieldset data-step="3" class="hidden flex-col">
+                            <legend class="font-display text-[28px] leading-9 text-ink lg:text-[32px]">
+                                What's your budget?
+                            </legend>
+                            <p class="pt-1 text-[15px] leading-6 text-muted">
+                                It helps us shape a proposal that fits.
+                            </p>
+                            <p class:list={[label, 'pt-7']}>Budget per person *</p>
+                            <div class="grid grid-cols-1 gap-3 pt-3 sm:grid-cols-2">
+                                {
+                                    BUDGETS.map((budget) => (
+                                        <button
+                                            type="button"
+                                            class="cursor-pointer border border-line px-4 py-3.5 text-center text-[15px] leading-6 text-ink transition-colors hover:border-primary data-[selected]:border-primary data-[selected]:bg-primary data-[selected]:text-white"
+                                            data-option="budget"
+                                            data-value={budget.value}
+                                            aria-pressed="false"
+                                        >
+                                            {budget.label}
+                                        </button>
+                                    ))
+                                }
+                            </div>
+                            <p class:list={[label, 'pt-7']}>Interests (optional)</p>
+                            <div class="flex flex-wrap gap-2.5 pt-3">
+                                {
+                                    INTERESTS.map((interest) => (
+                                        <button
+                                            type="button"
+                                            class="cursor-pointer rounded-full border border-line px-4 py-2 text-[13px] leading-5 text-ink transition-colors hover:border-primary data-[selected]:border-primary data-[selected]:bg-primary data-[selected]:text-white"
+                                            data-option="interests"
+                                            data-multi
+                                            data-value={interest.value}
+                                            aria-pressed="false"
+                                        >
+                                            {interest.label}
+                                        </button>
+                                    ))
+                                }
+                            </div>
+                        </fieldset>
+
+                        {/* 5. Contact */}
+                        <fieldset data-step="4" class="hidden flex-col">
+                            <legend class="font-display text-[28px] leading-9 text-ink lg:text-[32px]">
+                                Almost done
+                            </legend>
+                            <p class="pt-1 text-[15px] leading-6 text-muted">
+                                A guide in Arusha will reply personally within one working day.
+                            </p>
+                            <div class="flex flex-col gap-5 pt-7">
+                                <div class="flex flex-col gap-2">
+                                    <label for="enquiry-name" class={label}>Your name *</label>
+                                    <input
+                                        id="enquiry-name"
+                                        name="name"
+                                        type="text"
+                                        required
+                                        autocomplete="name"
+                                        class={input}
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="enquiry-email" class={label}>Email *</label>
+                                    <input
+                                        id="enquiry-email"
+                                        name="email"
+                                        type="email"
+                                        required
+                                        autocomplete="email"
+                                        class={input}
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="enquiry-phone" class={label}>Phone / WhatsApp *</label>
+                                    <div
+                                        class="flex border border-line bg-white transition-colors focus-within:border-primary"
+                                    >
+                                        {/* The select sits invisibly over a
+                                            flag-and-code label, so the closed
+                                            state stays narrow while the list
+                                            still names every country. */}
+                                        <label class="relative flex shrink-0 items-center border-r border-line py-3.5 pr-8 pl-4">
+                                            <span class="sr-only">Country dialling code</span>
+                                            <span class="text-[16px] leading-6 whitespace-nowrap text-ink" aria-hidden="true" data-dial-display></span>
+                                            <select
+                                                name="dial"
+                                                class="absolute inset-0 cursor-pointer opacity-0"
+                                                data-dial
+                                            >
+                                                {
+                                                    DIAL_CODES.map(([iso, country, code]) => (
+                                                        <option value={iso} data-code={code}>
+                                                            {flag(iso)} {country} +{code}
+                                                        </option>
+                                                    ))
+                                                }
+                                            </select>
+                                            <svg
+                                                width="10"
+                                                height="6"
+                                                viewBox="0 0 10 6"
+                                                fill="none"
+                                                class="pointer-events-none absolute right-3 text-muted"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    d="M1 1l4 4 4-4"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.5"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                />
+                                            </svg>
+                                        </label>
+                                        <input
+                                            id="enquiry-phone"
+                                            name="phone"
+                                            type="tel"
+                                            inputmode="tel"
+                                            autocomplete="tel-national"
+                                            required
+                                            class="min-w-0 flex-1 bg-transparent px-4 py-3.5 text-[16px] leading-6 text-ink focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="enquiry-country" class={label}>Country</label>
+                                    <input
+                                        id="enquiry-country"
+                                        name="country"
+                                        type="text"
+                                        autocomplete="country-name"
+                                        placeholder="e.g. United Kingdom"
+                                        class={input}
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="enquiry-message" class={label}>Anything else?</label>
+                                    <textarea
+                                        id="enquiry-message"
+                                        name="message"
+                                        rows="3"
+                                        placeholder="Special occasions, must-sees, dietary needs…"
+                                        class={input}></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <p
+                            data-enquiry-status
+                            role="status"
+                            aria-live="polite"
+                            class="mt-6 hidden text-[14px] leading-6"
+                        >
+                        </p>
+
+                        <div class="mt-9 flex flex-wrap items-center justify-between gap-3">
+                            <button
+                                type="button"
+                                class="flex cursor-pointer items-center gap-2 py-3 text-[14px] leading-5 text-ink transition-colors hover:text-primary disabled:cursor-default disabled:opacity-35"
+                                data-back
+                                disabled
+                            >
+                                <span aria-hidden="true">‹</span> Back
+                            </button>
+                            <div class="flex flex-wrap items-center gap-3">
                                 <button
                                     type="button"
-                                    class="cursor-pointer border border-line bg-white px-5 py-3.5 text-[15px] leading-6 text-ink transition-colors hover:border-primary data-[selected]:border-primary data-[selected]:bg-primary data-[selected]:text-white"
-                                    data-option
-                                    data-step={step.id}
-                                    data-value={opt.value}
-                                    aria-pressed="false"
+                                    class="hidden cursor-pointer items-center gap-2 border border-[#25D366] px-5 py-3.5 text-[13px] leading-4 font-medium tracking-[0.06em] text-[#128C4B] transition-colors hover:bg-[#25D366]/10"
+                                    data-whatsapp
                                 >
-                                    {opt.label}
+                                    <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 18 18"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="M5.18 13.37A6.1 6.1 0 103.21 10.28L1.31 13.2Z"
+                                            stroke-width="1.2"
+                                            stroke-linejoin="round"></path>
+                                        <path
+                                            d="M7.4 7.1c-.5.8.1 2 1 2.9.9.9 2.1 1.5 2.9 1"
+                                            stroke-width="1.5"
+                                            stroke-linecap="round"></path>
+                                    </svg>
+                                    Send via WhatsApp
                                 </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {step.skip && (
-                        <button
-                            type="button"
-                            class="mt-8 cursor-pointer text-[14px] leading-6 text-muted underline underline-offset-4 transition-colors hover:text-primary"
-                            data-go-next
-                            data-skip
-                        >
-                            {step.skip}
-                        </button>
-                    )}
-
-                    <div class="mt-12 flex items-center gap-6">
-                        <button
-                            type="button"
-                            class="cursor-pointer text-[11px] leading-4 tracking-[0.18em] text-muted uppercase transition-colors hover:text-ink"
-                            data-go-back
-                        >
-                            Previous
-                        </button>
-                        <button
-                            type="button"
-                            class="flex cursor-pointer items-center justify-center bg-primary px-9 py-4.25 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329] disabled:cursor-not-allowed disabled:opacity-30"
-                            data-go-next
-                            disabled
-                        >
-                            {i === totalSteps - 1 ? 'Continue' : 'Next Step'}
-                        </button>
-                    </div>
-                </section>
-            ))
-        }
-
-        {/* Contact. `novalidate` so the messages below are ours rather than the
-            browser's, but every field keeps its real type so mobile keyboards
-            and autofill still behave. */}
-        <section
-            class="gutter hidden min-h-[70vh] flex-col justify-center py-16 lg:py-20"
-            data-screen="contact"
-        >
-            <div class="mx-auto w-full max-w-150">
-                <h2
-                    class="font-display text-[32px] leading-[1.14] font-light tracking-[-0.014em] text-ink lg:text-[42px]"
-                >
-                    Where should we send your ideas?
-                </h2>
-                <p class="pt-3.5 text-[16px] leading-7.5 text-muted">
-                    Leave your details and a guide in Arusha — not a call centre — will come back
-                    with a draft itinerary, named lodges and a firm price.
-                </p>
-
-                <p
-                    class="mt-7 hidden border-l-2 border-primary bg-white py-3.5 pr-4.5 pl-4.5 text-[14px] leading-6 text-muted"
-                    data-answer-summary
-                >
-                </p>
-
-                <form id="enquiry-form" class="mt-7 flex flex-col gap-5" novalidate>
-                    {/* Honeypot — Web3Forms drops any submission where this is
-                        filled, so the public key doesn't invite spam. */}
-                    <input
-                        type="checkbox"
-                        name="botcheck"
-                        class="hidden"
-                        style="display:none"
-                        tabindex="-1"
-                        autocomplete="off"
-                    />
-
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div class="flex flex-col gap-1.5">
-                            <label
-                                for="enquiry-name"
-                                class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
-                                >Your name</label
-                            >
-                            <input
-                                id="enquiry-name"
-                                name="name"
-                                type="text"
-                                required
-                                autocomplete="name"
-                                class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
-                            />
-                        </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label
-                                for="enquiry-email"
-                                class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
-                                >Email</label
-                            >
-                            <input
-                                id="enquiry-email"
-                                name="email"
-                                type="email"
-                                required
-                                autocomplete="email"
-                                class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
-                            />
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div class="flex flex-col gap-1.5">
-                            <label
-                                for="enquiry-phone"
-                                class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
-                            >
-                                Phone or WhatsApp
-                                <span class="font-normal tracking-normal text-muted normal-case"
-                                    >(optional)</span
+                                <button
+                                    type="button"
+                                    class="flex cursor-pointer items-center gap-2 bg-primary px-7 py-3.75 text-[12px] leading-4 font-medium tracking-[0.18em] text-white uppercase transition-colors hover:bg-[#083329] disabled:cursor-not-allowed disabled:opacity-35"
+                                    data-next
+                                    disabled
                                 >
-                            </label>
-                            <input
-                                id="enquiry-phone"
-                                name="phone"
-                                type="tel"
-                                inputmode="tel"
-                                autocomplete="tel"
-                                class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
-                            />
+                                    Continue <span aria-hidden="true">›</span>
+                                </button>
+                                <button
+                                    type="submit"
+                                    class="hidden cursor-pointer items-center bg-primary px-7 py-3.75 text-[12px] leading-4 font-medium tracking-[0.18em] text-white uppercase transition-colors hover:bg-[#083329] disabled:cursor-wait disabled:opacity-70"
+                                    data-submit
+                                >
+                                    Send Enquiry
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex flex-col gap-1.5">
-                            <label
-                                for="enquiry-travellers"
-                                class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
-                                >Travellers</label
-                            >
-                            <input
-                                id="enquiry-travellers"
-                                name="travellers"
-                                type="number"
-                                min="1"
-                                max="24"
-                                value="2"
-                                class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
-                            />
-                        </div>
-                    </div>
 
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            for="enquiry-itinerary"
-                            class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
+                        <p class="mt-6 hidden text-[12px] leading-5 text-muted" data-fineprint>
+                            Nothing is booked and nothing is charged until you have said yes to an
+                            itinerary. We use your details to answer this enquiry and nothing else.
+                        </p>
+                    </form>
+
+                    {/* Thank you, in place of the form. */}
+                    <div class="hidden flex-col items-start" data-thanks>
+                        <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
+                            Enquiry received
+                        </p>
+                        <h2
+                            class="font-display pt-4 text-[30px] leading-[1.15] font-light text-ink lg:text-[38px]"
+                            data-thanks-title
                         >
-                            An itinerary you have in mind
-                            <span class="font-normal tracking-normal text-muted normal-case"
-                                >(optional)</span
-                            >
-                        </label>
-                        {/* Sourced from packages.ts so this list can never offer
-                            an itinerary the site no longer sells. */}
-                        <select
-                            id="enquiry-itinerary"
-                            name="itinerary"
-                            class="planner-select border-b border-line bg-transparent pb-2.5 text-[16px] leading-6 text-ink focus:border-primary focus:outline-none"
-                        >
-                            <option value="">Not sure yet — advise me</option>
-                            {PACKAGES.map((pkg) => <option value={pkg.name}>{pkg.name}</option>)}
-                            <option value="Something else entirely">Something else entirely</option>
-                        </select>
-                    </div>
-
-                    <div class="flex flex-col gap-1.5">
-                        <label
-                            for="enquiry-message"
-                            class="text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
-                        >
-                            Anything else we should know
-                            <span class="font-normal tracking-normal text-muted normal-case"
-                                >(optional)</span
-                            >
-                        </label>
-                        <textarea
-                            id="enquiry-message"
-                            name="message"
-                            rows="2"
-                            placeholder="Children and their ages, a budget, dietary needs, Zanzibar days on the end."
-                            class="border-b border-line bg-transparent pb-2.5 text-[16px] leading-7 text-ink placeholder:text-[15px] placeholder:text-muted/65 focus:border-primary focus:outline-none"
-                        ></textarea>
-                    </div>
-
-                    {/* Announced rather than focus-moved, so a screen reader
-                        hears the outcome where the user already is. */}
-                    <p
-                        data-enquiry-status
-                        role="status"
-                        aria-live="polite"
-                        class="hidden text-[14px] leading-6"
-                    >
-                    </p>
-
-                    <div class="mt-1 flex items-center justify-between gap-6">
-                        <button
-                            type="button"
-                            class="cursor-pointer text-[11px] leading-4 tracking-[0.18em] text-muted uppercase transition-colors hover:text-ink"
-                            data-go-back
-                        >
-                            Previous
-                        </button>
-                        <button
-                            type="submit"
-                            class="flex cursor-pointer items-center justify-center bg-primary px-9 py-4.25 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329] disabled:cursor-wait disabled:opacity-70"
-                        >
-                            Send My Enquiry
-                        </button>
-                    </div>
-
-                    <p class="text-[12px] leading-5 text-muted">
-                        Nothing is booked and nothing is charged until you have said yes to an
-                        itinerary. We reply within one working day, and use your details to answer
-                        this enquiry and nothing else.
-                    </p>
-                </form>
-
-                <div class="mt-8 flex flex-col gap-3 border-t border-line pt-6">
-                    <p
-                        class="text-[11px] leading-3.5 font-medium tracking-[0.24em] text-ink uppercase"
-                    >
-                        Or reach us directly
-                    </p>
-                    <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+                            Thank you — it's on its way to us.
+                        </h2>
+                        <p class="pt-4 text-[16px] leading-7.5 text-muted">
+                            A guide in Arusha will read what you've shared and reply personally,
+                            usually the same day and always within one working day.
+                        </p>
                         <a
-                            href={CONTACT.phoneHref}
-                            class="text-[16px] leading-7 text-ink transition-colors hover:text-primary"
-                            >{CONTACT.phone}</a
+                            href="/"
+                            class="mt-8 flex items-center justify-center bg-primary px-8 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329]"
                         >
-                        <a
-                            href={`mailto:${CONTACT.email}`}
-                            class="text-[16px] leading-7 text-primary hover:underline"
-                            >{CONTACT.email}</a
-                        >
-                        {/* The mark, then the number it reaches — drawn from
-                            primitives in the house style of the footer's
-                            social icons rather than lifted from a brand
-                            asset. No `rule-link` here: the trailing rule read
-                            as a stray line beside the icon. */}
-                        <a
-                            href={whatsapp}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="flex items-center gap-2 text-[16px] leading-7 text-primary transition-colors hover:text-ink"
-                        >
-                            <svg
-                                width="17"
-                                height="17"
-                                viewBox="0 0 18 18"
-                                fill="none"
-                                stroke="currentColor"
-                                aria-hidden="true"
-                                class="shrink-0"
-                            >
-                                <path
-                                    d="M5.18 13.37A6.1 6.1 0 103.21 10.28L1.31 13.2Z"
-                                    stroke-width="1.2"
-                                    stroke-linejoin="round"
-                                />
-                                <path
-                                    d="M7.4 7.1c-.5.8.1 2 1 2.9.9.9 2.1 1.5 2.9 1"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                />
-                            </svg>
-                            {CONTACT.phone}
-                            <span class="sr-only">on WhatsApp</span>
+                            Back To Home
                         </a>
                     </div>
-                    <p class="pt-1 text-[13px] leading-5.5 text-muted">
-                        {SITE.city} · East Africa Time (GMT+3)
-                    </p>
                 </div>
-            </div>
-        </section>
-
-        {/* Thank you */}
-        <section
-            class="gutter hidden min-h-[70vh] flex-col items-center justify-center py-20 text-center lg:py-25"
-            data-screen="thanks"
-        >
-            <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-muted uppercase">
-                Enquiry received
-            </p>
-            <h2
-                class="font-display max-w-160 pt-5 text-[32px] leading-[1.14] font-light tracking-[-0.014em] text-balance text-ink lg:text-[46px]"
-                data-thanks-title
-            >
-                Thank you — it's on its way to us.
-            </h2>
-            <p class="max-w-140 pt-4 text-[16px] leading-7.5 text-muted">
-                A guide in Arusha will read what you've shared and reply personally, usually the
-                same day and always within one working day.
-            </p>
-            <div class="flex flex-wrap items-center justify-center gap-4 pt-9">
-                <a
-                    href="/"
-                    class="flex items-center justify-center bg-primary px-9 py-4.25 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329]"
-                >
-                    Back To Home
-                </a>
-                <button
-                    type="button"
-                    class="flex cursor-pointer items-center justify-center border border-line bg-white px-9 py-4.25 text-[12px] leading-4 font-medium tracking-[0.2em] text-ink uppercase transition-colors hover:border-primary hover:text-primary"
-                    data-restart
-                >
-                    Plan Another Trip
-                </button>
             </div>
         </section>
     </main>
@@ -682,358 +620,275 @@ const whatsapp = whatsappLink(
         subject: WEB3FORMS.enquirySubject,
         optionLabels,
         whatsapp,
+        whatsappNumber: CONTACT.whatsappNumber,
         email: CONTACT.email,
-        daysMin: DAYS_MIN,
-        daysMax: DAYS_MAX,
-        daysInitial: DAYS_INITIAL,
         plans,
         itineraries,
+        total: STEP_COUNT,
     }}
 >
     const root = document.querySelector('[data-planner]')
-    if (root) {
-        const screens = Array.from(root.querySelectorAll('[data-screen]'))
-        const stepScreens = screens.filter((s) => s.dataset.screen === 'step')
-        const form = document.getElementById('enquiry-form')
-        const status = form?.querySelector('[data-enquiry-status]')
-        const button = form?.querySelector('button[type="submit"]')
-        const thanksTitle = root.querySelector('[data-thanks-title]')
-        const summary = root.querySelector('[data-answer-summary]')
-        const total = stepScreens.length
+    const form = document.getElementById('enquiry-form')
+    if (root && form) {
+        const steps = [...form.querySelectorAll('[data-step]')]
+        const back = form.querySelector('[data-back]')
+        const next = form.querySelector('[data-next]')
+        const submit = form.querySelector('[data-submit]')
+        const wa = form.querySelector('[data-whatsapp]')
+        const fineprint = form.querySelector('[data-fineprint]')
+        const status = form.querySelector('[data-enquiry-status]')
+        const progress = root.querySelector('[data-progress]')
+        const thanks = root.querySelector('[data-thanks]')
+        const field = (name) => form.elements.namedItem(name)
 
-        /* `days` starts at its default rather than empty: the stepper always
-           shows a figure, so that figure has to be the stored answer even if
-           nobody touches it. */
-        const answers = {
-            see: [],
-            interests: [],
-            occasion: [],
-            arrival: [],
-            days: [String(daysInitial)],
-        }
-
-        const params = new URLSearchParams(window.location.search)
-
-        /* Which itinerary page sent them here, if any. `source` is carried
-           into the email as the page the enquiry was made from; the strip at
-           the top of the planner says the same thing to the visitor, so
-           nobody has to trust that a query string did its job. */
-        let source = null
-        const sourceStrip = root.querySelector('[data-source]')
-        const itinerary = itineraries[params.get('itinerary') ?? '']
-
-        function showSource(entry) {
-            source = entry
-            if (!sourceStrip) return
-            if (!entry) {
-                sourceStrip.classList.add('hidden')
-                return
-            }
-            const link = sourceStrip.querySelector('[data-source-link]')
-            const url = sourceStrip.querySelector('[data-source-url]')
-            if (link) {
-                link.textContent = entry.name
-                link.href = entry.path
-            }
-            if (url) url.textContent = entry.url
-            sourceStrip.classList.remove('hidden')
-        }
-
-        /* Which card sent them here, if any — reported to the inbox as the
-           stated intent. The answers a plan presets are visible as selected
-           chips, so the summary does not restate them. */
+        const answers = { trip: [], budget: [], interests: [] }
+        let index = 0
         let intent = null
+        let source = null
+
+        const labelsFor = (step) => answers[step].map((v) => optionLabels[`${step}:${v}`] ?? v)
+
+        function paintOptions(step) {
+            form.querySelectorAll(`[data-option="${step}"]`).forEach((b) => {
+                const on = answers[step].includes(b.dataset.value)
+                b.toggleAttribute('data-selected', on)
+                b.setAttribute('aria-pressed', on ? 'true' : 'false')
+            })
+        }
+
+        /* Whether the current step has what it needs to move on. */
+        function complete(i) {
+            if (i === 0) return answers.trip.length > 0
+            if (i === 1) return field('arrival').value !== '' || field('undecided').checked
+            if (i === 2) return Number(field('adults').value) >= 1
+            if (i === 3) return answers.budget.length > 0
+            return true
+        }
+
+        function sync() {
+            next.disabled = !complete(index)
+        }
+
+        function show(i) {
+            index = i
+            steps.forEach((s, n) => {
+                s.classList.toggle('hidden', n !== i)
+                s.classList.toggle('flex', n === i)
+            })
+            const last = i === total - 1
+            back.disabled = i === 0
+            next.classList.toggle('hidden', last)
+            next.classList.toggle('flex', !last)
+            submit.classList.toggle('hidden', !last)
+            submit.classList.toggle('flex', last)
+            wa.classList.toggle('hidden', !last)
+            wa.classList.toggle('flex', last)
+            fineprint.classList.toggle('hidden', !last)
+            status.classList.add('hidden')
+
+            const pct = Math.round(((i + 1) / total) * 100)
+            progress.querySelector('[data-step-num]').textContent = String(i + 1)
+            progress.querySelector('[data-step-pct]').textContent = `${pct}%`
+            progress.querySelectorAll('[data-segment]').forEach((seg) => {
+                seg.toggleAttribute('data-done', Number(seg.dataset.segment) <= i)
+            })
+            sync()
+        }
+
+        form.querySelectorAll('[data-option]').forEach((b) =>
+            b.addEventListener('click', () => {
+                const step = b.dataset.option
+                const value = b.dataset.value
+                if (b.hasAttribute('data-multi')) {
+                    const set = new Set(answers[step])
+                    set.has(value) ? set.delete(value) : set.add(value)
+                    answers[step] = [...set]
+                } else {
+                    answers[step] = [value]
+                }
+                paintOptions(step)
+                sync()
+            })
+        )
+        form.addEventListener('input', sync)
+
+        next.addEventListener('click', () => {
+            if (!complete(index)) return
+            show(index + 1)
+            root.querySelector('[data-progress]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+        })
+        back.addEventListener('click', () => index > 0 && show(index - 1))
+
+        /* Enter in a text field moves on rather than submitting early. */
+        form.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' || event.target.tagName === 'TEXTAREA') return
+            if (index < total - 1) {
+                event.preventDefault()
+                next.click()
+            }
+        })
+
+        /* Dial code: the visitor's own region where we list it, else the UK. */
+        const dial = field('dial')
+        const region = (navigator.language.split('-')[1] ?? '').toUpperCase()
+        dial.value = [...dial.options].some((o) => o.value === region) ? region : 'GB'
+        const dialCode = () => dial.selectedOptions[0]?.dataset.code ?? ''
+        const dialDisplay = root.querySelector('[data-dial-display]')
+        const paintDial = () => {
+            const flag = (dial.selectedOptions[0]?.textContent ?? '').trim().split(' ')[0]
+            dialDisplay.textContent = `${flag}\u00a0 +${dialCode()}`
+        }
+        dial.addEventListener('change', paintDial)
+        paintDial()
+        const fullPhone = () => {
+            const national = field('phone').value.trim().replace(/^0+/, '')
+            return national ? `+${dialCode()} ${national}` : ''
+        }
+
+        /* Presets from the query string. */
+        const params = new URLSearchParams(location.search)
         const plan = plans[params.get('plan') ?? '']
         if (plan) {
             intent = plan.label
-            for (const [stepId, values] of Object.entries(plan.answers)) {
-                answers[stepId] = [...values]
-                root.querySelectorAll(`[data-option][data-step="${stepId}"]`).forEach((chip) => {
-                    const on = values.includes(chip.dataset.value)
-                    chip.toggleAttribute('data-selected', on)
-                    chip.setAttribute('aria-pressed', on ? 'true' : 'false')
-                })
+            for (const [step, values] of Object.entries(plan.answers)) {
+                answers[step] = [...values]
+                paintOptions(step)
             }
-            stepScreens.forEach((screen) => syncNext(screen))
+        }
+        const itinerary = itineraries[params.get('itinerary') ?? '']
+        if (itinerary) {
+            source = itinerary
+            intent = intent ?? itinerary.name
+            answers.trip = [itinerary.trip]
+            paintOptions('trip')
+            field('days').value = String(itinerary.days)
+            const strip = root.querySelector('[data-source]')
+            const link = strip.querySelector('[data-source-link]')
+            link.textContent = itinerary.name
+            link.href = itinerary.path
+            strip.classList.remove('hidden')
         }
 
-        /** "12 June 2026", or "" if the value isn't a real date. */
-        function longDate(iso, withWeekday = false) {
+        /** "Saturday, 12 June 2027", or "" if the value isn't a real date. */
+        function longDate(iso) {
             if (!iso) return ''
             const when = new Date(`${iso}T00:00:00`)
             if (Number.isNaN(when.getTime())) return ''
             return when.toLocaleDateString('en-GB', {
-                ...(withWeekday ? { weekday: 'long' } : {}),
+                weekday: 'long',
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
             })
         }
 
-        const labelsFor = (stepId) =>
-            answers[stepId].map((value) => optionLabels[`${stepId}:${value}`] ?? value)
-
-        /** The arrival date as it currently stands, or "" if none has been given. */
-        const currentArrival = () => answers.arrival[0] ?? ''
-
-        /* What the wizard heard, restated above the contact fields — the
-           answers are three screens back by the time someone types their
-           email, and they can still be changed with Previous. */
-        function renderSummary() {
-            if (!summary) return
-            const parts = []
-            const occasion = labelsFor('occasion')[0]
-            if (occasion) parts.push(occasion)
-            const seeing = [...labelsFor('see'), ...labelsFor('interests')]
-            if (seeing.length) parts.push(seeing.join(', '))
-            const arriving = longDate(currentArrival())
-            parts.push(
-                arriving
-                    ? `${daysLabel()} from around ${arriving}`
-                    : `${daysLabel()}, dates still open`
-            )
-
-            summary.textContent = `You told us: ${parts.join(' · ')}.`
-            summary.classList.remove('hidden')
-        }
-
-        /* The page opens on the first question — there is no splash screen in
-           front of it, so screen 0 is a step and the first step has nothing
-           to go back to. */
-        const CONTACT_SCREEN = total
-        const THANKS = total + 1
-        let index = 0
-
-        function show(i) {
-            index = i
-            const isContact = i === CONTACT_SCREEN
-            const isThanks = i === THANKS
-
-            screens.forEach((s) => {
-                s.classList.add('hidden')
-                s.classList.remove('flex')
-            })
-
-            let target = null
-            if (isContact) {
-                target = root.querySelector('[data-screen="contact"]')
-                renderSummary()
-            } else if (isThanks) target = root.querySelector('[data-screen="thanks"]')
-            else {
-                target = stepScreens[i]
-                syncNext(target)
-            }
-            target?.classList.remove('hidden')
-            target?.classList.add('flex')
-
-            // Only steps past the first can be reached from somewhere.
-            target?.querySelectorAll('[data-go-back]').forEach((b) => {
-                b.hidden = i === 0
-            })
-
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-        }
-
-        root.querySelectorAll('[data-option]').forEach((chip) => {
-            chip.addEventListener('click', () => {
-                const stepId = chip.dataset.step
-                const value = chip.dataset.value
-                const screen = chip.closest('[data-screen="step"]')
-
-                if (screen.dataset.stepKind === 'single') {
-                    answers[stepId] = [value]
-                    screen.querySelectorAll('[data-option]').forEach((c) => {
-                        const on = c === chip
-                        c.setAttribute('aria-pressed', on ? 'true' : 'false')
-                        c.toggleAttribute('data-selected', on)
-                    })
-                    setTimeout(() => go(1), 180)
-                    return
-                }
-
-                const set = new Set(answers[stepId])
-                if (set.has(value)) set.delete(value)
-                else set.add(value)
-                answers[stepId] = Array.from(set)
-                const on = set.has(value)
-                chip.setAttribute('aria-pressed', on ? 'true' : 'false')
-                chip.toggleAttribute('data-selected', on)
-                syncNext(screen)
-            })
-        })
-
-        const dateField = root.querySelector('[data-date-field]')
-        const datePretty = root.querySelector('[data-date-pretty]')
-
-        /* Trip length. There is one date step, so these are unique on the
-           page and need no per-step lookup. */
-        const daysField = root.querySelector('[data-days-field]')
-        const daysUnit = root.querySelector('[data-days-unit]')
-        const daysSpan = root.querySelector('[data-days-span]')
-
-        const currentDays = () => Number(answers.days[0])
-        const daysLabel = () => `${currentDays()} ${currentDays() === 1 ? 'day' : 'days'}`
-
         /** The last day away, counting the arrival day as day one. */
         function lastDay() {
-            const iso = currentArrival()
-            const days = currentDays()
-            if (!iso || !Number.isFinite(days)) return ''
+            const iso = field('arrival').value
+            const days = Number(field('days').value)
+            if (field('undecided').checked || !iso || !(days >= 1)) return ''
             const end = new Date(`${iso}T00:00:00`)
-            if (Number.isNaN(end.getTime())) return ''
             end.setDate(end.getDate() + days - 1)
-            // Local parts rather than toISOString(), which east of UTC would
-            // hand back the day before.
+            // Local parts, not toISOString(), which east of UTC gives the day before.
             const pad = (n) => String(n).padStart(2, '0')
-            return longDate(
-                `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`,
-                true
-            )
+            return longDate(`${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`)
         }
 
-        function paintDays() {
-            const days = currentDays()
-            if (daysUnit) daysUnit.textContent = days === 1 ? 'day' : 'days'
+        /* Spell the date out under the picker, with the last day once the
+           length is known. Choosing a date unticks "not decided", and ticking
+           it clears the date. */
+        const arrivalPretty = root.querySelector('[data-arrival-pretty]')
+        function paintArrival() {
+            const arriving = field('undecided').checked ? '' : longDate(field('arrival').value)
             const end = lastDay()
-            if (daysSpan) daysSpan.textContent = end ? `Your last day would be ${end}.` : ''
-            root.querySelectorAll('[data-days-step]').forEach((b) => {
-                b.disabled = Number(b.dataset.daysStep) < 0 ? days <= daysMin : days >= daysMax
-            })
+            arrivalPretty.textContent = arriving
+                ? end
+                    ? `${arriving} — last day ${end}`
+                    : arriving
+                : ''
         }
-
-        function commitDays(n) {
-            const clamped = Math.min(daysMax, Math.max(daysMin, Number.isFinite(n) ? n : daysMin))
-            if (daysField) daysField.value = String(clamped)
-            answers.days = [String(clamped)]
-            paintDays()
-        }
-
-        root.querySelectorAll('[data-days-step]').forEach((b) =>
-            b.addEventListener('click', () =>
-                commitDays(Number(daysField?.value) + Number(b.dataset.daysStep))
-            )
-        )
-
-        /* Typing is only clamped once the field settles: clamping on every
-           keystroke turns a half-typed "1" of 12 into a 3. */
-        daysField?.addEventListener('input', () => {
-            const n = Number(daysField.value)
-            if (Number.isFinite(n) && n >= daysMin && n <= daysMax) {
-                answers.days = [String(n)]
-                paintDays()
-            }
+        field('arrival').addEventListener('change', () => {
+            if (field('arrival').value) field('undecided').checked = false
+            paintArrival()
+            sync()
         })
-        daysField?.addEventListener('blur', () => commitDays(Number(daysField.value)))
-
-        function syncArrival() {
-            const iso = currentArrival()
-            if (dateField) dateField.value = iso
-            if (datePretty) datePretty.textContent = longDate(iso, true)
-            // The last-day line reads from the date, so it follows every change.
-            paintDays()
-        }
-
-        dateField?.addEventListener('change', () => {
-            answers.arrival = dateField.value ? [dateField.value] : []
-            syncArrival()
+        field('undecided').addEventListener('change', () => {
+            if (field('undecided').checked) field('arrival').value = ''
+            paintArrival()
+            sync()
         })
+        field('days').addEventListener('input', paintArrival)
 
-        commitDays(Number(daysField?.value))
-        syncArrival()
-
-        /* Now that the stepper holds a value, an itinerary from the query
-           string can overwrite it. Applied here rather than beside the plan
-           block above, because `commitDays` reads fields that are const and
-           declared between the two. */
-        if (itinerary) {
-            showSource(itinerary)
-            intent = intent ?? itinerary.name
-            commitDays(itinerary.days)
-            const select = form?.elements.namedItem('itinerary')
-            /* Only if the list still offers it. Both are built from
-               PACKAGES, so it does — but a select silently holding "" while
-               the strip above names a journey would be the worst of both. */
-            if (select && [...select.options].some((o) => o.value === itinerary.name)) {
-                select.value = itinerary.name
+        function brief() {
+            const adults = field('adults').value || '—'
+            const children = Number(field('children').value) || 0
+            const ages = field('ages').value.trim()
+            return {
+                'Trip type': labelsFor('trip')[0] ?? '—',
+                'Arrival date': field('undecided').checked
+                    ? 'Not decided yet'
+                    : longDate(field('arrival').value) || '—',
+                'Last day': lastDay() || '—',
+                'Number of days': field('days').value || '—',
+                Adults: adults,
+                Children: children ? `${children}${ages ? ` (ages ${ages})` : ''}` : '0',
+                'Budget per person': labelsFor('budget')[0] ?? '—',
+                Interests: labelsFor('interests').join(', ') || '—',
+                'Interested in': intent ?? '—',
             }
         }
-
-        /* The date step can be passed with nothing chosen — there is a skip
-           link for it — so it is the one step whose Next is never disabled. */
-        function syncNext(screen) {
-            if (!screen) return
-            const next = screen.querySelector('[data-go-next]:not([data-skip])')
-            if (!next) return
-            const stepId = screen.dataset.stepId
-            next.disabled = stepId === 'arrival' ? false : (answers[stepId] ?? []).length === 0
-        }
-
-        function go(dir) {
-            const target = index + dir
-            if (target < 0 || target > THANKS) return
-            show(target)
-        }
-
-        root.querySelectorAll('[data-go-next]').forEach((b) =>
-            b.addEventListener('click', () => {
-                if (b.dataset.skip !== undefined) {
-                    answers.arrival = []
-                    syncArrival()
-                }
-                go(1)
-            })
-        )
-        root.querySelectorAll('[data-go-back]').forEach((b) =>
-            b.addEventListener('click', () => go(-1))
-        )
-        root.querySelectorAll('[data-restart]').forEach((b) =>
-            b.addEventListener('click', () => {
-                answers.see = []
-                answers.interests = []
-                answers.occasion = []
-                answers.arrival = []
-                intent = null
-                showSource(null)
-                commitDays(daysInitial)
-                root.querySelectorAll('[data-option]').forEach((c) => {
-                    c.removeAttribute('data-selected')
-                    c.setAttribute('aria-pressed', 'false')
-                })
-                form?.reset()
-                status?.classList.add('hidden')
-                syncArrival()
-                stepScreens.forEach((s) => syncNext(s))
-                show(0)
-            })
-        )
 
         function showStatus(message, ok) {
-            if (!status) return
             status.innerHTML = message
             status.classList.remove('hidden')
             status.style.color = ok ? 'var(--color-primary)' : '#A8371E'
         }
 
-        const field = (name) => form?.elements.namedItem(name)
-
-        form?.addEventListener('submit', async (event) => {
-            event.preventDefault()
-
-            // Validated by hand so the message reads like the rest of the page
-            // and so the first bad field is the one that gets focus.
-            for (const name of ['name', 'email']) {
-                const input = field(name)
-                if (input && !input.checkValidity()) {
-                    showStatus('Please add your name and a valid email so we can reply.', false)
-                    input.focus()
-                    return
+        function validContact(requireAll) {
+            const names = requireAll ? ['name', 'email', 'phone'] : ['name']
+            for (const name of names) {
+                const el = field(name)
+                if (!el.checkValidity() || !el.value.trim()) {
+                    showStatus(
+                        requireAll
+                            ? 'Please add your name, a valid email and a phone number so we can reply.'
+                            : 'Please add your name first.',
+                        false
+                    )
+                    el.focus()
+                    return false
                 }
             }
+            return true
+        }
 
-            if (button) button.disabled = true
+        /* WhatsApp: the same brief as a message, sent from the visitor's own
+           phone — nothing is posted from here. */
+        wa.addEventListener('click', () => {
+            if (!validContact(false)) return
+            const lines = Object.entries(brief())
+                .filter(([, v]) => v && v !== '—')
+                .map(([k, v]) => `${k}: ${v}`)
+            const extra = field('message').value.trim()
+            const text = [
+                `Hello Polecat Safaris — I'm ${field('name').value.trim()} and I'd like to plan a trip.`,
+                '',
+                ...lines,
+                ...(source ? [`Itinerary: ${source.url}`] : []),
+                ...(extra ? ['', extra] : []),
+            ].join('\n')
+            window.open(
+                `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`,
+                '_blank',
+                'noopener'
+            )
+        })
 
-            const arriving = longDate(currentArrival())
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault()
+            if (index !== total - 1 || !validContact(true)) return
 
+            submit.disabled = true
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -1042,49 +897,37 @@ const whatsapp = whatsappLink(
                         access_key: accessKey,
                         subject,
                         from_name: 'Polecat Safaris — main site',
-                        replyto: field('email')?.value,
-                        botcheck: field('botcheck')?.checked ?? false,
-                        Name: field('name')?.value,
-                        Email: field('email')?.value,
-                        Phone: field('phone')?.value || '—',
-                        Travellers: field('travellers')?.value || '—',
-                        'Travel window': arriving || 'Not decided yet',
-                        'Trip length': daysLabel(),
-                        'Interested in': intent ?? '—',
-                        // The four planner answers, in the order they were asked.
-                        'Would like to see': labelsFor('see').join(', ') || '—',
-                        'Drawn to': labelsFor('interests').join(', ') || '—',
-                        'Travelling as': labelsFor('occasion')[0] ?? '—',
-                        Itinerary: field('itinerary')?.value || 'Not specified',
-                        Message: field('message')?.value || '—',
-                        // The itinerary page the enquiry was made from, where
-                        // there was one. `Page URL` below is always /enquire/,
-                        // so without this the inbox cannot tell a visitor who
-                        // read a whole itinerary from one who arrived cold.
+                        replyto: field('email').value,
+                        botcheck: field('botcheck').checked,
+                        Name: field('name').value,
+                        Email: field('email').value,
+                        'Phone / WhatsApp': fullPhone(),
+                        Country: field('country').value || '—',
+                        ...brief(),
+                        Message: field('message').value || '—',
                         'Requested from': source?.url ?? 'Came straight to /enquire/',
-                        // The full URL, so any utm_* the visit carried survives
-                        // into the inbox alongside the fields.
-                        'Page URL': window.location.href,
+                        // Keeps any utm_* the visit carried.
+                        'Page URL': location.href,
                     }),
                 })
                 if (!response.ok) throw new Error(String(response.status))
 
-                const first = (field('name')?.value ?? '').trim().split(' ')[0]
-                if (thanksTitle && first) {
-                    thanksTitle.textContent = `Thank you, ${first} — it's on its way to us.`
+                const first = field('name').value.trim().split(' ')[0]
+                if (first) {
+                    root.querySelector('[data-thanks-title]').textContent =
+                        `Thank you, ${first} — it's on its way to us.`
                 }
-                form.reset()
-                status?.classList.add('hidden')
-                show(THANKS)
+                form.classList.add('hidden')
+                progress.classList.add('hidden')
+                thanks.classList.remove('hidden')
+                thanks.classList.add('flex')
             } catch {
-                // Nothing else captures this enquiry, so the visitor has to be
-                // told it failed and handed a channel that works.
                 showStatus(
                     `That didn’t go through. Please email <a href="mailto:${email}" style="color:inherit;text-decoration:underline">${email}</a> or <a href="${whatsapp}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">message us on WhatsApp</a> instead.`,
                     false
                 )
             } finally {
-                if (button) button.disabled = false
+                submit.disabled = false
             }
         })
 
@@ -1093,42 +936,15 @@ const whatsapp = whatsappLink(
 </script>
 
 <style>
-    /* An untouched select is a prompt, not an answer, so it is dimmed until a
-       real itinerary is chosen. :has() is doing the work a placeholder would
-       do if <select> had one; where it is unsupported the prompt simply stays
-       at full strength. */
-    .planner-select:has(option[value='']:checked) {
-        color: color-mix(in srgb, var(--color-muted) 65%, transparent);
-    }
-
-    /* Light picker chrome, and a blank field reads as a prompt rather than
-       "mm/dd/yyyy" noise. */
+    /* Light picker chrome; an empty field reads as a prompt. */
     .planner-date {
         color-scheme: light;
     }
-
-    .planner-date::-webkit-datetime-edit {
-        color: var(--color-ink);
-    }
-
     .planner-date:not(:focus):invalid::-webkit-datetime-edit,
     .planner-date[value='']:not(:focus)::-webkit-datetime-edit {
         color: var(--color-muted);
     }
-
-    /* The spinner chrome is redundant next to the minus/plus buttons. */
-    .planner-count {
-        -moz-appearance: textfield;
-        appearance: textfield;
-    }
-
-    .planner-count::-webkit-outer-spin-button,
-    .planner-count::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    /* Stretch the invisible picker trigger over the calendar icon block. */
+    /* The whole field opens the calendar, not just the icon. */
     .planner-date::-webkit-calendar-picker-indicator {
         position: absolute;
         inset: 0;
@@ -1138,5 +954,16 @@ const whatsapp = whatsappLink(
         padding: 0;
         opacity: 0;
         cursor: pointer;
+    }
+
+    /* The spinners add nothing to a short number field. */
+    input[type='number'] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 </style>

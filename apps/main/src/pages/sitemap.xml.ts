@@ -8,7 +8,7 @@
  */
 import type { APIRoute } from 'astro'
 import { PACKAGES } from '../content/packages'
-import { getCategories, getPosts } from '../content/journal'
+import { getPosts } from '../content/journal'
 
 interface Entry {
     path: string
@@ -19,7 +19,6 @@ interface Entry {
 
 export const GET: APIRoute = async ({ site }) => {
     const posts = await getPosts()
-    const categories = await getCategories(posts)
 
     const entries: Entry[] = [
         { path: '/', priority: '1.0', changefreq: 'weekly' },
@@ -44,12 +43,6 @@ export const GET: APIRoute = async ({ site }) => {
             path: `/${post.id}/`,
             lastmod: post.data.updatedDate,
             priority: '0.7',
-            changefreq: 'monthly',
-        })),
-        ...categories.map((category) => ({
-            path: `/category/${category.slug}/`,
-            lastmod: category.posts[0]?.data.updatedDate,
-            priority: '0.5',
             changefreq: 'monthly',
         })),
     ]

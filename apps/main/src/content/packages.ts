@@ -126,6 +126,9 @@ export const ROUTE_LABELS: Record<RouteTag, string> = {
     zanzibar: 'Zanzibar',
 }
 
+/** /safari-packages/ filtered to one route — the page reads the hash. */
+export const routeHref = (route: RouteTag) => `/safari-packages/#${route}`
+
 export interface SafariPackage {
     /** Bare slug. The page href is built as `/safari-packages/${slug}`. */
     slug: string
