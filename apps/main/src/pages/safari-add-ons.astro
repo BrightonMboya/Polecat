@@ -218,17 +218,6 @@ const pageSchema = {
                                         decoding="async"
                                         class="aspect-[3/2] w-full object-cover"
                                     />
-                                    {addon.image.credit && (
-                                        <figcaption class="self-end text-[11px] leading-4 text-muted/70">
-                                            Photo:{' '}
-                                            <a
-                                                href={addon.image.credit.url}
-                                                rel="noopener"
-                                                class="underline-offset-2 hover:underline"
-                                                >{addon.image.credit.author}</a
-                                            >{`, ${addon.image.credit.license}`}
-                                        </figcaption>
-                                    )}
                                 </figure>
 
                                 {addon.body.map((paragraph) => (

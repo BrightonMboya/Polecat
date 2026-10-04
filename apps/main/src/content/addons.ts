@@ -83,24 +83,27 @@ export interface Addon {
  *
  * Five are the site's own photographs. The other nine are openly licensed
  * stand-ins, because the operator has not supplied pictures of these
- * activities: the public-domain ones (rawpixel) need nothing, the four
- * Creative Commons ones need the `credit` line the page prints under them.
+ * activities: five public-domain (rawpixel) and four Creative Commons from
+ * Wikimedia Commons, shown without a credit line by the site owner's decision:
+ *   balloon       Harvey Barrison, CC BY-SA 2.0
+ *   olduvai-gorge Noel Feans, CC BY 2.0
+ *   zipline       Costaricapro, CC BY-SA 3.0
+ *   canoeing      Kessy Gift, CC BY-SA 4.0
  * Only olduvai-gorge and canoeing (Lake Duluti) show the actual place; the
  * rest show the activity somewhere else — the zipline and the treetop bridge
  * are in Costa Rica. Swap any of them for the operator's own photographs as
- * soon as those exist, and drop the credit when you do.
+ * soon as those exist.
  */
 export interface AddonImage {
     base: string
     widths: readonly number[]
     alt: string
-    credit?: { author: string; license: string; url: string }
 }
 
 export const ADDONS: readonly Addon[] = [
     {
         slug: 'balloon',
-        image: { base: 'addon-balloon', widths: [900, 1300], alt: 'A striped hot air balloon drifting low over Serengeti grassland, acacias and a winding stream below it', credit: { author: 'Harvey Barrison', license: 'CC BY-SA 2.0', url: 'https://commons.wikimedia.org/wiki/File:Balloon_Safari_2012_06_01_3126_(7522678450).jpg' } },
+        image: { base: 'addon-balloon', widths: [900, 1300], alt: 'A striped hot air balloon drifting low over Serengeti grassland, acacias and a winding stream below it' },
         name: 'Hot air balloon safari',
         line: 'A sunrise flight over the plains, then a champagne breakfast under an acacia.',
         where: 'Central & southern Serengeti, Tarangire',
@@ -270,7 +273,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'olduvai-gorge',
-        image: { base: 'addon-olduvai-gorge', widths: [900, 1300], alt: 'Olduvai Gorge under a big sky, the red stone pillar known as the Castle standing out from the dry valley floor', credit: { author: 'Noel Feans', license: 'CC BY 2.0', url: 'https://commons.wikimedia.org/wiki/File:Olduvai_Gorge_or_Oldupai_Gorge.jpg' } },
+        image: { base: 'addon-olduvai-gorge', widths: [900, 1300], alt: 'Olduvai Gorge under a big sky, the red stone pillar known as the Castle standing out from the dry valley floor' },
         name: 'Olduvai Gorge',
         line: 'The Leakeys’ dig, the 1.75-million-year-old skull, and a museum on the rim of the gorge.',
         where: 'On the Ngorongoro–Serengeti drive',
@@ -315,7 +318,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'zipline',
-        image: { base: 'addon-zipline', widths: [900, 1300], alt: 'A man in a helmet and harness smiling as he rides a zipline through the trees', credit: { author: 'Costaricapro', license: 'CC BY-SA 3.0', url: 'https://commons.wikimedia.org/wiki/File:Zip_Line_Canopy_Tour_Costa_Rica.jpg' } },
+        image: { base: 'addon-zipline', widths: [900, 1300], alt: 'A man in a helmet and harness smiling as he rides a zipline through the trees' },
         name: 'Zipline at Mto wa Mbu',
         line: 'Four or five zips off the Rift Valley escarpment, above the Maasai Steppe.',
         where: 'Mto wa Mbu, at the foot of the escarpment',
@@ -398,7 +401,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'canoeing',
-        image: { base: 'addon-canoeing', widths: [900, 1300], alt: 'Canoes and a small boat moored at the edge of Lake Duluti, a palm leaning over the water and forest on the far shore', credit: { author: 'Kessy Gift', license: 'CC BY-SA 4.0', url: 'https://commons.wikimedia.org/wiki/File:Lake_duluti.jpg' } },
+        image: { base: 'addon-canoeing', widths: [900, 1300], alt: 'Canoes and a small boat moored at the edge of Lake Duluti, a palm leaning over the water and forest on the far shore' },
         name: 'Canoeing',
         line: 'Two or three hours on flat water, at eye level with the birds and the hippos.',
         where: 'Lake Manyara, Momella Lakes, Lake Duluti',
