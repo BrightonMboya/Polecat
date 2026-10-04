@@ -3,66 +3,286 @@ import Wordmark from './Wordmark.astro'
 import { NAV } from '../content/home'
 
 /*
- * Travel Information, Journal, About Us and the Enquire button. Four plain
- * links, no hamburger and no dropdown: the design's mobile panel duplicated
- * the footer sitemap, and with a nav this small there is nothing worth hiding
- * behind a toggle.
+ * The header, with two dropdown menus modelled on dub.sh's navigation: a
+ * trigger with a chevron, and a floating rounded panel under it.
  *
- * The Journeys menu that used to sit first — a <details>/<summary> splitting
- * the catalogue into safaris and the mountain — went with this change, along
- * with the script that opened it on hover. /safari-packages/ and
- * /kilimanjaro/ are reached from the footer and from the homepage's own
- * sections now. Restoring the menu means restoring that block from the
- * history; it is not kept here commented out.
+ *   Our Journeys: three photo cards (Safari, Trekking, Zanzibar).
+ *   About Us: a featured "Our story" card beside four icon rows.
+ *
+ * The content is NAV in src/content/home.ts. Desktop menus open on hover (with
+ * a short close delay so the pointer can travel into the panel), on click and
+ * from the keyboard; Escape and a click outside close them. Below `lg` the
+ * menus collapse behind a toggle into a stacked panel.
  */
 const current = Astro.url.pathname
 
 /** `/about` and `/about/` are the same page; the trailing slash is canonical. */
 const isCurrent = (href: string) =>
-    href !== '/' && current.replace(/\/?$/, '/').startsWith(href)
+    href !== '/' && current.replace(/\/?$/, '/').startsWith(href.replace(/#.*$/, ''))
 
-const LINK_CLASS =
-    'text-[11px] leading-4 tracking-[0.14em] whitespace-nowrap text-ink uppercase transition-colors hover:text-primary aria-[current=page]:text-primary sm:text-[12px] sm:tracking-[0.18em]'
+const journeysActive = NAV.journeys.items.some((item) => isCurrent(item.href))
+const aboutActive =
+    isCurrent(NAV.about.featured.href) || NAV.about.items.some((item) => isCurrent(item.href))
+
+const TRIGGER =
+    'flex items-center gap-1.5 rounded-md px-3 py-2 text-[12px] leading-4 tracking-[0.18em] whitespace-nowrap text-ink uppercase transition-colors hover:bg-ink/5 hover:text-primary aria-expanded:bg-ink/5 aria-expanded:text-primary data-[active]:text-primary'
+const PANEL_BASE =
+    'pointer-events-none invisible absolute top-full z-50 translate-y-1 pt-3 opacity-0 transition-[opacity,translate,visibility] duration-200 ease-out group-data-[open]/menu:pointer-events-auto group-data-[open]/menu:visible group-data-[open]/menu:translate-y-0 group-data-[open]/menu:opacity-100'
+const PANEL = `${PANEL_BASE} left-1/2 -translate-x-1/2`
+/* About Us sits near the right edge, so its panel hangs from the trigger's
+   right side rather than centring and running off a 1024px screen. */
+const PANEL_RIGHT = `${PANEL_BASE} right-0`
+const PANEL_INNER =
+    'overflow-hidden rounded-xl border border-line bg-white p-2 shadow-[0_12px_40px_-12px_rgba(37,55,70,0.25)]'
 ---
 
-<header class="border-b border-line bg-cream">
-    {/* The bar is one row from `lg` and two below it — the wordmark, then the
-        nav under it.
-
-        That switch used to be at `sm`, and "Travel Information" is what moved
-        it. Measured in Karla at the sizes below rather than guessed: the four
-        items come to 490px at `sm` sizes against 398px for the Journeys /
-        Blog / About Us row they replace, and with the 199px wordmark and the
-        gap the row wants 705px. A 768px viewport only clears 688px of it. So
-        the single row starts at `lg`, where there is 920px and room to spare,
-        and below that the nav takes its own row and wraps within it — three
-        honest rows on a 320px phone beat one that scrolls sideways. */}
-    <div
-        class="shell gutter flex flex-col items-start gap-3.5 py-4 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-6.5"
-    >
+<header class="relative z-40 border-b border-line bg-cream">
+    <div class="shell gutter flex items-center justify-between gap-4 py-4 lg:py-5.5">
         <Wordmark size="header" />
 
-        <nav
-            class="flex w-full flex-wrap items-center gap-x-5 gap-y-3 lg:w-auto lg:flex-nowrap lg:justify-end lg:gap-8.5"
-            aria-label="Primary"
-        >
+        {/* Desktop */}
+        <nav class="ml-auto hidden items-center gap-1 lg:mr-3 lg:flex" aria-label="Primary">
+            <div class="group/menu relative" data-menu>
+                <button
+                    type="button"
+                    class={TRIGGER}
+                    aria-expanded="false"
+                    aria-controls="menu-journeys"
+                    data-active={journeysActive ? '' : undefined}
+                    data-menu-trigger
+                >
+                    {NAV.journeys.label}
+                    <svg class="size-3 transition-transform duration-200 group-data-[open]/menu:rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" /></svg>
+                </button>
+                <div id="menu-journeys" class={PANEL} data-menu-panel>
+                    <ul class:list={[PANEL_INNER, 'grid w-[44rem] grid-cols-3 gap-1']}>
+                        {
+                            NAV.journeys.items.map((item) => (
+                                <li>
+                                    <a
+                                        href={item.href}
+                                        class="group/card flex h-full flex-col gap-3 rounded-lg p-2 transition-colors hover:bg-stone"
+                                    >
+                                        <span class="block overflow-hidden rounded-md">
+                                            <img
+                                                src={item.image}
+                                                alt=""
+                                                width="480"
+                                                height="320"
+                                                loading="lazy"
+                                                decoding="async"
+                                                class="aspect-[3/2] w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                                            />
+                                        </span>
+                                        <span class="flex flex-col gap-1 px-1 pb-1">
+                                            <span class="font-display text-[20px] leading-6 text-ink">{item.label}</span>
+                                            <span class="text-[13px] leading-5 text-muted">{item.description}</span>
+                                        </span>
+                                    </a>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="group/menu relative" data-menu>
+                <button
+                    type="button"
+                    class={TRIGGER}
+                    aria-expanded="false"
+                    aria-controls="menu-about"
+                    data-active={aboutActive ? '' : undefined}
+                    data-menu-trigger
+                >
+                    {NAV.about.label}
+                    <svg class="size-3 transition-transform duration-200 group-data-[open]/menu:rotate-180" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" /></svg>
+                </button>
+                <div id="menu-about" class={PANEL_RIGHT} data-menu-panel>
+                    <div class:list={[PANEL_INNER, 'grid w-[40rem] grid-cols-[14rem_1fr] gap-1']}>
+                        <a
+                            href={NAV.about.featured.href}
+                            class="group/card relative flex flex-col justify-end overflow-hidden rounded-lg p-4"
+                        >
+                            <img
+                                src={NAV.about.featured.image}
+                                alt=""
+                                width="480"
+                                height="320"
+                                loading="lazy"
+                                decoding="async"
+                                class="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                            />
+                            <span class="absolute inset-0 bg-gradient-to-t from-[#002b23]/90 via-[#002b23]/40 to-transparent" aria-hidden="true"></span>
+                            <span class="relative flex flex-col gap-1">
+                                <span class="font-display text-[22px] leading-7 text-white">{NAV.about.featured.label}</span>
+                                <span class="text-[13px] leading-5 text-white/85">{NAV.about.featured.description}</span>
+                            </span>
+                        </a>
+                        <ul class="flex flex-col gap-0.5">
+                            {
+                                NAV.about.items.map((item) => (
+                                    <li>
+                                        <a
+                                            href={item.href}
+                                            class="group/row flex items-start gap-3.5 rounded-lg p-3 transition-colors hover:bg-stone"
+                                        >
+                                            <span class="flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-cream text-primary transition-colors group-hover/row:border-primary/30">
+                                                <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    {item.icon === 'users' && (<><circle cx="9" cy="8" r="3.5" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5c1.8.9 3 2.9 3 5.5" /></>)}
+                                                    {item.icon === 'info' && (<><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>)}
+                                                    {item.icon === 'receipt' && (<><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z" /><path d="M9 8h6M9 12h6M9 16h3" /></>)}
+                                                    {item.icon === 'sun' && (<><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>)}
+                                                    {item.icon === 'sparkle' && (<><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" /><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z" /></>)}
+                                                </svg>
+                                            </span>
+                                            <span class="flex flex-col gap-0.5">
+                                                <span class="text-[14px] leading-5 font-medium text-ink group-hover/row:text-primary">{item.label}</span>
+                                                <span class="text-[13px] leading-5 text-muted">{item.description}</span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             {
-                NAV.primary.map((link) => (
+                NAV.links.map((link) => (
                     <a
                         href={link.href}
                         aria-current={isCurrent(link.href) ? 'page' : undefined}
-                        class={LINK_CLASS}
+                        class="rounded-md px-3 py-2 text-[12px] leading-4 tracking-[0.18em] whitespace-nowrap text-ink uppercase transition-colors hover:bg-ink/5 hover:text-primary aria-[current=page]:text-primary"
                     >
                         {link.label}
                     </a>
                 ))
             }
+        </nav>
+
+        <div class="flex items-center gap-2">
             <a
                 href={NAV.enquire.href}
-                class="flex shrink-0 items-center justify-center bg-primary px-4 py-2.75 text-[11px] leading-4 font-medium tracking-[0.14em] whitespace-nowrap text-white uppercase transition-colors hover:bg-[#083329] sm:px-6.5 sm:py-3 sm:text-[12px] sm:tracking-[0.18em]"
+                class="flex shrink-0 items-center justify-center bg-primary px-4 py-2.75 text-[11px] leading-4 font-medium tracking-[0.14em] whitespace-nowrap text-white uppercase transition-colors hover:bg-primary-dark sm:px-6.5 sm:py-3 sm:text-[12px] sm:tracking-[0.18em]"
             >
                 {NAV.enquire.label}
             </a>
-        </nav>
+            <button
+                type="button"
+                class="flex size-10 items-center justify-center rounded-md text-ink transition-colors hover:bg-ink/5 lg:hidden"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+                aria-label="Menu"
+                data-mobile-toggle
+            >
+                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                    <path data-open-hide d="M4 7h16M4 12h16M4 17h16" />
+                    <path data-open-show class="hidden" d="M6 6l12 12M18 6 6 18" />
+                </svg>
+            </button>
+        </div>
     </div>
+
+    {/* Mobile: the same menus, stacked. */}
+    <nav id="mobile-menu" class="gutter hidden border-t border-line bg-cream pb-6 lg:hidden" aria-label="Primary" data-mobile-menu>
+        <div class="shell flex flex-col">
+            <p class="pt-5 pb-2 text-[11px] leading-4 font-medium tracking-[0.22em] text-muted uppercase">{NAV.journeys.label}</p>
+            <ul class="grid grid-cols-3 gap-3">
+                {
+                    NAV.journeys.items.map((item) => (
+                        <li>
+                            <a href={item.href} class="flex flex-col gap-2">
+                                <img src={item.image} alt="" width="480" height="320" loading="lazy" decoding="async" class="aspect-[4/3] w-full rounded-md object-cover" />
+                                <span class="font-display text-[17px] leading-5 text-ink">{item.label}</span>
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+            <p class="pt-6 pb-1 text-[11px] leading-4 font-medium tracking-[0.22em] text-muted uppercase">{NAV.about.label}</p>
+            <ul class="flex flex-col">
+                {
+                    NAV.about.items.map((item) => (
+                        <li>
+                            <a href={item.href} class="block border-b border-line py-3 text-[15px] leading-6 text-ink">
+                                {item.label}
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+            <ul class="flex flex-col pt-4">
+                {
+                    NAV.links.map((link) => (
+                        <li>
+                            <a href={link.href} class="block py-3 text-[11px] leading-4 font-medium tracking-[0.22em] text-ink uppercase">
+                                {link.label}
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+    </nav>
 </header>
+
+<script>
+    const CLOSE_DELAY = 150
+
+    document.querySelectorAll<HTMLElement>('[data-menu]').forEach((menu) => {
+        const trigger = menu.querySelector<HTMLButtonElement>('[data-menu-trigger]')!
+        let timer: number | undefined
+
+        const open = () => {
+            window.clearTimeout(timer)
+            document.querySelectorAll<HTMLElement>('[data-menu][data-open]').forEach((other) => {
+                if (other !== menu) close(other)
+            })
+            menu.dataset.open = ''
+            trigger.setAttribute('aria-expanded', 'true')
+        }
+        const close = (target: HTMLElement = menu) => {
+            delete target.dataset.open
+            target.querySelector('[data-menu-trigger]')?.setAttribute('aria-expanded', 'false')
+        }
+
+        // Hover only for a real pointer; touch taps go through click.
+        menu.addEventListener('pointerenter', (event) => {
+            if (event.pointerType === 'mouse') open()
+        })
+        menu.addEventListener('pointerleave', (event) => {
+            if (event.pointerType === 'mouse') timer = window.setTimeout(() => close(), CLOSE_DELAY)
+        })
+        trigger.addEventListener('click', () => ('open' in menu.dataset ? close() : open()))
+        menu.addEventListener('focusout', (event) => {
+            if (!menu.contains(event.relatedTarget as Node | null)) close()
+        })
+        menu.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                close()
+                trigger.focus()
+            }
+        })
+    })
+
+    document.addEventListener('click', (event) => {
+        document.querySelectorAll<HTMLElement>('[data-menu][data-open]').forEach((menu) => {
+            if (!menu.contains(event.target as Node)) {
+                delete menu.dataset.open
+                menu.querySelector('[data-menu-trigger]')?.setAttribute('aria-expanded', 'false')
+            }
+        })
+    })
+
+    const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-toggle]')
+    const panel = document.querySelector<HTMLElement>('[data-mobile-menu]')
+    toggle?.addEventListener('click', () => {
+        const opening = toggle.getAttribute('aria-expanded') !== 'true'
+        toggle.setAttribute('aria-expanded', String(opening))
+        panel?.classList.toggle('hidden', !opening)
+        toggle.querySelector('[data-open-hide]')?.classList.toggle('hidden', opening)
+        toggle.querySelector('[data-open-show]')?.classList.toggle('hidden', !opening)
+    })
+</script>

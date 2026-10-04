@@ -14,11 +14,9 @@
 import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
-import Newsletter from '../components/Newsletter.astro'
-import SectionHeading from '../components/SectionHeading.astro'
 import { CONTACT } from '../config'
 import { NAV } from '../content/home'
-import { ADDONS } from '../content/addons'
+import { ADDONS, type AddonImage } from '../content/addons'
 
 const HERO_IMAGE = '/images/honeymoon-sundowner-toast-1400.webp'
 /*
@@ -29,6 +27,15 @@ const HERO_IMAGE = '/images/honeymoon-sundowner-toast-1400.webp'
 const HERO_SRCSET =
     '/images/honeymoon-sundowner-toast-900.webp 900w, /images/honeymoon-sundowner-toast-1400.webp 1400w'
 const HERO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
+
+/** srcset for an add-on photograph — see AddonImage for the file naming. */
+const srcsetOf = (image: AddonImage) =>
+    image.widths.map((w) => `/images/${image.base}-${w}.webp ${w}w`).join(', ')
+const srcOf = (image: AddonImage) => `/images/${image.base}-900.webp`
+/* Index cards: two, three, then seven across. Section photo: the body column,
+   which tops out at max-w-220 (880px) beside the 19rem rail. */
+const CARD_SIZES = '(min-width: 1024px) 170px, (min-width: 640px) 31vw, 46vw'
+const SECTION_SIZES = '(min-width: 1280px) 880px, (min-width: 1024px) calc(100vw - 30rem), calc(100vw - 48px)'
 
 const eyebrow = 'text-[11px] leading-3.5 font-medium tracking-[0.22em] text-primary uppercase'
 const term = 'text-[10px] leading-3 font-medium tracking-[0.2em] text-muted/70 uppercase'
@@ -110,8 +117,9 @@ const pageSchema = {
             </div>
         </section>
 
-        {/* The index, with the from-price on each row so the page answers the
-            money question before anyone scrolls. */}
+        {/* The index, as a contact sheet: a photograph of each add-on with its
+            from-price, so the page shows what is on offer and answers the money
+            question before anyone scrolls. */}
         <nav class="gutter flex flex-col items-center bg-stone py-12 lg:py-14" aria-label="The add-ons">
             <div class="shell flex flex-col gap-6">
                 <p
@@ -119,19 +127,31 @@ const pageSchema = {
                 >
                     The Fourteen
                 </p>
-                <ul class="grid grid-cols-1 gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
+                <ul class="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-7 lg:gap-x-5">
                     {
                         ADDONS.map((addon) => (
-                            <li class="flex items-baseline justify-between gap-4 border-b border-line py-3">
-                                <a
-                                    href={`#${addon.slug}`}
-                                    class="text-[15px] leading-6 text-ink transition-colors hover:text-primary"
-                                >
-                                    {addon.name}
+                            <li>
+                                <a href={`#${addon.slug}`} class="group flex flex-col gap-2.5">
+                                    <span class="block overflow-hidden">
+                                        <img
+                                            src={srcOf(addon.image)}
+                                            srcset={srcsetOf(addon.image)}
+                                            sizes={CARD_SIZES}
+                                            alt=""
+                                            width="900"
+                                            height="600"
+                                            loading="lazy"
+                                            decoding="async"
+                                            class="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                    </span>
+                                    <span class="text-[14px] leading-5 text-ink transition-colors group-hover:text-primary">
+                                        {addon.name}
+                                    </span>
+                                    <span class="-mt-1.5 text-[12px] leading-4 text-muted/80">
+                                        {addon.price}
+                                    </span>
                                 </a>
-                                <span class="shrink-0 text-[12px] leading-5 text-muted/80">
-                                    {addon.price === 'On request' ? 'On request' : addon.price}
-                                </span>
                             </li>
                         ))
                     }
@@ -143,7 +163,6 @@ const pageSchema = {
             ADDONS.map((addon, index) => {
                 const onCream = index % 2 !== 0
                 const facts: [string, string][] = [
-                    ['Where', addon.where],
                     ['How long', addon.duration],
                     ['Price', addon.price],
                     ...(addon.who ? ([['Who can', addon.who]] as [string, string][]) : []),
@@ -187,30 +206,35 @@ const pageSchema = {
                             </div>
 
                             <div class="flex max-w-220 flex-col gap-6.5">
+                                <figure class="flex flex-col gap-2">
+                                    <img
+                                        src={srcOf(addon.image)}
+                                        srcset={srcsetOf(addon.image)}
+                                        sizes={SECTION_SIZES}
+                                        alt={addon.image.alt}
+                                        width="900"
+                                        height="600"
+                                        loading="lazy"
+                                        decoding="async"
+                                        class="aspect-[3/2] w-full object-cover"
+                                    />
+                                    {addon.image.credit && (
+                                        <figcaption class="self-end text-[11px] leading-4 text-muted/70">
+                                            Photo:{' '}
+                                            <a
+                                                href={addon.image.credit.url}
+                                                rel="noopener"
+                                                class="underline-offset-2 hover:underline"
+                                                >{addon.image.credit.author}</a
+                                            >{`, ${addon.image.credit.license}`}
+                                        </figcaption>
+                                    )}
+                                </figure>
+
                                 {addon.body.map((paragraph) => (
                                     <p class="text-[16px] leading-7.5 text-muted">{paragraph}</p>
                                 ))}
 
-                                <div class="flex flex-col gap-4 pt-1">
-                                    <p class={eyebrow}>Where it runs</p>
-                                    <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                        {addon.places.map((place) => (
-                                            <li
-                                                class:list={[
-                                                    'flex flex-col gap-2 border-t-2 border-primary px-6 pt-5 pb-6',
-                                                    onCream ? 'bg-white' : 'bg-stone',
-                                                ]}
-                                            >
-                                                <h3 class="font-display text-[20px] leading-7 text-ink">
-                                                    {place.name}
-                                                </h3>
-                                                <p class="text-[14px] leading-6.25 text-muted">
-                                                    {place.note}
-                                                </p>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
 
                                 {addon.bestTime && (
                                     <div class="flex flex-col gap-2 pt-1">
@@ -262,33 +286,27 @@ const pageSchema = {
                         Where that is true of the property on your itinerary, we will tell you
                         rather than sell you the same thing twice.
                     </p>
+                    {/* The page's call to action lives here rather than in a
+                        separate cream band: that band plus the newsletter
+                        stacked green / cream / green / cream above the
+                        footer, and both repeat what other pages already carry. */}
+                    <div class="flex flex-wrap items-center gap-4 pt-4">
+                        <a
+                            href={NAV.enquire.href}
+                            class="flex items-center justify-center bg-cream px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-white"
+                        >
+                            {NAV.enquire.label}
+                        </a>
+                        <a
+                            href={CONTACT.phoneHref}
+                            class="flex items-center justify-center border border-cream/60 px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-cream uppercase transition-colors hover:bg-cream hover:text-primary"
+                        >
+                            {CONTACT.phone}
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
-
-        <section class="gutter flex flex-col items-center bg-cream pt-18 pb-18 lg:pt-22 lg:pb-24">
-            <SectionHeading
-                eyebrow="Next Step"
-                heading="Tell us which of these you want"
-                body="Name the ones that appeal and we will put them on the right days and price them into your itinerary. If something here does not fit the route you have chosen, we will say so rather than sell it to you."
-            />
-            <div class="flex flex-wrap items-center justify-center gap-5 pt-9">
-                <a
-                    href={NAV.enquire.href}
-                    class="flex items-center justify-center bg-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329]"
-                >
-                    {NAV.enquire.label}
-                </a>
-                <a
-                    href={CONTACT.phoneHref}
-                    class="flex items-center justify-center border border-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
-                >
-                    {CONTACT.phone}
-                </a>
-            </div>
-        </section>
-
-        <Newsletter />
     </main>
     <Footer />
 </Layout>

@@ -243,7 +243,7 @@ const PT = {
  * at the gate — rather than of the itinerary. Anything specific to one journey
  * is spread in alongside these where it belongs.
  */
-const INCLUDED_CORE = [
+export const INCLUDED_CORE = [
     'A private 4×4 safari vehicle with a pop-up roof, for your party alone',
     'A dedicated professional English-speaking safari guide throughout',
     'All accommodation as listed',
@@ -254,7 +254,7 @@ const INCLUDED_CORE = [
     'Bottled drinking water in the vehicle, and government taxes',
 ]
 
-const EXCLUDED_CORE = [
+export const EXCLUDED_CORE = [
     'International flights to and from Kilimanjaro (JRO)',
     'Tanzanian visa fees',
     'Travel insurance',
@@ -285,7 +285,7 @@ const FAQ_CUSTOMISE: Faq = {
  * routes is only where you sleep, which is why the accommodation and the
  * camping or hut fee are passed in per itinerary.
  */
-const TREK_INCLUDED_HEAD = [
+export const TREK_INCLUDED_HEAD = [
     'Airport transfers from Kilimanjaro International Airport or Arusha Airport',
     'Hotel-to-gate and return transfers',
     'A professional mountain guide',
@@ -295,7 +295,7 @@ const TREK_INCLUDED_HEAD = [
     'Rescue fees',
 ]
 
-const TREK_INCLUDED_TAIL = [
+export const TREK_INCLUDED_TAIL = [
     'A sleeping mattress',
     'Walking poles',
     'An oximeter and an emergency oxygen cylinder, with daily altitude monitoring',
@@ -314,7 +314,7 @@ const trekIncluded = (fees: string, ...stay: string[]) => [
     ...TREK_INCLUDED_TAIL,
 ]
 
-const TREK_EXCLUDED = [
+export const TREK_EXCLUDED = [
     'International or domestic flights',
     'Personal hiking and mountain equipment',
     'Travel insurance',
@@ -366,7 +366,7 @@ const TREK_FAQS = [FAQ_TREK_EXPERIENCE, FAQ_TREK_ALTITUDE, FAQ_TREK_DIET, FAQ_TR
  * "Per person sharing" the safaris show. ItineraryOverview already skips the
  * table when the list is empty, so nothing needed changing there.
  */
-const TREK_DAY_RATE = 360
+export const TREK_DAY_RATE = 360
 
 const money = (n: number) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 

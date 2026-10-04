@@ -39,4 +39,20 @@ const blog = defineCollection({
     }),
 })
 
-export const collections = { blog }
+/**
+ * The "Good to Know" pages linked from the footer (booking process, refund
+ * policy, terms). Markdown, rendered by components/LegalPage.astro. The
+ * privacy policy is its own page, src/pages/privacy-policy.astro.
+ *
+ * The booking, refund and terms texts started from ~/web/mufasa_new's legal
+ * pages, adapted to this operator and approved as they stand.
+ */
+const legal = defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/content/legal' }),
+    schema: z.object({
+        title: z.string(),
+        description: z.string(),
+    }),
+})
+
+export const collections = { blog, legal }

@@ -1,0 +1,39 @@
+---
+/**
+ * One "Good to Know" page from src/content/legal — the same frame as the
+ * privacy policy: a small label, the title, then the text in `.prose`.
+ */
+import { getEntry, render } from 'astro:content'
+import Layout from '../layouts/Layout.astro'
+import Header from './Header.astro'
+import Footer from './Footer.astro'
+
+interface Props {
+    id: string
+}
+
+const entry = await getEntry('legal', Astro.props.id)
+if (!entry) throw new Error(`No legal page "${Astro.props.id}" in src/content/legal.`)
+const { Content } = await render(entry)
+---
+
+<Layout title={`${entry.data.title} | Polecat Safaris`} description={entry.data.description}>
+    <Header />
+    <main class="gutter flex flex-col items-center bg-cream pt-14 pb-20 lg:pt-20 lg:pb-26">
+        <div class="shell flex w-full max-w-180 flex-col items-start">
+            <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase">
+                Good to Know
+            </p>
+            <h1
+                class="font-display mt-4 text-[36px] leading-[1.18] font-light text-ink lg:text-[48px] lg:leading-[1.14]"
+            >
+                {entry.data.title}
+            </h1>
+            <div class="prose mt-9 lg:mt-11">
+                <Content />
+            </div>
+        </div>
+    </main>
+    <Footer />
+</Layout>
+

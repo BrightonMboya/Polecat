@@ -19,26 +19,23 @@
 import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
-import Newsletter from '../components/Newsletter.astro'
-import Reviews from '../components/Reviews.astro'
-import Partners from '../components/Partners.astro'
 import SectionHeading from '../components/SectionHeading.astro'
-import { SITE, CONTACT, TRIPADVISOR } from '../config'
+import { SITE, TRIPADVISOR } from '../config'
 import { NAV } from '../content/home'
 
 /** Three claims the business can stand behind, in the design's card rhythm. */
 const PRINCIPLES = [
     {
-        heading: 'Private, every time',
-        body: 'Nothing on this site is a group departure. Every itinerary we publish is one vehicle, one guide and your party — which is why the days, the lodges and the pace can all move before you travel, and on the morning itself.',
+        heading: 'Exclusively private',
+        body: 'Every journey is reserved for you alone: one vehicle, one dedicated guide and your party. It means the days, the lodges and the pace can be shaped around you, before you travel and on the morning itself.',
     },
     {
-        heading: 'Two places, properly',
-        body: 'Northern Tanzania and Zanzibar. We do not sell southern Africa, and we do not resell circuits we have not driven. The parks in our itineraries are the ones our guides work in week after week.',
+        heading: 'Deep, not wide',
+        body: 'We focus on northern Tanzania, Kilimanjaro and Zanzibar, and we know them intimately. Every park, camp and lodge in our itineraries is one our team works in week after week. We never resell a circuit from afar.',
     },
     {
-        heading: 'Our guides, not a roster',
-        body: 'Read the reviews and you will find them by name. The guide is the part of a safari that decides whether it was a good one, so it is the part we never subcontract to whoever is free that week.',
+        heading: 'Guides of distinction',
+        body: 'Our guides are the heart of every safari, and our guests remember them by name. They are our own team, chosen for their knowledge, their warmth and their eye for the moment, and never subcontracted.',
     },
 ]
 
@@ -64,7 +61,7 @@ const pageSchema = {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
     name: `About ${SITE.legalName}`,
-    description: `${SITE.legalName} is an owner-run safari operator based in Arusha, selling private, tailor-made journeys through northern Tanzania and Zanzibar.`,
+    description: `${SITE.legalName} designs private, tailor-made journeys through northern Tanzania, Kilimanjaro and Zanzibar from its base in Arusha.`,
     url: 'https://africanpolecatsafaris.com/about/',
 }
 
@@ -79,8 +76,8 @@ const INTRO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
 ---
 
 <Layout
-    title="About Us — An Arusha safari company, private safaris only | Polecat Safaris"
-    description="African Polecat Safaris is an owner-run operator based in Arusha. We sell private, tailor-made safaris through northern Tanzania and Zanzibar — our own guides, our own vehicles, and no group departures."
+    title="About Us | Private, tailor-made safaris from Arusha | Polecat Safaris"
+    description="African Polecat Safaris designs private, tailor-made journeys through northern Tanzania, Kilimanjaro and Zanzibar from Arusha, with our own expert guides, our own vehicles, and every detail arranged around you."
     preloadImage="/images/family-walk-maasai-guide-1400.webp"
     preloadImageSrcset={INTRO_SRCSET}
     preloadImageSizes={INTRO_SIZES}
@@ -108,13 +105,13 @@ const INTRO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
                     <h1
                         class="font-display text-[36px] leading-[1.18] font-light text-ink lg:text-[52px] lg:leading-[1.12]"
                     >
-                        A safari company from Arusha
+                        The art of the private Tanzanian safari
                     </h1>
                     <p class="max-w-160 pt-2 text-[17px] leading-7.75 text-muted">
-                        {SITE.legalName} is a small, owner-run operator working out of Arusha, at
-                        the foot of Mount Meru and an hour from the gate of the northern circuit. We
-                        sell one thing: private safaris through northern Tanzania, and the Zanzibar
-                        days that so often follow them.
+                        {SITE.legalName} designs private, tailor-made journeys through northern
+                        Tanzania, Kilimanjaro and Zanzibar. From our home in Arusha, the gateway to the
+                        Serengeti, the Ngorongoro Crater and Tarangire, we arrange every detail
+                        ourselves: the lodges, the guides, the vehicles and the pace of each day.
                     </p>
                     {/* The operator's own slogan (SITE.slogan), in their
                         voice, on the one page that is about them rather than
@@ -127,13 +124,13 @@ const INTRO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
                     <div class="flex flex-wrap items-center gap-4 pt-4">
                         <a
                             href={NAV.enquire.href}
-                            class="flex items-center justify-center bg-primary px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329]"
+                            class="flex items-center justify-center bg-primary px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-primary-dark"
                         >
                             Start Planning
                         </a>
                         <a
                             href="/safari-packages/"
-                            class="rule-link text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase"
+                            class="text-[12px] underline-offset-4 hover:underline leading-4 font-medium tracking-[0.2em] text-primary uppercase"
                         >
                             See The Itineraries
                         </a>
@@ -159,37 +156,36 @@ const INTRO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
             <div class="shell flex flex-col items-center">
                 <SectionHeading
                     eyebrow="Our Story"
-                    heading="Built around the drive, not the brochure"
+                    heading="Crafted on the ground, not from a brochure"
                 />
                 <div class="prose mt-9 max-w-220 lg:mt-11">
                     <p>
-                        Arusha is where a northern-circuit safari begins, and being based here
-                        rather than in a sales office somewhere else is most of what makes our
-                        itineraries work. We know which gate opens early, which crater descent road
-                        is being graded, where the herds were yesterday and which lodge is worth the
-                        extra hour of driving to reach. That is local knowledge, and it has a
-                        shelf life of about a week.
+                        Arusha is where every northern-circuit safari begins, and it is where we
+                        have chosen to build ours. Being here means we know the circuit as it is
+                        this week, not as it was described in last season's brochure: which gates
+                        open earliest, how the crater roads are running, where the herds have moved
+                        and which lodges are at their best. That knowledge shapes every itinerary
+                        we write.
                     </p>
                     <p>
-                        So the itineraries on this site are written the way we would drive them.
-                        Tarangire before the heat. A full day on the crater floor rather than a
-                        morning. Two nights in the central Serengeti before you move, because one
-                        night in the Serengeti is a transfer with a game drive attached. Where a day
-                        is a long one we say so, and where it can be broken differently we will
-                        break it differently for you.
+                        Our journeys are paced the way a safari ought to be travelled. Tarangire in
+                        the soft early light. A full day on the crater floor rather than a hurried
+                        morning. At least two nights in the central Serengeti, so there is time to
+                        watch rather than simply pass through. Every element can be refined around
+                        you, before you travel and on the day itself.
                     </p>
                     <p>
-                        None of it is a group departure. Every safari we sell is private — your own
-                        guide, your own vehicle, your own pace — which is the only arrangement under
-                        which a guide can stop for two hours at a leopard kill because you wanted to
-                        stay. It costs more than a seat on a shared minibus, and it is the whole
-                        reason people come back to us.
+                        And every journey is private: your own expert guide, your own vehicle, your
+                        own rhythm. It is the only way a guide can linger for two hours at a leopard
+                        sighting because you wished to stay, and it is why our guests return, and
+                        send the people closest to them.
                     </p>
                     <p>
-                        We are members of the <strong>Tanzania Association of Tour Operators</strong
-                        >, listed on SafariBookings, and rated {TRIPADVISOR.ratingValue} out of 5
-                        on Tripadvisor. Guests tend to name their guide in those reviews, which is
-                        the compliment we care about most.
+                        We are proud members of the <strong
+                            >Tanzania Association of Tour Operators</strong
+                        >, featured on SafariBookings and rated {TRIPADVISOR.ratingValue} out of 5
+                        on Tripadvisor, where guests so often name their guide personally. Of all
+                        the recognition we receive, that is the one we value most.
                     </p>
                 </div>
             </div>
@@ -199,8 +195,8 @@ const INTRO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
         <section class="gutter flex flex-col items-center bg-cream pt-18 pb-18 lg:pt-24 lg:pb-26">
             <SectionHeading
                 eyebrow="How We Work"
-                heading="What you can hold us to"
-                body="Three things that are true of every itinerary on this site, and that we would rather lose a booking than bend."
+                heading="Our commitments to you"
+                body="Three standards that define every journey we design, and that we hold to without exception."
             />
             <ul
                 class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3"
@@ -262,40 +258,6 @@ const INTRO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
                 class="h-75 w-full object-cover lg:h-auto lg:w-1/2 lg:self-stretch"
             />
         </section>
-
-        {/* Both of these are the homepage's own sections, reused. The wrappers
-            exist only to give the footer and the nav something to link to. */}
-        <div id="reviews" class="scroll-mt-8">
-            <Reviews />
-        </div>
-
-        <div id="partners" class="scroll-mt-8">
-            <Partners />
-        </div>
-
-        <section class="gutter flex flex-col items-center bg-cream pt-18 pb-18 lg:pt-22 lg:pb-24">
-            <SectionHeading
-                eyebrow="Next Step"
-                heading="Tell us roughly what you have in mind"
-                body="A rough month and a rough shape is enough to start. You will get a draft itinerary with real lodges and a real price, written by the people who would run it."
-            />
-            <div class="flex flex-wrap items-center justify-center gap-5 pt-9">
-                <a
-                    href={NAV.enquire.href}
-                    class="flex items-center justify-center bg-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-white uppercase transition-colors hover:bg-[#083329]"
-                >
-                    Enquire
-                </a>
-                <a
-                    href={CONTACT.phoneHref}
-                    class="flex items-center justify-center border border-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
-                >
-                    {CONTACT.phone}
-                </a>
-            </div>
-        </section>
-
-        <Newsletter />
     </main>
     <Footer />
 </Layout>

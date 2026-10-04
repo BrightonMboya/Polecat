@@ -28,6 +28,11 @@ export const GET: APIRoute = async ({ site }) => {
         { path: '/about/', priority: '0.7', changefreq: 'monthly' },
         { path: '/safari-add-ons/', priority: '0.7', changefreq: 'monthly' },
         { path: '/travel-information/', priority: '0.7', changefreq: 'monthly' },
+        { path: '/cost-breakdown/', priority: '0.6', changefreq: 'monthly' },
+        { path: '/our-booking-process/', priority: '0.4', changefreq: 'yearly' },
+        { path: '/privacy-policy/', priority: '0.3', changefreq: 'yearly' },
+        { path: '/refund-policy/', priority: '0.3', changefreq: 'yearly' },
+        { path: '/terms-and-conditions/', priority: '0.3', changefreq: 'yearly' },
         ...PACKAGES.map((pkg) => ({
             path: `/safari-packages/${pkg.slug}/`,
             priority: '0.8',

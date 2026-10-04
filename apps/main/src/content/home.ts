@@ -204,7 +204,7 @@ export const TRAVEL_STYLES: {
             blurb: 'Days on foot: Kilimanjaro by Marangu, Machame, Rongai, Lemosho or the Northern Circuit — and, on the safaris, a walking safari with an armed ranger.',
             image: '/images/style-trekking.webp',
             imageAlt:
-                'A Maasai guide and two guests walking across a rock outcrop at sunset, the plains below them',
+                'A line of trekkers with packs and poles crossing the high desert of the Kilimanjaro saddle, the snow-streaked summit of Kibo ahead of them',
             preset: { trip: ['kilimanjaro'] },
         },
         {
@@ -427,12 +427,79 @@ export const NEWSLETTER = {
  * from the bar. If Journeys ever comes back, so does the <details> menu in
  * Header.astro — it is in the history, not commented out here.
  */
+/**
+ * The header. Two dropdown menus, laid out after dub.sh's: Our Journeys as
+ * three photo cards, About Us as a featured "Our story" card beside four
+ * icon rows. `icon` names an inline SVG in Header.astro. Every href has to
+ * resolve: /safari-packages/#safaris is a group anchor on that page and
+ * #zanzibar is one of the route filters it reads from the hash.
+ */
 export const NAV = {
-    primary: [
-        { label: 'Travel Information', href: '/travel-information/' },
-        { label: 'Journal', href: '/blogs/' },
-        { label: 'About Us', href: '/about/' },
-    ],
+    journeys: {
+        label: 'Our Journeys',
+        items: [
+            {
+                label: 'Safari',
+                href: '/safari-packages/#safaris',
+                description: 'Private game drives through Tarangire, Ngorongoro and the Serengeti.',
+                image: '/images/nav-safari.webp',
+            },
+            {
+                label: 'Trekking',
+                href: '/kilimanjaro/',
+                description: 'Five routes to Uhuru Peak, the roof of Africa.',
+                image: '/images/nav-trekking.webp',
+            },
+            {
+                label: 'Zanzibar',
+                href: '/safari-packages/#zanzibar',
+                description: 'Stone Town and the Indian Ocean after the bush.',
+                image: '/images/nav-zanzibar.webp',
+            },
+        ],
+    },
+    about: {
+        label: 'About Us',
+        featured: {
+            label: 'Our story',
+            href: '/about/',
+            description: 'Private safaris, crafted in Arusha by our own guides.',
+            image: '/images/nav-about.webp',
+        },
+        items: [
+            {
+                label: 'About Us',
+                href: '/about/',
+                description: 'Who we are and how we work.',
+                icon: 'users',
+            },
+            {
+                label: 'Travel Information',
+                href: '/travel-information/',
+                description: 'Visas, packing and what to expect.',
+                icon: 'info',
+            },
+            {
+                label: 'Cost Breakdown',
+                href: '/cost-breakdown/',
+                description: 'What each journey costs and covers.',
+                icon: 'receipt',
+            },
+            {
+                label: 'Best Time to Visit',
+                href: '/travel-information/#seasons',
+                description: 'The seasons, month by month.',
+                icon: 'sun',
+            },
+            {
+                label: 'Safari Add-ons',
+                href: '/safari-add-ons/',
+                description: 'Balloons, bush breakfasts and more.',
+                icon: 'sparkle',
+            },
+        ],
+    },
+    links: [{ label: 'Journal', href: '/blogs/' }],
     enquire: { label: 'Enquire', href: '/enquire/' },
 } as const
 
@@ -443,7 +510,7 @@ export const NAV = {
  * South Africa, camps or lodges: the operator sells northern Tanzania and
  * Zanzibar, and owns no property.
  *
- * Three columns, and no Journal one: it used to be built in Footer.astro from
+ * Four columns, and no Journal one: it used to be built in Footer.astro from
  * the categories that had posts, and was removed by request. What is back is a
  * single "Journal" link in the last column, added when the stale migrated
  * posts were replaced with the operator's own writing — without it the site
@@ -468,7 +535,7 @@ export const FOOTER_COLUMNS = [
             { label: 'Northern Circuit', href: '/safari-packages/#northern-circuit' },
             { label: 'Kilimanjaro', href: '/kilimanjaro/' },
             { label: 'Zanzibar', href: '/safari-packages/#zanzibar' },
-            { label: 'Guest reviews', href: '/about/#reviews' },
+            { label: 'Guest reviews', href: '/#reviews' },
         ],
     },
     {
@@ -481,11 +548,15 @@ export const FOOTER_COLUMNS = [
             { label: 'Enquire', href: '/enquire/' },
         ],
     },
+    {
+        /* As on ~/web/mufasa_new, without "Our vehicles". The pages' text is
+           in src/content/legal, and the privacy policy is its own page. */
+        heading: 'Good to Know',
+        links: [
+            { label: 'Our booking process', href: '/our-booking-process/' },
+            { label: 'Privacy policy', href: '/privacy-policy/' },
+            { label: 'Refund policy', href: '/refund-policy/' },
+            { label: 'Terms and conditions', href: '/terms-and-conditions/' },
+        ],
+    },
 ] as const
-
-/*
- * No legal links. The privacy policy that used to sit here was removed along
- * with its page; terms and a modern slavery statement were never written.
- * Anything added back needs a page behind it — the footer linking at nothing
- * is worse than the footer saying nothing.
- */

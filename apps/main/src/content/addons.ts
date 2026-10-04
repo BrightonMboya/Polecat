@@ -72,11 +72,35 @@ export interface Addon {
     body: readonly string[]
     /** Where it is actually run. Also the whitelist — see the file header. */
     places: readonly { name: string; note: string }[]
+    /** The section photograph — see ADDON_IMAGES below. */
+    image: AddonImage
+}
+
+/**
+ * One photograph per add-on, shown on the index and at the head of each
+ * section. Files live at /images/<base>-<width>.webp, one per entry in
+ * `widths`, all cropped 3:2.
+ *
+ * Five are the site's own photographs. The other nine are openly licensed
+ * stand-ins, because the operator has not supplied pictures of these
+ * activities: the public-domain ones (rawpixel) need nothing, the four
+ * Creative Commons ones need the `credit` line the page prints under them.
+ * Only olduvai-gorge and canoeing (Lake Duluti) show the actual place; the
+ * rest show the activity somewhere else — the zipline and the treetop bridge
+ * are in Costa Rica. Swap any of them for the operator's own photographs as
+ * soon as those exist, and drop the credit when you do.
+ */
+export interface AddonImage {
+    base: string
+    widths: readonly number[]
+    alt: string
+    credit?: { author: string; license: string; url: string }
 }
 
 export const ADDONS: readonly Addon[] = [
     {
         slug: 'balloon',
+        image: { base: 'addon-balloon', widths: [900, 1300], alt: 'A striped hot air balloon drifting low over Serengeti grassland, acacias and a winding stream below it', credit: { author: 'Harvey Barrison', license: 'CC BY-SA 2.0', url: 'https://commons.wikimedia.org/wiki/File:Balloon_Safari_2012_06_01_3126_(7522678450).jpg' } },
         name: 'Hot air balloon safari',
         line: 'A sunrise flight over the plains, then a champagne breakfast under an acacia.',
         where: 'Central & southern Serengeti, Tarangire',
@@ -103,6 +127,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'night-game-drive',
+        image: { base: 'addon-night-game-drive', widths: [900, 1024], alt: 'The view over the bonnet of a safari vehicle driving a bush track at dusk, the trees lit orange by its lamps' },
         name: 'Night game drive',
         line: 'Two or three hours after sunset with a spotlight, for the animals the day never shows you.',
         where: 'Lake Manyara and Tarangire only',
@@ -126,6 +151,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'walking-safari',
+        image: { base: 'guided-walk-termite-mound', widths: [900, 1400, 1920], alt: 'Guests in wide-brimmed hats on foot in long grass, listening to their guide beside a tall red termite mound' },
         name: 'Walking safari',
         line: 'The same ground as the animals, on foot, with an armed ranger and a naturalist.',
         where: 'Arusha NP, Ngorongoro highlands, Tarangire, select Serengeti areas',
@@ -158,6 +184,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'bush-breakfast',
+        image: { base: 'hero-baobab-bush-brunch', widths: [900, 1400], alt: 'Guests standing with drinks around long tables laid for brunch in the shade of a baobab, a game drive vehicle parked behind them' },
         name: 'Bush breakfast',
         line: 'A table laid in the open, found at the end of a pre-dawn game drive.',
         where: 'Serengeti, Ngorongoro crater rim, Tarangire',
@@ -188,6 +215,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'sundowner',
+        image: { base: 'hero-sundowner-baobab', widths: [900, 1400, 1920], alt: 'Guests on cushions and rugs beneath a great baobab, drinks laid out on a camp table as the sky turns orange' },
         name: 'Sundowner',
         line: 'Chairs, a small fire and a drink at a spot your guide has picked, as the light goes.',
         where: 'Serengeti, Tarangire, Ngorongoro crater rim',
@@ -213,6 +241,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'maasai-village',
+        image: { base: 'family-walk-maasai-guide', widths: [900, 1400, 1920], alt: 'A grandfather and his granddaughter out on foot with their guide and two Maasai men, zebra grazing on the plain behind them' },
         name: 'Maasai boma visit',
         line: 'Time inside a working homestead — the welcome dance, the house, the herd, the beadwork.',
         where: 'Ngorongoro, Serengeti buffer zones, Longido & West Kilimanjaro',
@@ -241,6 +270,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'olduvai-gorge',
+        image: { base: 'addon-olduvai-gorge', widths: [900, 1300], alt: 'Olduvai Gorge under a big sky, the red stone pillar known as the Castle standing out from the dry valley floor', credit: { author: 'Noel Feans', license: 'CC BY 2.0', url: 'https://commons.wikimedia.org/wiki/File:Olduvai_Gorge_or_Oldupai_Gorge.jpg' } },
         name: 'Olduvai Gorge',
         line: 'The Leakeys’ dig, the 1.75-million-year-old skull, and a museum on the rim of the gorge.',
         where: 'On the Ngorongoro–Serengeti drive',
@@ -262,6 +292,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'treetop-walk',
+        image: { base: 'addon-treetop-walk', widths: [900, 1024], alt: 'A green suspension bridge running away through dense forest canopy' },
         name: 'Lake Manyara treetop walk',
         line: 'Nine suspension bridges through the canopy, at the park gate.',
         where: 'Lake Manyara, at the entrance gate',
@@ -284,6 +315,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'zipline',
+        image: { base: 'addon-zipline', widths: [900, 1300], alt: 'A man in a helmet and harness smiling as he rides a zipline through the trees', credit: { author: 'Costaricapro', license: 'CC BY-SA 3.0', url: 'https://commons.wikimedia.org/wiki/File:Zip_Line_Canopy_Tour_Costa_Rica.jpg' } },
         name: 'Zipline at Mto wa Mbu',
         line: 'Four or five zips off the Rift Valley escarpment, above the Maasai Steppe.',
         where: 'Mto wa Mbu, at the foot of the escarpment',
@@ -305,6 +337,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'quad-biking',
+        image: { base: 'addon-quad-biking', widths: [900, 1024], alt: 'Riders on quad bikes kicking up dust along an open dirt plain' },
         name: 'Quad biking',
         line: 'Automatic 450cc quads through the highland farms and the buffer zones. No experience needed.',
         where: 'Karatu & the Ngorongoro highlands, Arusha, Lake Manyara buffer',
@@ -334,6 +367,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'biking',
+        image: { base: 'addon-biking', widths: [900, 1024], alt: 'Two mountain bikers in helmets riding side by side down a red dirt track' },
         name: 'Biking',
         line: 'Mountain bikes through villages, plantations and one of the few parks that allows them.',
         where: 'Mto wa Mbu & Manyara, Arusha NP, Kilimanjaro foothills',
@@ -364,6 +398,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'canoeing',
+        image: { base: 'addon-canoeing', widths: [900, 1300], alt: 'Canoes and a small boat moored at the edge of Lake Duluti, a palm leaning over the water and forest on the far shore', credit: { author: 'Kessy Gift', license: 'CC BY-SA 4.0', url: 'https://commons.wikimedia.org/wiki/File:Lake_duluti.jpg' } },
         name: 'Canoeing',
         line: 'Two or three hours on flat water, at eye level with the birds and the hippos.',
         where: 'Lake Manyara, Momella Lakes, Lake Duluti',
@@ -394,6 +429,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'horse-riding',
+        image: { base: 'hero-horseback-sunset', widths: [900, 1600], alt: 'Two riders on a white and a bay horse stopped side by side on open grassland, watching the sun go down' },
         name: 'Horse riding',
         line: 'Out among the plains game on horseback, which lets you get closer than a vehicle does.',
         where: 'Dolly Estate (Arusha & Kilimanjaro), Manyara Ranch',
@@ -419,6 +455,7 @@ export const ADDONS: readonly Addon[] = [
     },
     {
         slug: 'spa',
+        image: { base: 'addon-spa', widths: [900, 1024], alt: 'A therapist pressing warm black stones along a guest\'s back during a hot-stone massage' },
         name: 'Spa treatment',
         line: 'A massage at the lodge, sometimes on your own deck, usually with a view.',
         where: 'Serengeti camps, Ngorongoro highlands, Zanzibar',

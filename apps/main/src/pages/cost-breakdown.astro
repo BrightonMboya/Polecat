@@ -1,0 +1,300 @@
+---
+/**
+ * /cost-breakdown/ — what a journey costs and what the price covers, in one
+ * place. Linked from the About Us menu in the header.
+ *
+ * Nothing on this page is typed in. Every figure and every line comes from
+ * src/content/packages.ts (the itinerary prices, the inclusion and exclusion
+ * lists, the Kilimanjaro day rate) or src/content/addons.ts (the add-on
+ * prices), so a price changed there changes here too. Do not add a figure to
+ * this file that the operator has not supplied; there is no "average safari
+ * cost" or per-day safari rate, because none has been given.
+ */
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import SectionHeading from '../components/SectionHeading.astro'
+import { CONTACT } from '../config'
+import { NAV } from '../content/home'
+import { ADDONS } from '../content/addons'
+import {
+    SAFARIS,
+    TREKS,
+    INCLUDED_CORE,
+    EXCLUDED_CORE,
+    TREK_INCLUDED_HEAD,
+    TREK_INCLUDED_TAIL,
+    TREK_EXCLUDED,
+    TREK_DAY_RATE,
+} from '../content/packages'
+
+const GROUPS = [
+    { id: 'safari-prices', label: 'Safaris', items: SAFARIS },
+    { id: 'kilimanjaro-prices', label: 'Kilimanjaro climbs', items: TREKS },
+]
+
+/*
+ * The trek list is the shared head and tail only. The middle (where you sleep,
+ * and the camping or hut fee) differs per route and is on each climb's page.
+ */
+const COVERS = [
+    {
+        id: 'safari-inclusions',
+        heading: 'On safari',
+        included: INCLUDED_CORE,
+        excluded: EXCLUDED_CORE,
+    },
+    {
+        id: 'kilimanjaro-inclusions',
+        heading: 'On Kilimanjaro',
+        included: [
+            ...TREK_INCLUDED_HEAD,
+            'Camping or hut fees, and accommodation as listed for your route',
+            ...TREK_INCLUDED_TAIL,
+        ],
+        excluded: TREK_EXCLUDED,
+    },
+]
+
+/* Half the shell on a wide screen, the full column below that. */
+const HERO_SRCSET =
+    '/images/hero-long-table-lanterns-900.webp 900w, /images/hero-long-table-lanterns-1600.webp 1600w'
+const HERO_SIZES = '(min-width: 1024px) 636px, calc(100vw - 48px)'
+
+const eyebrow = 'text-[11px] leading-3.5 font-medium tracking-[0.28em] text-primary uppercase'
+
+const pageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Cost Breakdown',
+    description:
+        'What a private Tanzania safari or Kilimanjaro climb with Polecat Safaris costs, what the price includes and what it does not.',
+    url: 'https://africanpolecatsafaris.com/cost-breakdown/',
+    inLanguage: 'en-GB',
+}
+---
+
+<Layout
+    title="Cost Breakdown | Safari and Kilimanjaro Prices | Polecat Safaris"
+    description="What a private Tanzania safari or Kilimanjaro climb costs with Polecat Safaris: the price of every itinerary, what is included, what is not, and what the optional extras cost."
+    preloadImage="/images/hero-long-table-lanterns-1600.webp"
+    preloadImageSrcset={HERO_SRCSET}
+    preloadImageSizes={HERO_SIZES}
+    pageSchema={pageSchema}
+>
+    <Header />
+    <main>
+        <section class="gutter flex flex-col items-center bg-cream pt-14 pb-16 lg:pt-20 lg:pb-22">
+            <div
+                class="shell flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16"
+            >
+            <div class="flex min-w-0 flex-col items-start gap-4 lg:w-1/2">
+                <p class={eyebrow}>Cost Breakdown</p>
+                <h1
+                    class="font-display max-w-220 text-[36px] leading-[1.18] font-light text-ink lg:text-[52px] lg:leading-[1.12]"
+                >
+                    What your journey costs, and what it covers
+                </h1>
+                <div class="flex max-w-180 flex-col gap-4 pt-2">
+                    <p class="text-[17px] leading-7.75 text-muted">
+                        Every price on this site is per person sharing, on a private basis: your own
+                        vehicle, your own guide and your own pace. Park fees, accommodation, meals
+                        and transfers are already in it, so the figure you see is the figure you
+                        plan around.
+                    </p>
+                    <p class="text-[17px] leading-7.75 text-muted">
+                        Rates move with the season and with which lodges have space for your dates.
+                        Your final price is confirmed in writing with your itinerary before you pay
+                        anything.
+                    </p>
+                </div>
+                <nav class="flex flex-wrap gap-x-6 gap-y-2 pt-4" aria-label="On this page">
+                    <a href="#prices" class="text-[13px] leading-5 text-primary underline-offset-4 hover:underline">Itinerary prices</a>
+                    <a href="#included" class="text-[13px] leading-5 text-primary underline-offset-4 hover:underline">What is included</a>
+                    <a href="#extras" class="text-[13px] leading-5 text-primary underline-offset-4 hover:underline">Optional extras</a>
+                </nav>
+            </div>
+            <img
+                src="/images/hero-long-table-lanterns-1600.webp"
+                srcset={HERO_SRCSET}
+                sizes={HERO_SIZES}
+                alt="A long dinner table laid in red under a tree at dusk, lit by hanging lanterns and candles"
+                width="1600"
+                height="900"
+                fetchpriority="high"
+                decoding="async"
+                class="aspect-[3/2] w-full min-w-0 object-cover lg:w-1/2"
+            />
+            </div>
+        </section>
+
+        {/* Every itinerary and its from-price, straight from packages.ts. */}
+        <section id="prices" class="gutter flex scroll-mt-8 flex-col items-center bg-white py-18 lg:py-24">
+            <SectionHeading
+                eyebrow="Itinerary Prices"
+                heading="Every journey we publish"
+                body={`Safaris are priced per itinerary. Kilimanjaro is priced at US$ ${TREK_DAY_RATE} per person for each day on the mountain.`}
+            />
+            <div class="shell mt-10 grid grid-cols-1 gap-12 lg:mt-12 lg:grid-cols-2 lg:gap-16">
+                {
+                    GROUPS.map((group) => (
+                        <div id={group.id} class="flex scroll-mt-8 flex-col">
+                            <h3 class="font-display border-b-2 border-primary pb-3 text-[26px] leading-9 text-ink">
+                                {group.label}
+                            </h3>
+                            <ul class="flex flex-col">
+                                {group.items.map((pkg) => (
+                                    <li>
+                                        <a
+                                            href={`/safari-packages/${pkg.slug}/`}
+                                            class="group flex items-baseline justify-between gap-6 border-b border-line py-4"
+                                        >
+                                            <span class="flex flex-col gap-0.5">
+                                                <span class="text-[15px] leading-6 text-ink transition-colors group-hover:text-primary">
+                                                    {pkg.name}
+                                                </span>
+                                                <span class="text-[12px] leading-4 text-muted/80">
+                                                    {pkg.duration}
+                                                </span>
+                                            </span>
+                                            <span class="shrink-0 text-right text-[14px] leading-5 font-medium text-primary">
+                                                {pkg.price}
+                                            </span>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))
+                }
+            </div>
+        </section>
+
+        {/* What the price covers, safari and mountain side by side. */}
+        <section id="included" class="gutter flex scroll-mt-8 flex-col items-center bg-cream py-18 lg:py-24">
+            <SectionHeading
+                eyebrow="What Is Included"
+                heading="What the price covers"
+                body="The same on every itinerary of its kind. Anything particular to one journey, such as a bush flight or drinks in the rate, is listed on that itinerary's page."
+            />
+            <div class="shell mt-10 grid grid-cols-1 gap-6.5 lg:mt-12 lg:grid-cols-2">
+                {
+                    COVERS.map((cover) => (
+                        <div id={cover.id} class="flex scroll-mt-8 flex-col gap-7 border-t-2 border-primary bg-white px-7 pt-8 pb-9 lg:px-9">
+                            <h3 class="font-display text-[27px] leading-9 text-ink">{cover.heading}</h3>
+                            <div class="flex flex-col gap-3">
+                                <p class={eyebrow}>Included</p>
+                                <ul class="flex list-disc flex-col gap-2 pl-5 marker:text-primary">
+                                    {cover.included.map((line) => (
+                                        <li class="text-[15px] leading-6.5 text-ink">{line}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-muted uppercase">
+                                    Not included
+                                </p>
+                                <ul class="flex list-disc flex-col gap-2 pl-5 marker:text-muted/60">
+                                    {cover.excluded.map((line) => (
+                                        <li class="text-[15px] leading-6.5 text-muted">{line}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    ))
+                }
+            </div>
+        </section>
+
+        {/* Extras: the add-on prices from addons.ts, plus the two things every
+            guest asks about. */}
+        <section id="extras" class="gutter flex scroll-mt-8 flex-col items-center bg-white py-18 lg:py-24">
+            <SectionHeading
+                eyebrow="Optional Extras"
+                heading="What you might add"
+                body="None of these are in the itinerary price. Each is quoted per person with your itinerary, so nothing is added on the day."
+            />
+            <div class="shell mt-10 grid grid-cols-1 gap-12 lg:mt-12 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
+                <div class="flex flex-col">
+                    <h3 class="font-display border-b-2 border-primary pb-3 text-[26px] leading-9 text-ink">
+                        Safari add-ons
+                    </h3>
+                    <ul class="grid grid-cols-1 gap-x-10 sm:grid-cols-2">
+                        {
+                            ADDONS.map((addon) => (
+                                <li>
+                                    <a
+                                        href={`/safari-add-ons/#${addon.slug}`}
+                                        class="group flex items-baseline justify-between gap-4 border-b border-line py-3"
+                                    >
+                                        <span class="text-[14px] leading-5.5 text-ink transition-colors group-hover:text-primary">
+                                            {addon.name}
+                                        </span>
+                                        <span class="shrink-0 text-[12px] leading-5 text-muted">
+                                            {addon.price}
+                                        </span>
+                                    </a>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+                <div class="flex flex-col gap-8">
+                    <div class="flex flex-col gap-3">
+                        <h3 class="font-display text-[23px] leading-8 text-ink">Travelling alone</h3>
+                        <p class="text-[15px] leading-7 text-muted">
+                            Prices are per person sharing. A single supplement applies to solo
+                            travellers and is quoted on request, because it depends on the lodges on
+                            your itinerary.
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <h3 class="font-display text-[23px] leading-8 text-ink">Tipping</h3>
+                        <p class="text-[15px] leading-7 text-muted">
+                            Tips are not included and are never compulsory. The amount is entirely
+                            yours to decide, and your safari consultant can give you current
+                            guidance for your itinerary.
+                        </p>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <h3 class="font-display text-[23px] leading-8 text-ink">Flights, visas and insurance</h3>
+                        <p class="text-[15px] leading-7 text-muted">
+                            International flights, Tanzanian visa fees and travel insurance are
+                            arranged by you. Our <a href="/travel-information/" class="text-primary underline underline-offset-4">travel information</a> covers what you need before you fly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="gutter flex flex-col items-center bg-primary py-16 lg:py-20">
+            <div class="shell flex max-w-220 flex-col items-center gap-5 text-center">
+                <p class="text-[11px] leading-3.5 font-medium tracking-[0.28em] text-gold uppercase">
+                    Your Quote
+                </p>
+                <h2 class="font-display text-[30px] leading-10 font-light text-cream lg:text-[40px] lg:leading-12">
+                    A real price for your dates
+                </h2>
+                <p class="max-w-160 text-[16px] leading-7.25 text-sage">
+                    Tell us roughly when and who is travelling, and we will send a draft itinerary
+                    with real lodges and a confirmed price.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4 pt-3">
+                    <a
+                        href={NAV.enquire.href}
+                        class="flex items-center justify-center bg-cream px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-white"
+                    >
+                        {NAV.enquire.label}
+                    </a>
+                    <a
+                        href={CONTACT.phoneHref}
+                        class="flex items-center justify-center border border-cream/60 px-8 py-3.75 text-[12px] leading-4 font-medium tracking-[0.2em] text-cream uppercase transition-colors hover:bg-cream hover:text-primary"
+                    >
+                        {CONTACT.phone}
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <Footer />
+</Layout>
