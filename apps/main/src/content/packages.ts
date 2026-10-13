@@ -180,7 +180,27 @@ export interface SafariPackage {
     faqs?: Faq[]
     /** The six the homepage section shows. The index page shows all of them. */
     featured?: boolean
+    /**
+     * Set on the itineraries that offer a downloadable PDF. Its presence is
+     * what builds /safari-packages/<slug>/brochure/ and what puts the
+     * download button in the price rail; scripts/itinerary-pdf.mjs prints
+     * that page to public/itineraries/<slug>.pdf, and has to be re-run after
+     * editing the itinerary or the PDF goes stale.
+     *
+     * Each day's photograph is the lodge it sleeps at, from accommodations.ts.
+     * `dayImages` covers the days that have no lodge shoot, or no overnight.
+     */
+    brochure?: {
+        /** The photograph on the welcome page. */
+        intro: string
+        /** The photograph under the details page. */
+        closing: string
+        dayImages?: Partial<Record<number, string>>
+    }
 }
+
+/** Where a package's brochure PDF is served, once the script has printed it. */
+export const brochureHref = (pkg: SafariPackage) => `/itineraries/${pkg.slug}.pdf`
 
 // Approximate positions — accurate enough to draw a readable route line, and
 // no more than that. Airports and towns are the real thing; a park is pinned
@@ -2591,6 +2611,18 @@ export const PACKAGES: SafariPackage[] = [
             FAQ_CUSTOMISE,
         ],
         featured: true,
+        brochure: {
+            intro: '/images/serengeti-migration-game-drive.jpg',
+            closing: '/images/style-migration.webp',
+            /* Meliá Arusha and the Pink Flamingo have no shoot yet (see
+               accommodations.ts), and the last day has no overnight. */
+            dayImages: {
+                10: '/images/hero-tree-climbing-lion-1600.webp',
+                11: '/images/kili-moorland-trail.webp',
+                12: '/images/impact-materuni.webp',
+                13: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
     },
     /* -------------------------------------------------------- Kilimanjaro */
     {

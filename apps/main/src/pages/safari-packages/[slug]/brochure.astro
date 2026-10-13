@@ -1,0 +1,550 @@
+---
+/**
+ * The itinerary as an A4 brochure — the page scripts/itinerary-pdf.mjs prints
+ * to public/itineraries/<slug>.pdf, which the itinerary page offers as a
+ * download. Not meant to be read in a browser, and kept out of the index.
+ *
+ * After the sample the client sent (Legendary Expeditions' "Connected
+ * adventure"): a full-bleed cover, a welcome page, the days two to a page
+ * with a photograph each, alternating sides, and the details at the end.
+ *
+ * Built only for the packages that set `brochure` in packages.ts.
+ */
+import '../../../styles/global.css'
+import { PACKAGES, type SafariPackage } from '../../../content/packages'
+import { findAccommodation } from '../../../content/accommodations'
+import { SITE, CONTACT } from '../../../config'
+
+export function getStaticPaths() {
+    return PACKAGES.filter((pkg) => pkg.brochure).map((pkg) => ({
+        params: { slug: pkg.slug },
+        props: { pkg },
+    }))
+}
+
+interface Props {
+    pkg: SafariPackage
+}
+
+const { pkg } = Astro.props
+const brochure = pkg.brochure!
+
+/*
+ * A day's photograph is the lodge it sleeps at. Two nights at the same lodge
+ * take its next frame rather than the same one twice.
+ */
+const used = new Map<string, number>()
+const days = pkg.itinerary.map((day) => {
+    let image = brochure.dayImages?.[day.n]
+    if (!image) {
+        const stay = findAccommodation(day.overnight)
+        if (stay && stay.images.length > 0) {
+            const i = used.get(stay.slug) ?? 0
+            used.set(stay.slug, i + 1)
+            image = stay.images[i % stay.images.length]
+        }
+    }
+    return { ...day, image: image ?? pkg.image }
+})
+
+const spreads: (typeof days)[] = []
+for (let i = 0; i < days.length; i += 2) spreads.push(days.slice(i, i + 2))
+
+// Each lodge once, in the order the trip reaches it.
+const stays = [...new Set(pkg.itinerary.map((d) => d.overnight).filter(Boolean))] as string[]
+
+const coverImage = pkg.imageSrcset.split(',').pop()!.trim().split(' ')[0]
+const site = new URL('/', Astro.site).host.replace(/^www\./, '')
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>{pkg.name} — Itinerary | {SITE.name}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Karla:wght@400;500;600&display=swap"
+        />
+    </head>
+    <body>
+        {/* Cover */}
+        <section class="page cover">
+            <img src={coverImage} alt="" class="bleed" style={pkg.imageFocus && `object-position: ${pkg.imageFocus}`} />
+            <div class="cover-scrim"></div>
+            <div class="cover-top">
+                <h1>{pkg.name.replace(/^\d+-Day\s+/, '')}</h1>
+                <p class="eyebrow light">{pkg.nights} night itinerary</p>
+                <p class="cover-region">{pkg.region}</p>
+            </div>
+            <div class="cover-foot">
+                <img src="/images/logo-mark.png" alt="" class="mark" />
+                <p class="wordmark">{SITE.legalName}</p>
+                <p class="slogan">{SITE.slogan}</p>
+            </div>
+        </section>
+
+        {/* Welcome */}
+        <section class="page welcome">
+            <div class="welcome-text">
+                <h2 class="script">Welcome to your safari.</h2>
+                <p class="eyebrow">{pkg.duration} · {pkg.category}</p>
+                <p class="lead">{pkg.summary}</p>
+                <ul class="highlights">
+                    {pkg.highlights.map((line) => <li>{line}</li>)}
+                </ul>
+                <dl class="facts">
+                    <div><dt>Duration</dt><dd>{pkg.days} days, {pkg.nights} nights</dd></div>
+                    <div><dt>Best time</dt><dd>{pkg.bestTime}</dd></div>
+                    <div><dt>From</dt><dd>{pkg.priceFrom} <span>{pkg.priceUnit.toLowerCase()}</span></dd></div>
+                </dl>
+            </div>
+            <img src={brochure.intro} alt="" class="welcome-image" />
+        </section>
+
+        {/* The days, two to a page */}
+        {
+            spreads.map((pair, p) => (
+                <section class="page days">
+                    <h2 class="script page-title">The itinerary</h2>
+                    {pair.map((day, i) => (
+                        <article class:list={['day', (p * 2 + i) % 2 === 1 && 'flip']}>
+                            <img src={day.image} alt="" class="day-image" />
+                            <div class="day-text">
+                                <p class="day-n">{day.label}</p>
+                                <h3>{day.title}</h3>
+                                {day.overnight && <p class="where">{day.overnight}</p>}
+                                {day.paragraphs.map((para) => <p class="body">{para}</p>)}
+                                {day.meals && <p class="meta"><span>Meals</span> {day.meals}</p>}
+                            </div>
+                        </article>
+                    ))}
+                    <footer class="folio">{SITE.name} · {pkg.name}</footer>
+                </section>
+            ))
+        }
+
+        {/* The details */}
+        <section class="page details">
+            <h2 class="script page-title">The details</h2>
+            <dl class="rows">
+                <div>
+                    <dt>Itinerary rate</dt>
+                    <dd>
+                        From {pkg.priceFrom}, {pkg.priceUnit.toLowerCase()}.
+                        {pkg.priceNote && <> {pkg.priceNote}</>}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Accommodation</dt>
+                    <dd>{stays.join(' · ')}</dd>
+                </div>
+                <div>
+                    <dt>Included</dt>
+                    <dd><ul>{pkg.included.map((line) => <li>{line}</li>)}</ul></dd>
+                </div>
+                <div>
+                    <dt>Excluded</dt>
+                    <dd><ul>{pkg.excluded.map((line) => <li>{line}</li>)}</ul></dd>
+                </div>
+            </dl>
+            <p class="contact">
+                {CONTACT.email} &nbsp;·&nbsp; {CONTACT.phone} &nbsp;·&nbsp; {site}
+            </p>
+            <img src={brochure.closing} alt="" class="closing-image" />
+        </section>
+    </body>
+</html>
+
+<style is:global>
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    html,
+    body {
+        margin: 0;
+        background: #e9e9e4;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body {
+        font-family: var(--font-body);
+        color: var(--color-ink);
+    }
+
+    .page {
+        position: relative;
+        width: 210mm;
+        height: 297mm;
+        overflow: hidden;
+        background: var(--color-cream);
+        page-break-after: always;
+        break-after: page;
+        box-sizing: border-box;
+    }
+
+    @media screen {
+        .page {
+            margin: 10mm auto;
+            box-shadow: 0 1mm 4mm rgb(0 0 0 / 0.12);
+        }
+    }
+
+    img {
+        display: block;
+        object-fit: cover;
+    }
+
+    .script {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 300;
+        color: var(--color-ink);
+        margin: 0;
+    }
+
+    .eyebrow {
+        margin: 0;
+        font-size: 7.5pt;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        font-weight: 500;
+        color: var(--color-primary);
+    }
+
+    .eyebrow.light {
+        color: #fff;
+    }
+
+    /* Cover */
+    .bleed {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .cover-scrim {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            180deg,
+            rgb(20 26 22 / 0.62) 0%,
+            rgb(20 26 22 / 0.18) 34%,
+            rgb(20 26 22 / 0) 55%,
+            rgb(20 26 22 / 0.55) 100%
+        );
+    }
+
+    .cover-top {
+        position: absolute;
+        top: 26mm;
+        left: 18mm;
+        right: 18mm;
+        text-align: center;
+        color: #fff;
+    }
+
+    .cover-top h1 {
+        margin: 0 0 6mm;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 300;
+        font-size: 44pt;
+        line-height: 1.05;
+    }
+
+    .cover-region {
+        margin: 4mm auto 0;
+        max-width: 120mm;
+        font-size: 10pt;
+        line-height: 1.5;
+    }
+
+    .cover-foot {
+        position: absolute;
+        bottom: 18mm;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #fff;
+    }
+
+    .mark {
+        width: 13mm;
+        height: 13mm;
+        object-fit: contain;
+        filter: brightness(0) invert(1);
+    }
+
+    .wordmark {
+        margin: 3mm 0 1.5mm;
+        font-family: var(--font-display);
+        font-size: 13pt;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+    }
+
+    .slogan {
+        margin: 0;
+        font-size: 7.5pt;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+    }
+
+    /* Welcome */
+    .welcome {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .welcome-text {
+        padding: 22mm 22mm 0;
+        text-align: center;
+    }
+
+    .welcome h2 {
+        font-size: 34pt;
+        line-height: 1.1;
+        margin-bottom: 5mm;
+    }
+
+    .lead {
+        margin: 6mm auto 0;
+        max-width: 140mm;
+        font-family: var(--font-display);
+        font-size: 14pt;
+        line-height: 1.45;
+        font-weight: 400;
+    }
+
+    .highlights {
+        margin: 7mm 0 0;
+        padding: 0;
+        list-style: none;
+        columns: 2;
+        column-gap: 10mm;
+        text-align: left;
+        font-size: 8.5pt;
+        line-height: 1.5;
+        color: var(--color-muted);
+    }
+
+    .highlights li {
+        break-inside: avoid;
+        padding: 0 0 1.6mm 5mm;
+        position: relative;
+    }
+
+    .highlights li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 2.2mm;
+        width: 2.5mm;
+        height: 0.3mm;
+        background: var(--color-primary);
+    }
+
+    .facts {
+        margin: 7mm 0 0;
+        padding-top: 6mm;
+        border-top: 0.3mm solid var(--color-line);
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6mm;
+    }
+
+    .facts dt,
+    .rows dt,
+    .meta span {
+        font-size: 6.5pt;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        font-weight: 500;
+        color: var(--color-muted);
+    }
+
+    .facts dd {
+        margin: 1.5mm 0 0;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 13pt;
+    }
+
+    .facts dd span {
+        display: block;
+        font-family: var(--font-body);
+        font-style: normal;
+        font-size: 7pt;
+        color: var(--color-muted);
+    }
+
+    .welcome-image {
+        margin-top: auto;
+        width: 100%;
+        height: 92mm;
+    }
+
+    /* Days */
+    .days {
+        padding: 16mm 0 0;
+    }
+
+    .page-title {
+        text-align: center;
+        font-size: 28pt;
+        line-height: 1;
+        margin-bottom: 9mm;
+    }
+
+    .day {
+        display: grid;
+        grid-template-columns: 96mm 1fr;
+        gap: 9mm;
+        height: 118mm;
+        margin-bottom: 9mm;
+    }
+
+    .day.flip {
+        grid-template-columns: 1fr 96mm;
+    }
+
+    .day.flip .day-image {
+        order: 2;
+    }
+
+    .day.flip .day-text {
+        padding: 0 0 0 16mm;
+    }
+
+    .day-image {
+        width: 100%;
+        height: 100%;
+    }
+
+    .day-text {
+        padding: 0 16mm 0 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .day-n {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 26pt;
+        font-weight: 300;
+        line-height: 1;
+    }
+
+    .day h3 {
+        margin: 4mm 0 1mm;
+        font-family: var(--font-display);
+        font-size: 10pt;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        line-height: 1.35;
+        color: var(--color-primary);
+    }
+
+    .where {
+        margin: 0 0 3mm;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 11pt;
+        line-height: 1.3;
+    }
+
+    .body {
+        margin: 0 0 2mm;
+        font-size: 8.5pt;
+        line-height: 1.55;
+        color: var(--color-muted);
+    }
+
+    .meta {
+        margin: 2mm 0 0;
+        font-size: 8pt;
+        color: var(--color-ink);
+    }
+
+    .meta span {
+        margin-right: 1.5mm;
+    }
+
+    .folio {
+        position: absolute;
+        bottom: 8mm;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 6.5pt;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--color-muted);
+    }
+
+    /* Details */
+    .details {
+        padding: 16mm 0 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .rows {
+        margin: 0 22mm;
+    }
+
+    .rows > div {
+        display: grid;
+        grid-template-columns: 38mm 1fr;
+        gap: 6mm;
+        padding: 3.2mm 0;
+        border-top: 0.3mm solid var(--color-line);
+    }
+
+    .rows dt {
+        text-align: right;
+        padding-top: 0.6mm;
+    }
+
+    .rows dd {
+        margin: 0;
+        font-size: 8.5pt;
+        line-height: 1.55;
+        color: var(--color-muted);
+    }
+
+    .rows ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .contact {
+        margin: 6mm 22mm 6mm;
+        text-align: center;
+        font-size: 8pt;
+        color: var(--color-primary);
+        letter-spacing: 0.04em;
+    }
+
+    .closing-image {
+        margin-top: auto;
+        width: 100%;
+        height: 62mm;
+        min-height: 0;
+        flex: 1 1 62mm;
+        max-height: 80mm;
+    }
+</style>

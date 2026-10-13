@@ -8,11 +8,12 @@
  * are now the three routes those itineraries actually sell rather than three
  * countries. The journal posts are the real ones migrated out of WordPress.
  *
- * The photography is still stock, and every `imageAlt` describes the photograph
- * rather than claiming a place it cannot vouch for. The hero and the itinerary
- * cards now lead with people in the experience rather than with animals; the
- * destination and journal art is still the Paper design's. Replace all of it
- * with the operator's own before this page takes production traffic.
+ * The hero photographs are the operator's own, chosen by them from the old
+ * WordPress media library. The rest of the photography is still stock, and
+ * every `imageAlt` describes the photograph rather than claiming a place it
+ * cannot vouch for. The destination and journal art is still the Paper
+ * design's. Replace it with the operator's own before this page takes
+ * production traffic.
  */
 
 import { TRIPADVISOR } from '../config'
@@ -41,21 +42,22 @@ export interface Review {
 }
 
 export const HERO = {
-    heading: 'Celebrate Life Milestones in the Wild',
-    /* The italic line under the headline. Kept to two clauses — the occasions,
-       then the promise — so it balances onto two lines at desktop width. */
+    heading: 'Travel Deep. Feel More.',
+    /* The italic line under the headline. Kept general on purpose — the client
+       asked that the hero not read as a honeymoon page — and to two clauses,
+       the where then the who, so it balances onto two lines at desktop width. */
     subheading:
-        'From honeymoons to anniversaries to family holidays — let us help you celebrate the moments that matter with a curated wildlife experience.',
+        "Private safaris through Tanzania's wild places and on to Zanzibar's shores\u00a0— shaped around how you want to travel, and who you're travelling with.",
     /*
      * The hero cycles. `slides[0]` is the one the browser preloads and paints
      * — it is the LCP, so it is the only one served at three widths and the
      * only one with alt text; the rest fade in behind it on a loop and are
      * marked decorative (see Hero.astro).
      *
-     * The loop mixes stock with the operator's own photography, and is
-     * ordered so that no two frames of the same subject sit next to each
-     * other — two lantern-lit dinner tables back to back read as one
-     * photograph shown twice.
+     * These seven are the operator's own choice, pulled from the old WordPress
+     * media library, in the order they asked for them except that the two
+     * family frames are split apart — two families on the grass back to back
+     * read as one photograph shown twice.
      *
      * Every `imageAlt` describes the photograph rather than claiming a place
      * it cannot vouch for. Adding, removing or re-cropping a slide means
@@ -65,58 +67,50 @@ export const HERO = {
      */
     slides: [
         {
-            image: '/images/hero-acacia-game-drive-1400.webp',
+            image: '/images/hero-beach-infinity-pool-1400.webp',
             srcset:
-                '/images/hero-acacia-game-drive-900.webp 900w, /images/hero-acacia-game-drive-1400.webp 1400w, /images/hero-acacia-game-drive-1920.webp 1920w',
-            alt: 'A guide and a guest standing beside an open-sided game drive vehicle under a flat-topped acacia, open plains running to the horizon behind them',
+                '/images/hero-beach-infinity-pool-900.webp 900w, /images/hero-beach-infinity-pool-1400.webp 1400w, /images/hero-beach-infinity-pool-1920.webp 1920w',
+            alt: 'An infinity pool lined with palms and white parasols in front of a thatched beach lodge, the sea beyond it and the palms reflected in the water',
         },
         {
-            image: '/images/hero-campfire-wine-1600.webp',
+            image: '/images/hero-family-bush-walk-1600.webp',
             srcset:
-                '/images/hero-campfire-wine-900.webp 900w, /images/hero-campfire-wine-1600.webp 1600w',
-            alt: 'A woman sitting with a glass of red wine on cushions by a campfire on a rocky outcrop, looking out over the bush at dusk',
+                '/images/hero-family-bush-walk-900.webp 900w, /images/hero-family-bush-walk-1600.webp 1600w',
+            alt: 'A family crouched in long grass with two guides, the youngest looking through binoculars, acacias behind them',
         },
         {
-            image: '/images/hero-baobab-bush-brunch-1400.webp',
+            image: '/images/hero-tree-climbing-lion-1600.webp',
             srcset:
-                '/images/hero-baobab-bush-brunch-900.webp 900w, /images/hero-baobab-bush-brunch-1400.webp 1400w',
-            alt: 'Guests standing with drinks around long tables laid for brunch in the shade of a baobab, a game drive vehicle parked behind them',
+                '/images/hero-tree-climbing-lion-900.webp 900w, /images/hero-tree-climbing-lion-1600.webp 1600w',
+            alt: 'A young lion asleep draped along a thick tree branch, a hind leg hanging down below it',
         },
         {
-            image: '/images/hero-long-table-lanterns-1600.webp',
+            image: '/images/hero-camp-firepit-dusk-1220.webp',
             srcset:
-                '/images/hero-long-table-lanterns-900.webp 900w, /images/hero-long-table-lanterns-1600.webp 1600w',
-            alt: 'A long table laid for dinner in a clearing at dusk, red director chairs down both sides and lanterns hung in the trees above it',
+                '/images/hero-camp-firepit-dusk-900.webp 900w, /images/hero-camp-firepit-dusk-1220.webp 1220w',
+            alt: 'A fire burning in a pit before canvas camp tents at dusk, director chairs and lanterns set out on the ground around it',
         },
         {
-            image: '/images/hero-lodge-games-1400.webp',
+            image: '/images/hero-family-game-viewing-1354.webp',
             srcset:
-                '/images/hero-lodge-games-900.webp 900w, /images/hero-lodge-games-1400.webp 1400w',
-            alt: 'Four people around a wooden table under a thatched roof, mid-game with tiles laid out between them and forest behind',
+                '/images/hero-family-game-viewing-900.webp 900w, /images/hero-family-game-viewing-1354.webp 1354w',
+            alt: 'A girl standing on the bonnet of a safari vehicle while her parents watch and photograph a herd of gazelle and wildebeest on the plain',
         },
         {
-            image: '/images/hero-horseback-sunset-1600.webp',
+            image: '/images/hero-lodge-garden-dinner-1366.webp',
             srcset:
-                '/images/hero-horseback-sunset-900.webp 900w, /images/hero-horseback-sunset-1600.webp 1600w',
-            alt: 'Two riders on a white and a bay horse stopped side by side on open grassland, watching the sun go down',
-        },
-        /* The frame the 6-Day Honeymoon card used to carry, re-cropped to 16:9
-           from the original. */
-        {
-            image: '/images/hero-lantern-dinner-1600.webp',
-            srcset:
-                '/images/hero-lantern-dinner-900.webp 900w, /images/hero-lantern-dinner-1600.webp 1600w',
-            alt: 'A couple at a table laid for dinner under an acacia hung with hurricane lanterns, more lanterns along the path and a fire burning outside the tents behind them',
+                '/images/hero-lodge-garden-dinner-900.webp 900w, /images/hero-lodge-garden-dinner-1366.webp 1366w',
+            alt: 'A table laid with white linen and a candle in a hurricane glass on a brick terrace, uplit trees and lanterns in the garden behind',
         },
         {
-            image: '/images/hero-shaded-lunch-table-1600.webp',
+            image: '/images/hero-bush-daybed-shelter-1600.webp',
             srcset:
-                '/images/hero-shaded-lunch-table-900.webp 900w, /images/hero-shaded-lunch-table-1600.webp 1600w',
-            alt: 'Four guests in sun hats eating lunch at a table under dappled shade, wine poured and the garden green behind them',
+                '/images/hero-bush-daybed-shelter-900.webp 900w, /images/hero-bush-daybed-shelter-1600.webp 1600w',
+            alt: 'A cushioned daybed under a rustic timber shelter on a brick floor, a lantern hanging from a post and woodland all around',
         },
     ],
     imageSizes: '100vw',
-    cta: { label: 'Tell Us About Your Milestone', href: '/enquire/' },
+    cta: { label: 'Start Planning Your Safari', href: '/enquire/' },
 } as const
 
 /**
@@ -170,7 +164,7 @@ export const TRAVEL_STYLES: {
         {
             slug: 'family',
             title: 'Family',
-            blurb: 'Shorter drives, earlier dinners, and guides who know how to hold a seven-year-old’s attention all morning.',
+            blurb: 'Shorter drives, earlier dinners and guides who are good with kids.',
             image: '/images/style-family.webp',
             imageAlt:
                 'A camp cook lifting a grill of roasted vegetables while a small girl in a pink jacket watches from beside him',
@@ -179,7 +173,7 @@ export const TRAVEL_STYLES: {
         {
             slug: 'honeymoon',
             title: 'Honeymoon',
-            blurb: 'A dinner laid out where nobody else can find you, late breakfasts, and camps quiet enough to hear the plains.',
+            blurb: 'Private bush dinners, late breakfasts and the quietest camps.',
             image: '/images/style-honeymoon.webp',
             imageAlt:
                 'A couple reading together on the bed of a tented room, a breakfast tray beside them and the bush through the open canvas',
@@ -192,7 +186,7 @@ export const TRAVEL_STYLES: {
                picture twice. */
             slug: 'migration',
             title: 'Migration',
-            blurb: 'Twelve nights following the herds: Lake Natron, the Mara River in the northern Serengeti, then west and central as they move.',
+            blurb: 'Twelve nights following the herds from Lake Natron to the Mara.',
             image: '/images/style-migration.webp',
             imageAlt:
                 'A column of wildebeest walking up a track towards the camera, zebra behind them and thousands more spread along the horizon',
@@ -201,7 +195,7 @@ export const TRAVEL_STYLES: {
         {
             slug: 'trekking',
             title: 'Trekking',
-            blurb: 'Days on foot: Kilimanjaro by Marangu, Machame, Rongai, Lemosho or the Northern Circuit — and, on the safaris, a walking safari with an armed ranger.',
+            blurb: 'Kilimanjaro by any of five routes, or a walking safari with an armed ranger alongside you.',
             image: '/images/style-trekking.webp',
             imageAlt:
                 'A line of trekkers with packs and poles crossing the high desert of the Kilimanjaro saddle, the snow-streaked summit of Kibo ahead of them',
@@ -213,10 +207,73 @@ export const TRAVEL_STYLES: {
             slug: 'fly-in',
             title: 'Fly-In',
             preset: { trip: ['safari'], interests: ['fly-in'] },
-            blurb: 'An hour in a light aircraft instead of a day in a vehicle — a scheduled bush flight straight onto the Serengeti plains, and the drive from the airstrip is your first game drive.',
+            blurb: 'An hour in a light aircraft instead of a day on the road, landing straight onto the Serengeti plains.',
             image: '/images/style-fly-in.webp',
             imageAlt:
                 'A pilot in uniform carrying two kit bags away from a single-engine Cessna parked on a gravel bush airstrip',
+        },
+    ],
+}
+
+/*
+ * "Every safari has its own story" — the homepage carousel after the one on
+ * abercrombiekent.com ("What kind of trip are you looking for?"), which the
+ * client asked for by name, holding the four experience categories the client
+ * listed: Great Migration, Photography, Beach & Holiday and Fly-In.
+ *
+ * Each card opens the planner the way the travel-style cards above do, and
+ * the same rule holds for `preset`: only what the title already says. Slugs
+ * share the `?plan=` namespace with TRAVEL_STYLES and must not repeat one
+ * (enquire.astro checks).
+ *
+ * The images are 3:4 portrait crops cut by scripts/experience-cards.py. After
+ * re-cropping, re-run `scripts/style-card-scrim.py --experiences` and update
+ * the gradient in Experiences.astro.
+ */
+export const EXPERIENCES: {
+    heading: string
+    body: string
+    cta: string
+    items: readonly TravelStyle[]
+} = {
+    heading: 'Every safari has its own story. What’s in yours?',
+    body: 'Tell us what you hope to see, and we will build the trip around it.',
+    cta: 'Plan Your Safari',
+    items: [
+        {
+            slug: 'great-migration',
+            title: 'Great Migration',
+            blurb: 'Front-row seats as the herds move across the Serengeti and the Mara River.',
+            image: '/images/exp-migration.webp',
+            imageAlt: 'Wildebeest grazing beneath a lone acacia on the Serengeti, a safari vehicle parked beside them',
+            preset: { trip: ['safari'], interests: ['migration'] },
+        },
+        {
+            slug: 'photography',
+            title: 'Photography',
+            blurb: 'Unhurried sightings, the best of the light, and a guide who knows where to wait.',
+            image: '/images/exp-photography.webp',
+            imageAlt: 'A lioness lying in golden grass, looking straight into the lens',
+            preset: { interests: ['photography'] },
+        },
+        {
+            slug: 'beach',
+            title: 'Beach & Holiday',
+            blurb: 'Finish on Zanzibar’s white sand, a short flight from the bush.',
+            /* Tulia Zanzibar Unique Beach Resort, Pongwe — the last stop of
+               the 8-Day Tanzania & Zanzibar Honeymoon. */
+            image: '/images/exp-beach.webp',
+            imageAlt:
+                'A path between palms opening onto white sand and the turquoise water off Pongwe Beach, Zanzibar, a paddleboarder out on the lagoon',
+            preset: { trip: ['zanzibar'] },
+        },
+        {
+            slug: 'fly-in-safari',
+            title: 'Fly-In Safaris',
+            blurb: 'Light aircraft between the parks — more time on the ground, less on the road.',
+            image: '/images/exp-fly-in.webp',
+            imageAlt: 'The wing and cabin windows of a light aircraft parked on a gravel bush airstrip',
+            preset: { trip: ['safari'], interests: ['fly-in'] },
         },
     ],
 }

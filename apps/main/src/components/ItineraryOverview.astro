@@ -4,11 +4,11 @@
  * the prose and its facts on the left, a price rail on the right carrying the
  * rate, the price breakdown and the way to start a conversation.
  *
- * kan's rail offers an itinerary PDF beside the enquiry button. There is no
- * PDF to link to here, so the rail carries the phone number instead — the
- * operator answers it, and the design leaves room for a second affordance.
+ * kan's rail offers an itinerary PDF beside the enquiry button. Here that
+ * only exists for the packages that set `brochure` (see packages.ts); the
+ * rest carry just the phone number, which the operator answers.
  */
-import type { SafariPackage } from '../content/packages'
+import { brochureHref, type SafariPackage } from '../content/packages'
 import { CONTACT } from '../config'
 
 interface Props {
@@ -110,6 +110,28 @@ const facts: [string, string][] = [
                     >
                         Request This Journey
                     </a>
+                    {
+                        pkg.brochure && (
+                            <a
+                                href={brochureHref(pkg)}
+                                download
+                                class="flex items-center justify-center gap-2.5 border border-primary px-7 py-4 text-center text-[12px] leading-4 font-medium tracking-[0.18em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
+                            >
+                                <svg
+                                    viewBox="0 0 16 16"
+                                    class="size-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M8 2v8.5M4.5 7 8 10.5 11.5 7M2.5 13.5h11" />
+                                </svg>
+                                Download Itinerary
+                                <span class="sr-only">(PDF)</span>
+                            </a>
+                        )
+                    }
                     <a
                         href={CONTACT.phoneHref}
                         class="flex items-center justify-center border border-primary px-7 py-4 text-center text-[12px] leading-4 font-medium tracking-[0.18em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"

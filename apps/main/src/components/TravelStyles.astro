@@ -20,7 +20,7 @@ import { TRAVEL_STYLES } from '../content/home'
  *
  * Measured, not guessed: scripts/style-card-scrim.py takes the brightest pixel
  * under each band of each of the five images and solves for the least alpha
- * that clears WCAG AA — 3:1 for the 27px title, 4.5:1 for the 15px copy. The
+ * that clears WCAG AA — 3:1 for the 24px title, 4.5:1 for the 14px copy. The
  * worst case across the five is 0.48 under the title and 0.61 under the copy
  * (three of the five put a pure white pixel under both), and the stops below
  * hold 0.50 through the title band and reach 0.64 before the copy band starts.
@@ -48,8 +48,12 @@ const SCRIM =
         The shape follows the position rather than a field on the card: it is
         the grid that decides how wide a slot is. Reordering TRAVEL_STYLES
         therefore means re-cropping — the last two images are 3:2, the rest
-        3:4. */}
-    <ul class="shell mt-10 grid grid-cols-1 gap-5.5 sm:grid-cols-2 lg:mt-13 lg:grid-cols-6">
+        3:4.
+
+        The grid is held to 56rem, not the 1336px shell: at full shell width
+        each card was about half as big again as the reference's, which sets
+        this band noticeably narrower than the rest of its page. */}
+    <ul class="mx-auto mt-10 grid w-full max-w-[56rem] grid-cols-1 gap-3.5 sm:grid-cols-2 lg:mt-13 lg:grid-cols-6">
         {
             TRAVEL_STYLES.items.map((style, index) => {
                 const wide = index >= 3
@@ -77,15 +81,15 @@ const SCRIM =
                             decoding="async"
                             class:list={[
                                 'w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]',
-                                wide ? 'aspect-[3/2]' : 'aspect-[3/4]',
+                                wide ? 'aspect-[3/2]' : 'aspect-[5/7]',
                             ]}
                         />
                         <div class="absolute inset-0" style={SCRIM} aria-hidden="true"></div>
-                        <div class="absolute inset-0 flex flex-col justify-between gap-6 p-6 text-center lg:p-7">
-                            <h3 class="font-display text-[27px] leading-9 font-light text-white lg:text-[30px] lg:leading-10">
+                        <div class="absolute inset-0 flex flex-col justify-between gap-5 p-5 text-center lg:p-6">
+                            <h3 class="font-display text-[24px] leading-8 font-light text-white lg:text-[26px] lg:leading-9">
                                 {style.title}
                             </h3>
-                            <p class="text-[15px] leading-6.5 text-white">{style.blurb}</p>
+                            <p class="text-[14px] leading-6 text-white">{style.blurb}</p>
                         </div>
                     </a>
                 </li>

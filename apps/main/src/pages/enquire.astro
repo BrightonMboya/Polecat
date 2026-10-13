@@ -11,8 +11,9 @@
  * Kept from the planner it replaces:
  *   - ?itinerary=<slug> from an itinerary page names the journey above the
  *     card, presets the trip type and length, and reaches the inbox.
- *   - ?plan=<slug> from the homepage travel-style cards presets the answers
- *     the card's title already gives (TRAVEL_STYLES[].preset).
+ *   - ?plan=<slug> from the homepage travel-style and experience cards
+ *     presets the answers the card's title already gives
+ *     (TRAVEL_STYLES[].preset, EXPERIENCES[].preset).
  *   - the answers POST to Web3Forms as labelled fields, and on failure the
  *     visitor is handed email and WhatsApp instead.
  *
@@ -25,7 +26,7 @@ import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import { CONTACT, WEB3FORMS, whatsappLink } from '../config'
 import { PACKAGES } from '../content/packages'
-import { TRAVEL_STYLES } from '../content/home'
+import { EXPERIENCES, TRAVEL_STYLES } from '../content/home'
 
 const TRIP_TYPES = [
     { value: 'safari', label: 'Safari', hint: 'Serengeti, Ngorongoro & Tarangire' },
@@ -77,12 +78,15 @@ const presetOptions: Record<string, readonly { value: string }[]> = {
     interests: INTERESTS,
 }
 const plans = Object.fromEntries(
-    TRAVEL_STYLES.items.map((style) => {
+    [...TRAVEL_STYLES.items, ...EXPERIENCES.items].map((style, index, all) => {
+        if (all.findIndex((other) => other.slug === style.slug) !== index) {
+            throw new Error(`Two homepage cards share the ?plan= slug "${style.slug}".`)
+        }
         for (const [stepId, values] of Object.entries(style.preset ?? {})) {
             for (const value of values ?? []) {
                 if (!presetOptions[stepId]?.some((option) => option.value === value)) {
                     throw new Error(
-                        `TRAVEL_STYLES "${style.slug}" presets "${stepId}: ${value}", which /enquire/ does not offer.`
+                        `Homepage card "${style.slug}" presets "${stepId}: ${value}", which /enquire/ does not offer.`
                     )
                 }
             }

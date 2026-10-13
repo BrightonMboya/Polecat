@@ -11,6 +11,11 @@ each band of each card has to be dark enough underneath. Run this after adding
 or re-cropping a card image and copy the worst case into the gradient in
 TravelStyles.astro.
 
+    python3 scripts/style-card-scrim.py --experiences
+
+does the same for the carousel in src/components/Experiences.astro, whose
+cards set a shorter title band and a two-line foot.
+
 White type over a composite is (1.05) / (L + 0.05), so AA needs L <= 0.1833
 for the 15px copy (4.5:1) and L <= 0.30 for the 27px title, which is large
 text (3:1).
@@ -33,6 +38,13 @@ CARDS = [
 # frame and wraps to two lines at the narrowest column; the copy is pinned to
 # the floor and runs to three.
 BANDS = {'title': (0, 22), 'copy': (60, 100)}
+
+EXPERIENCE_CARDS = [
+    f'exp-{slug}.webp'
+    for slug in ('migration', 'photography', 'beach', 'fly-in')
+]
+# One-line title at the top; at most three lines of copy at the foot.
+EXPERIENCE_BANDS = {'title': (0, 16), 'copy': (72, 100)}
 TARGETS = {'title': 1.05 / 3.0 - 0.05, 'copy': 1.05 / 4.5 - 0.05}
 
 
@@ -59,11 +71,14 @@ def alpha_for(rgb, target):
 
 
 def main():
-    worst = {band: 0.0 for band in BANDS}
-    for name in CARDS:
+    import sys
+
+    cards, bands = (EXPERIENCE_CARDS, EXPERIENCE_BANDS) if '--experiences' in sys.argv else (CARDS, BANDS)
+    worst = {band: 0.0 for band in bands}
+    for name in cards:
         im = Image.open(IMAGES / name).convert('RGB')
         print(name)
-        for band, (low, high) in BANDS.items():
+        for band, (low, high) in bands.items():
             strip = im.crop((0, im.height * low // 100, im.width, im.height * high // 100))
             hot = max(strip.getdata(), key=luminance)
             alpha = alpha_for(hot, TARGETS[band])

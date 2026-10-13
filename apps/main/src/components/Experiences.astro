@@ -1,0 +1,159 @@
+---
+/**
+ * "Every safari has its own story. What's in yours?" — after the "What kind of
+ * trip are you looking for?" band on abercrombiekent.com: the heading and a
+ * way into the planner on the left, a row of portrait cards on the right that
+ * scrolls sideways, three to a view on desktop, with arrows over its ends.
+ *
+ * The row is a native scroll-snap strip rather than a slider library: it
+ * swipes on touch for free, works with a trackpad, and the arrows are a
+ * convenience on top rather than the only way through. Each card is a link
+ * into /enquire/ with its intent carried in `?plan=`, like the travel-style
+ * cards further down the page.
+ *
+ * Copy, photographs and presets: EXPERIENCES in src/content/home.ts.
+ */
+import { EXPERIENCES } from '../content/home'
+
+/*
+ * White title over the top of each photograph, white copy over the foot.
+ * Measured with `scripts/style-card-scrim.py --experiences`: the worst case
+ * across the four is 0.47 under the title (3:1, large text) and 0.61 under
+ * the copy (4.5:1). The stops hold 0.50 through the title band and reach 0.64
+ * before the copy band starts at 72%.
+ */
+const SCRIM =
+    'background: linear-gradient(180deg,' +
+    ' rgba(35,32,27,0.54) 0%,' +
+    ' rgba(35,32,27,0.50) 16%,' +
+    ' rgba(35,32,27,0.16) 36%,' +
+    ' rgba(35,32,27,0.20) 54%,' +
+    ' rgba(35,32,27,0.64) 72%,' +
+    ' rgba(35,32,27,0.76) 100%)'
+
+const ARROW =
+    'absolute top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow-[0_2px_10px_rgba(0,0,0,0.18)] transition-opacity hover:bg-white disabled:pointer-events-none disabled:opacity-0 lg:flex'
+---
+
+<section class="gutter bg-stone py-18 lg:py-24" aria-labelledby="experiences-heading">
+    <div class="shell grid grid-cols-1 items-center gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[20rem_minmax(0,1fr)]">
+        <div class="flex flex-col items-center gap-5 text-center">
+            <h2
+                id="experiences-heading"
+                class="font-display text-[30px] leading-[1.2] font-light text-ink lg:text-[34px]"
+            >
+                {EXPERIENCES.heading}
+            </h2>
+            <p class="max-w-120 text-[15px] leading-6.5 text-muted">{EXPERIENCES.body}</p>
+            <a
+                href="/enquire/"
+                class="mt-1 inline-flex items-center gap-2.5 bg-primary px-6 py-3.5 text-[12px] leading-4 font-medium tracking-[0.18em] text-white uppercase transition-colors hover:bg-primary-dark"
+            >
+                {EXPERIENCES.cta}
+                <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    class="size-3.5"
+                    aria-hidden="true"
+                >
+                    <path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6" />
+                </svg>
+            </a>
+        </div>
+
+        <div class="relative min-w-0" data-experiences>
+            <ul
+                class="experience-track -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0"
+                data-track
+            >
+                {
+                    EXPERIENCES.items.map((item) => (
+                        <li class="w-[72%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]">
+                            <a
+                                href={`/enquire/?plan=${item.slug}`}
+                                class="group relative block aspect-[3/4] overflow-hidden"
+                            >
+                                <img
+                                    src={item.image}
+                                    alt={item.imageAlt}
+                                    width="600"
+                                    height="800"
+                                    loading="lazy"
+                                    decoding="async"
+                                    class="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                                />
+                                <div class="absolute inset-0" style={SCRIM} aria-hidden="true" />
+                                <div class="absolute inset-0 flex flex-col justify-between p-5 lg:p-5.5">
+                                    <h3 class="font-display text-[24px] leading-[1.15] font-light text-white lg:text-[26px]">
+                                        {item.title}
+                                    </h3>
+                                    <p class="text-[15px] leading-6 text-white">{item.blurb}</p>
+                                </div>
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+
+            <button type="button" class:list={[ARROW, 'left-3']} data-step="-1" aria-label="Previous experiences" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="size-4" aria-hidden="true">
+                    <path d="m15 18-6-6 6-6" />
+                </svg>
+            </button>
+            <button type="button" class:list={[ARROW, 'right-3']} data-step="1" aria-label="More experiences">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="size-4" aria-hidden="true">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</section>
+
+<style>
+    .experience-track {
+        scrollbar-width: none;
+    }
+
+    .experience-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .experience-track {
+            scroll-behavior: auto;
+        }
+    }
+</style>
+
+<script>
+    for (const root of document.querySelectorAll<HTMLElement>('[data-experiences]')) {
+        const track = root.querySelector<HTMLElement>('[data-track]')!
+        const buttons = root.querySelectorAll<HTMLButtonElement>('[data-step]')
+
+        // One card (and its gap) per click, so the row moves the way it snaps.
+        const stepWidth = () => {
+            const [first, second] = track.children
+            return second
+                ? (second as HTMLElement).offsetLeft - (first as HTMLElement).offsetLeft
+                : track.clientWidth
+        }
+
+        const update = () => {
+            const max = track.scrollWidth - track.clientWidth - 2
+            for (const button of buttons) {
+                button.disabled = Number(button.dataset.step) < 0 ? track.scrollLeft <= 2 : track.scrollLeft >= max
+            }
+        }
+
+        for (const button of buttons) {
+            button.addEventListener('click', () => {
+                track.scrollBy({ left: Number(button.dataset.step) * stepWidth() })
+            })
+        }
+        track.addEventListener('scroll', update, { passive: true })
+        window.addEventListener('resize', update)
+        update()
+    }
+</script>

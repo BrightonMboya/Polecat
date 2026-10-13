@@ -6,7 +6,7 @@ the loop, and prints the alpha each one needs for white type to clear WCAG AA.
     python3 scripts/hero-scrim.py
 
 Run it whenever a slide is added, removed or re-cropped, and copy the worst
-case into the gradient in Hero.astro. The hero cycles eight photographs now, so
+case into the gradient in Hero.astro. The hero cycles seven photographs now, so
 the scrim cannot be fitted to one of them — it has to clear the brightest
 pixel any of them puts under the copy column.
 
@@ -45,14 +45,13 @@ BANDS = [(46, 56), (58, 68)]
 IMAGES = Path(__file__).resolve().parent.parent / 'public' / 'images'
 # Widest variant of each slide, in the order Hero.astro cycles them.
 SLIDES = [
-    'hero-acacia-game-drive-1920.webp',
-    'hero-campfire-wine-1600.webp',
-    'hero-baobab-bush-brunch-1400.webp',
-    'hero-long-table-lanterns-1600.webp',
-    'hero-lodge-games-1400.webp',
-    'hero-horseback-sunset-1600.webp',
-    'hero-lantern-dinner-1600.webp',
-    'hero-shaded-lunch-table-1600.webp',
+    'hero-beach-infinity-pool-1920.webp',
+    'hero-family-bush-walk-1600.webp',
+    'hero-tree-climbing-lion-1600.webp',
+    'hero-camp-firepit-dusk-1220.webp',
+    'hero-family-game-viewing-1354.webp',
+    'hero-lodge-garden-dinner-1366.webp',
+    'hero-bush-daybed-shelter-1600.webp',
 ]
 
 L_SMALL = 1.05 / 4.5 - 0.05   # sub-head, 22px italic — not large text
