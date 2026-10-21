@@ -1,0 +1,168 @@
+---
+/**
+ * The gallery: every photograph in GALLERY (src/content/gallery.ts), which
+ * says what is in it and what is left out. A masonry of CSS columns, so each
+ * photograph keeps its own shape, and every image lazy-loads — only the first
+ * row is worth fetching before the visitor scrolls.
+ *
+ * Clicking a photograph opens it in a lightbox at the largest width it has.
+ * The lightbox is a native <dialog>, so Escape, the focus trap and returning
+ * focus to the photograph come from the browser; the script adds the arrows,
+ * the arrow keys, swiping and a click on the backdrop to close.
+ */
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import { SITE } from '../config'
+import { GALLERY } from '../content/gallery'
+
+const SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
+
+/** The widest file a photograph has: the last srcset entry, else its src. */
+const largest = (photo: (typeof GALLERY)[number]) =>
+    photo.srcset?.split(',').at(-1)?.trim().split(' ')[0] ?? photo.src
+
+const NAV =
+    'absolute top-1/2 flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20'
+---
+
+<Layout
+    title={`Gallery - ${SITE.legalName}`}
+    description="Photographs from our safaris across northern Tanzania, Zanzibar and Kilimanjaro — the herds, the camps, the dinners in the bush and the people we travel with."
+>
+    <Header />
+    <main>
+        <section class="gutter flex flex-col items-center bg-cream pt-16 pb-12 lg:pt-20 lg:pb-14">
+            <div class="shell flex max-w-200 flex-col items-center gap-3">
+                <h1
+                    class="font-display text-center text-[40px] leading-[1.18] font-light text-ink lg:text-[56px] lg:leading-17"
+                >
+                    Gallery
+                </h1>
+                <p class="pt-2 text-center text-[17px] leading-7.75 text-muted">
+                    Moments from the trips we run — on the plains, around the fire and up the mountain.
+                </p>
+            </div>
+        </section>
+
+        <section class="gutter flex flex-col items-center bg-cream pb-20 lg:pb-28">
+            <ul class="shell columns-1 gap-4 sm:columns-2 lg:columns-3 lg:gap-5" data-gallery>
+                {
+                    GALLERY.map((photo, index) => (
+                        <li class="mb-4 break-inside-avoid lg:mb-5">
+                            <button
+                                type="button"
+                                class="group block w-full cursor-zoom-in overflow-hidden"
+                                data-index={index}
+                                data-full={largest(photo)}
+                                aria-label={`View larger: ${photo.alt}`}
+                            >
+                            <img
+                                src={photo.src}
+                                srcset={photo.srcset}
+                                sizes={photo.srcset ? SIZES : undefined}
+                                width={photo.width}
+                                height={photo.height}
+                                alt={photo.alt}
+                                loading="lazy"
+                                decoding="async"
+                                class="h-auto w-full bg-line transition-transform duration-500 group-hover:scale-[1.02]"
+                            />
+                            </button>
+                        </li>
+                    ))
+                }
+            </ul>
+
+            <a
+                href="/enquire/"
+                class="mt-12 inline-flex items-center bg-primary px-6 py-3.5 text-[12px] leading-4 font-medium tracking-[0.18em] text-white uppercase transition-colors hover:bg-primary-dark lg:mt-16"
+            >
+                Plan Your Safari
+            </a>
+        </section>
+
+        <dialog
+            class="m-0 h-dvh max-h-none w-full max-w-none bg-[rgba(35,32,27,0.96)] p-0 text-white backdrop:bg-transparent open:flex"
+            aria-label="Photograph"
+            data-lightbox
+        >
+            <figure class="flex size-full flex-col items-center justify-center gap-4 px-4 py-16 sm:px-20">
+                <img data-lightbox-img alt="" class="max-h-full min-h-0 max-w-full object-contain" />
+                <figcaption class="max-w-200 text-center text-[14px] leading-6 text-white/80">
+                    <span data-lightbox-count class="mr-3 text-white/60"></span><span data-lightbox-caption></span>
+                </figcaption>
+            </figure>
+            <button type="button" class:list={[NAV, 'top-8 right-4 translate-y-0 sm:right-6']} aria-label="Close" data-lightbox-close>
+                <svg viewBox="0 0 16 16" class="size-4" aria-hidden="true"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+            </button>
+            <button type="button" class:list={[NAV, 'left-4 hidden sm:flex sm:left-6']} aria-label="Previous photograph" data-lightbox-prev>
+                <svg viewBox="0 0 16 16" class="size-4" aria-hidden="true"><path d="M10 2L4 8l6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+            <button type="button" class:list={[NAV, 'right-4 hidden sm:flex sm:right-6']} aria-label="Next photograph" data-lightbox-next>
+                <svg viewBox="0 0 16 16" class="size-4" aria-hidden="true"><path d="M6 2l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+        </dialog>
+    </main>
+    <Footer />
+</Layout>
+
+<script>
+    const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]')
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-gallery] [data-index]')]
+    if (dialog && buttons.length) {
+        const img = dialog.querySelector<HTMLImageElement>('[data-lightbox-img]')!
+        const count = dialog.querySelector('[data-lightbox-count]')!
+        const caption = dialog.querySelector('[data-lightbox-caption]')!
+        let current = 0
+
+        function show(index: number) {
+            current = (index + buttons.length) % buttons.length
+            const button = buttons[current]
+            const alt = button.querySelector('img')?.alt ?? ''
+            img.src = button.dataset.full ?? ''
+            img.alt = alt
+            count.textContent = `${current + 1} / ${buttons.length}`
+            caption.textContent = alt
+            /* Fetch the neighbours now so the arrows feel instant. */
+            for (const step of [1, -1]) {
+                const next = buttons[(current + step + buttons.length) % buttons.length]
+                new Image().src = next.dataset.full ?? ''
+            }
+        }
+
+        buttons.forEach((button, index) =>
+            button.addEventListener('click', () => {
+                show(index)
+                document.documentElement.style.overflow = 'hidden'
+                dialog.showModal()
+            })
+        )
+        dialog.addEventListener('close', () => {
+            document.documentElement.style.overflow = ''
+            img.removeAttribute('src')
+            buttons[current].focus()
+        })
+
+        dialog.querySelector('[data-lightbox-close]')?.addEventListener('click', () => dialog.close())
+        dialog.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => show(current - 1))
+        dialog.querySelector('[data-lightbox-next]')?.addEventListener('click', () => show(current + 1))
+        dialog.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') show(current - 1)
+            if (event.key === 'ArrowRight') show(current + 1)
+        })
+        /* A click on the dark area around the photograph closes it. */
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog || (event.target as HTMLElement).tagName === 'FIGURE') dialog.close()
+        })
+
+        let startX: number | null = null
+        dialog.addEventListener('touchstart', (event) => (startX = event.touches[0].clientX), { passive: true })
+        dialog.addEventListener('touchend', (event) => {
+            if (startX === null) return
+            const dx = event.changedTouches[0].clientX - startX
+            if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1))
+            startX = null
+        })
+    }
+</script>

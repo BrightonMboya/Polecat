@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Measures the scrim on the "How do you want to travel?" cards in
+Measures the scrim on the "What kind of safari speaks to you?" cards in
 src/components/TravelStyles.astro, the same way scripts/hero-scrim.py measures
 the hero.
 
@@ -27,11 +27,11 @@ from pathlib import Path
 SCRIM = (35, 32, 27)
 IMAGES = Path(__file__).resolve().parent.parent / 'public' / 'images'
 CARDS = [
-    'style-family.webp',
-    'style-honeymoon.webp',
     'style-migration.webp',
-    'style-trekking.webp',
+    'style-big-five.webp',
+    'style-safari-beach.webp',
     'style-fly-in.webp',
+    'style-adventure-culture.webp',
 ]
 
 # Percentages of the card's height. The title is pinned to the top of the
@@ -41,10 +41,10 @@ BANDS = {'title': (0, 22), 'copy': (60, 100)}
 
 EXPERIENCE_CARDS = [
     f'exp-{slug}.webp'
-    for slug in ('migration', 'photography', 'beach', 'fly-in')
+    for slug in ('family', 'friends', 'solo', 'honeymoon')
 ]
-# One-line title at the top; at most three lines of copy at the foot.
-EXPERIENCE_BANDS = {'title': (0, 16), 'copy': (72, 100)}
+# A title of up to two lines at the top; at most three lines of copy at the foot.
+EXPERIENCE_BANDS = {'title': (0, 24), 'copy': (72, 100)}
 TARGETS = {'title': 1.05 / 3.0 - 0.05, 'copy': 1.05 / 4.5 - 0.05}
 
 

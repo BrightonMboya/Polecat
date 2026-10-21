@@ -17,7 +17,7 @@
  */
 
 import { TRIPADVISOR } from '../config'
-import { PACKAGES as PACKAGE_ITEMS, type RouteTag, type SafariPackage } from './packages'
+import { PACKAGES as PACKAGE_ITEMS, type SafariPackage } from './packages'
 
 export interface Cta {
     label: string
@@ -26,9 +26,21 @@ export interface Cta {
 
 export interface Destination {
     name: string
-    /** The route this card filters the itineraries section down to. */
-    route: RouteTag
-    blurb: string
+    /**
+     * The `?plan=` value for a country with no itineraries on the site yet,
+     * so the card opens the planner with the country carried as the
+     * enquiry's stated intent. Absent when `href` goes to itineraries.
+     */
+    slug?: string
+    /**
+     * The planner's trip-type hints, rewritten for this country, keyed by
+     * trip value. The defaults all describe Tanzania; a visitor arriving
+     * from the Kenya card should not be offered only the Serengeti.
+     */
+    tripHints?: Readonly<Record<string, string>>
+    line: string
+    href: string
+    cta: string
     image: string
     /** Alt text has to describe the photograph, not repeat the card heading. */
     imageAlt: string
@@ -140,18 +152,18 @@ export interface TravelStyle {
 }
 
 /*
- * The five ways people travel with this operator, each card a way into the
- * planner with its intent already carried.
+ * The five kinds of safari the client listed, in their order: Great Wildebeest
+ * Migration, Big Five, Safari & Beach, Luxury Fly-In Safaris and Adventure &
+ * Culture. Each card is a way into the planner with its intent already carried.
  *
- * The photographs are people doing the thing the card names rather than
- * scenery, and every `imageAlt` describes the frame as cropped — these are
- * tight crops out of 16:9 originals. Order matters: the grid gives the first
- * three cards a third of the row and the last two a half, so the first three
- * images are cropped 3:4 and the last two 3:2 (see TravelStyles.astro).
- * Reordering or replacing a card means re-cropping to the shape of its slot,
- * then re-running scripts/style-card-scrim.py and copying the worst case into
- * the gradient in TravelStyles.astro: the title and the copy are both white
- * over the photograph.
+ * Every `imageAlt` describes the frame as cropped. Order matters: the grid
+ * gives the first three cards a third of the row and the last two a half, so
+ * the first three images are cropped 3:4 and the last two 3:2 (see
+ * TravelStyles.astro). Reordering or replacing a card means re-cropping to the
+ * shape of its slot (scripts/experience-cards.py), then re-running
+ * scripts/style-card-scrim.py and copying the worst case into the gradient in
+ * TravelStyles.astro: the title and the copy are both white over the
+ * photograph.
  */
 export const TRAVEL_STYLES: {
     heading: string
@@ -159,58 +171,55 @@ export const TRAVEL_STYLES: {
     items: readonly TravelStyle[]
 } = {
     heading: 'What kind of safari speaks to you?',
-    body: 'Five ways people travel with us. Start with the one that sounds like your trip and the planner opens with it already filled in.',
+    body: 'Five kinds of safari we plan. Start with the one that sounds like your trip and the planner opens with it already filled in.',
     items: [
         {
-            slug: 'family',
-            title: 'Family',
-            blurb: 'Shorter drives, earlier dinners and guides who are good with kids.',
-            image: '/images/style-family.webp',
-            imageAlt:
-                'A camp cook lifting a grill of roasted vegetables while a small girl in a pink jacket watches from beside him',
-            preset: { interests: ['family'] },
-        },
-        {
-            slug: 'honeymoon',
-            title: 'Honeymoon',
-            blurb: 'Private bush dinners, late breakfasts and the quietest camps.',
-            image: '/images/style-honeymoon.webp',
-            imageAlt:
-                'A couple reading together on the bed of a tented room, a breakfast tray beside them and the bush through the open canvas',
-            preset: { interests: ['honeymoon'] },
-        },
-        {
-            /* The photograph is the frame to the left of the one the 13-Day
-               Great Migration card carries further down this page — herd and
-               plains, no vehicle — so the two do not read as the same
-               picture twice. */
             slug: 'migration',
-            title: 'Migration',
-            blurb: 'Twelve nights following the herds from Lake Natron to the Mara.',
+            title: 'Great Wildebeest Migration',
+            blurb: 'From the calving at Ndutu to the Mara River crossings. Tell us your months and we will put you where the herds are.',
             image: '/images/style-migration.webp',
             imageAlt:
                 'A column of wildebeest walking up a track towards the camera, zebra behind them and thousands more spread along the horizon',
             preset: { trip: ['safari'], interests: ['migration'] },
         },
         {
-            slug: 'trekking',
-            title: 'Trekking',
-            blurb: 'Kilimanjaro by any of five routes, or a walking safari with an armed ranger alongside you.',
-            image: '/images/style-trekking.webp',
+            slug: 'big-five',
+            title: 'Big Five',
+            blurb: 'Lion, leopard, elephant, buffalo and rhino, with the Ngorongoro Crater floor the best place to find all five.',
+            image: '/images/style-big-five.webp',
+            imageAlt: 'A lioness lying in golden grass, looking straight into the lens',
+            preset: { trip: ['safari'], interests: ['wildlife'] },
+        },
+        {
+            slug: 'safari-beach',
+            title: 'Safari & Beach',
+            blurb: 'The parks first, then Zanzibar’s white sand, a short flight from the bush.',
+            /* Tulia Zanzibar Unique Beach Resort, Pongwe — the last stop of
+               the 8-Day Tanzania & Zanzibar Honeymoon. */
+            image: '/images/style-safari-beach.webp',
             imageAlt:
-                'A line of trekkers with packs and poles crossing the high desert of the Kilimanjaro saddle, the snow-streaked summit of Kibo ahead of them',
-            preset: { trip: ['kilimanjaro'] },
+                'A path between palms opening onto white sand and the turquoise water off Pongwe Beach, Zanzibar, a paddleboarder out on the lagoon',
+            preset: { trip: ['combination'] },
         },
         {
             /* Presets the interest; the planner does not ask how you get
                between the parks otherwise. */
             slug: 'fly-in',
-            title: 'Fly-In',
-            preset: { trip: ['safari'], interests: ['fly-in'] },
+            title: 'Luxury Fly-In Safaris',
             blurb: 'An hour in a light aircraft instead of a day on the road, landing straight onto the Serengeti plains.',
             image: '/images/style-fly-in.webp',
             imageAlt:
                 'A pilot in uniform carrying two kit bags away from a single-engine Cessna parked on a gravel bush airstrip',
+            preset: { trip: ['safari'], interests: ['fly-in'] },
+        },
+        {
+            slug: 'adventure-culture',
+            title: 'Adventure & Culture',
+            blurb: 'Bush walks with a Maasai guide, village visits and the Materuni waterfall on the slopes of Kilimanjaro.',
+            image: '/images/style-adventure-culture.webp',
+            imageAlt:
+                'A Maasai guide in a red shuka leaning on his staff beside a family on a bush walk, zebra grazing on the plain behind them',
+            preset: { interests: ['culture'] },
         },
     ],
 }
@@ -218,17 +227,21 @@ export const TRAVEL_STYLES: {
 /*
  * "Every safari has its own story" — the homepage carousel after the one on
  * abercrombiekent.com ("What kind of trip are you looking for?"), which the
- * client asked for by name, holding the four experience categories the client
- * listed: Great Migration, Photography, Beach & Holiday and Fly-In.
+ * client asked for by name, holding the four kinds of traveller the client
+ * listed: families, friends and private groups, solo travellers, and
+ * honeymoons or romantic escapes.
  *
- * Each card opens the planner the way the travel-style cards above do, and
- * the same rule holds for `preset`: only what the title already says. Slugs
- * share the `?plan=` namespace with TRAVEL_STYLES and must not repeat one
- * (enquire.astro checks).
+ * Each card opens the planner the way the cards above do, and the same rule
+ * holds for `preset`: only what the title already says, so Friends and Solo
+ * preset nothing — the planner has no answer for either, and their titles
+ * still reach the inbox as the enquiry's stated intent. Slugs share the
+ * `?plan=` namespace with TRAVEL_STYLES and must not repeat one (enquire.astro
+ * checks).
  *
- * The images are 3:4 portrait crops cut by scripts/experience-cards.py. After
- * re-cropping, re-run `scripts/style-card-scrim.py --experiences` and update
- * the gradient in Experiences.astro.
+ * The images are 3:4 portraits; exp-friends and exp-solo are cut by
+ * scripts/experience-cards.py. After re-cropping, re-run
+ * `scripts/style-card-scrim.py --experiences` and update the gradient in
+ * Experiences.astro.
  */
 export const EXPERIENCES: {
     heading: string
@@ -237,77 +250,102 @@ export const EXPERIENCES: {
     items: readonly TravelStyle[]
 } = {
     heading: 'Every safari has its own story. What’s in yours?',
-    body: 'Tell us what you hope to see, and we will build the trip around it.',
+    body: 'Tell us who is coming, and we will build the trip around them.',
     cta: 'Plan Your Safari',
     items: [
         {
-            slug: 'great-migration',
-            title: 'Great Migration',
-            blurb: 'Front-row seats as the herds move across the Serengeti and the Mara River.',
-            image: '/images/exp-migration.webp',
-            imageAlt: 'Wildebeest grazing beneath a lone acacia on the Serengeti, a safari vehicle parked beside them',
-            preset: { trip: ['safari'], interests: ['migration'] },
-        },
-        {
-            slug: 'photography',
-            title: 'Photography',
-            blurb: 'Unhurried sightings, the best of the light, and a guide who knows where to wait.',
-            image: '/images/exp-photography.webp',
-            imageAlt: 'A lioness lying in golden grass, looking straight into the lens',
-            preset: { interests: ['photography'] },
-        },
-        {
-            slug: 'beach',
-            title: 'Beach & Holiday',
-            blurb: 'Finish on Zanzibar’s white sand, a short flight from the bush.',
-            /* Tulia Zanzibar Unique Beach Resort, Pongwe — the last stop of
-               the 8-Day Tanzania & Zanzibar Honeymoon. */
-            image: '/images/exp-beach.webp',
+            slug: 'family',
+            title: 'Family Safaris',
+            blurb: 'Shorter drives, earlier dinners and guides who are good with kids.',
+            image: '/images/exp-family.webp',
             imageAlt:
-                'A path between palms opening onto white sand and the turquoise water off Pongwe Beach, Zanzibar, a paddleboarder out on the lagoon',
-            preset: { trip: ['zanzibar'] },
+                'A camp cook lifting a grill of roasted vegetables while a small girl in a pink jacket watches from beside him',
+            preset: { interests: ['family'] },
         },
         {
-            slug: 'fly-in-safari',
-            title: 'Fly-In Safaris',
-            blurb: 'Light aircraft between the parks — more time on the ground, less on the road.',
-            image: '/images/exp-fly-in.webp',
-            imageAlt: 'The wing and cabin windows of a light aircraft parked on a gravel bush airstrip',
-            preset: { trip: ['safari'], interests: ['fly-in'] },
+            slug: 'friends',
+            title: 'Friends & Private Groups',
+            blurb: 'Your own vehicle and guide, long dinners by the fire, and the pace your group sets.',
+            image: '/images/exp-friends.webp',
+            imageAlt:
+                'Four friends seen from behind, sitting in camp chairs set in the shallows of a river below a wooded hillside',
+        },
+        {
+            slug: 'solo',
+            title: 'Solo',
+            blurb: 'A private guide and a vehicle of your own, and nobody else’s schedule to keep.',
+            image: '/images/exp-solo.webp',
+            imageAlt: 'A lone rider on horseback crossing the plains, silhouetted against a red setting sun',
+        },
+        {
+            slug: 'honeymoon',
+            title: 'Honeymoons & Romantic Escapes',
+            blurb: 'Private bush dinners, late breakfasts and the quietest camps.',
+            image: '/images/exp-honeymoon.webp',
+            imageAlt:
+                'A couple reading together on the bed of a tented room, a breakfast tray beside them and the bush through the open canvas',
+            preset: { interests: ['honeymoon'] },
         },
     ],
 }
 
 /*
- * Not countries — the three ways to travel Tanzania that we actually sell.
- * Each card filters the itineraries section rather than leading off the page,
- * so `route` here has to be one of the tags the packages carry.
+ * The three countries, after the "Beyond Tanzania" cards on the King Mufasa
+ * site (~/web/mufasa_new), at the client's request — three across and shorter
+ * than Mufasa's two, which were too large.
+ *
+ * No card quotes a price, at the client's request. Tanzania opens the
+ * itineraries. Kenya and Rwanda have no itineraries on the site yet, so their
+ * cards open the planner with the country carried in `?plan=` (enquire.astro
+ * reads these alongside the travel-style cards).
+ *
+ * All three photographs are stand-ins from Unsplash, under its free licence
+ * (no credit required), chosen for colour and sharpness, each checked against
+ * its location on the photo page. All three are 4:5 crops at 800x1000:
+ *   - Tanzania: a leopard asleep in a tree, Serengeti, Denice Alex (HrcPumKuhfM)
+ *   - Kenya: a herd of eland on the Maasai Mara, sutirta budiman (PdiOj8kRy28)
+ *   - Rwanda: a young mountain gorilla, Max Christian (sMjVNtvYkD0) — taken
+ *     in Bwindi, Uganda, not Rwanda, at the client's choice; it is the same
+ *     species visitors trek to in Volcanoes National Park
  */
-export const DESTINATIONS: { heading: string; body: string; items: Destination[] } = {
-    heading: 'Our Destinations',
-    body: 'Three ways to travel northern Tanzania. Choose one and the itineraries below narrow to it.',
+export const DESTINATIONS: { eyebrow: string; heading: string; body: string; items: readonly Destination[] } = {
+    eyebrow: 'Our Destinations',
+    heading: 'Tanzania, and beyond',
+    body: 'Northern Tanzania is home. The same team and the same standard of guiding carry over the border to the Masai Mara and the mountain gorillas of Rwanda.',
     items: [
         {
-            name: 'Northern Circuit',
-            route: 'northern-circuit',
-            blurb: 'Tarangire, Lake Manyara, the Ngorongoro Crater and the Serengeti — the run of parks that holds the migration, the crater floor and the biggest elephant herds in Africa.',
-            image: '/images/serengeti-cheetah-plains.jpg',
-            imageAlt: 'A cheetah standing on open Serengeti grassland in early morning light',
+            name: 'Tanzania',
+            line: 'The Serengeti, Ngorongoro and Zanzibar',
+            href: '/safari-packages/',
+            cta: 'View Tanzania journeys',
+            image: '/images/dest-tanzania.webp',
+            imageAlt: 'A leopard asleep along the branch of an acacia, its legs and tail hanging against a clear blue sky',
         },
         {
-            name: 'Trekking',
-            route: 'trekking',
-            blurb: 'Kilimanjaro on foot. Five routes to Uhuru Peak at 5,895 metres — the classic Marangu huts, the scenic Machame, the quiet northern Rongai, the gradual Lemosho, and the nine-day Northern Circuit right around the mountain.',
-            image: '/images/kili-moorland-trail.webp',
-            imageAlt:
-                'A file of trekkers and porters climbing a trail through giant heather on Kilimanjaro under a clear sky',
+            name: 'Kenya',
+            slug: 'kenya',
+            tripHints: {
+                safari: 'Masai Mara, Amboseli & Lake Naivasha',
+                combination: 'Kenya with Tanzania, Zanzibar or the mountain',
+            },
+            line:'The Masai Mara, Amboseli and Lake Naivasha',
+            href: '/enquire/?plan=kenya',
+            cta: 'Plan a Kenya safari',
+            image: '/images/dest-kenya.webp',
+            imageAlt: 'A herd of eland walking through tall golden grass on the Masai Mara, blue hills on the horizon behind them',
         },
         {
-            name: 'Zanzibar',
-            route: 'zanzibar',
-            blurb: 'Stone Town and the east-coast beaches, a short flight off the safari airstrip. One itinerary ends there; two more extend onto the island for three to five nights.',
-            image: '/images/south-africa-coast.webp',
-            imageAlt: 'Turquoise water breaking over dark rocks along an empty tropical coastline',
+            name: 'Rwanda',
+            slug: 'rwanda',
+            tripHints: {
+                safari: 'Mountain gorillas, golden monkeys & Akagera',
+                combination: 'The gorillas with a Tanzania safari or Zanzibar',
+            },
+            line:'Mountain gorillas, golden monkeys and Akagera',
+            href: '/enquire/?plan=rwanda',
+            cta: 'Plan a Rwanda trip',
+            image: '/images/dest-rwanda.webp',
+            imageAlt: 'A young mountain gorilla looking over its shoulder among bright green rainforest leaves, another gorilla resting behind it',
         },
     ],
 }
@@ -341,9 +379,9 @@ export const IMPACT = {
  * disagree about a price.
  *
  * The homepage shows the six itineraries flagged `featured` — the honeymoons
- * first, then the shortest family safari and the migration flagship. All
- * fifteen — the ten safaris and the five Kilimanjaro climbs — are on
- * /safari-packages behind the button.
+ * first, then the shortest family safari and the migration flagship. The
+ * rest — two dozen safaris and the five Kilimanjaro climbs — are on
+ * /safari-packages behind the button, nine at a time.
  */
 export const PACKAGES: {
     heading: string
@@ -353,7 +391,7 @@ export const PACKAGES: {
     cta: Cta
 } = {
     heading: 'Get Inspired',
-    body: 'Every itinerary here is private — your own guide, your own vehicle, and days that can move. Honeymoons first, then the family safaris, the twelve nights it takes to follow the migration properly, and five routes up Kilimanjaro.',
+    body: 'Every itinerary here is private — your own guide, your own vehicle, and days that can move. Honeymoons, family safaris, the Great Migration from the calving to the river crossings, fly-in safaris from Zanzibar, and five routes up Kilimanjaro.',
     cta: { label: 'All Safari Packages', href: '/safari-packages/' },
     items: PACKAGE_ITEMS.filter((pkg) => pkg.featured),
 }
@@ -561,58 +599,50 @@ export const NAV = {
 } as const
 
 /**
- * The footer sitemap. Every href here has to resolve to something this site
- * actually builds — a page under src/pages, or an anchor that exists on the
- * page it points at. There is deliberately nothing for Botswana, Namibia,
- * South Africa, camps or lodges: the operator sells northern Tanzania and
- * Zanzibar, and owns no property.
+ * The footer sitemap, in the shape of the ~/web/mufasa_new footer at the
+ * client's request: Travel · Company · Good to Know, then a Contact Us
+ * column that Footer.astro builds from CONTACT in src/config.ts. The old
+ * "Where We Travel" column is gone; its links repeated the Travel column.
  *
- * Four columns, and no Journal one: it used to be built in Footer.astro from
- * the categories that had posts, and was removed by request. What is back is a
- * single "Journal" link in the last column, added when the stale migrated
- * posts were replaced with the operator's own writing — without it the site
- * links at /blogs/ from nowhere, and two posts nobody can reach are two posts
- * nobody reads. The category archives are still unlinked.
+ * Every href here has to resolve to something this site actually builds — a
+ * page under src/pages, or an anchor that exists on the page it points at.
+ * The Journal link stays: without it the site links at /blogs/ from nowhere.
+ * The category archives are still unlinked.
  */
 export const FOOTER_COLUMNS = [
     {
-        heading: 'Safaris',
+        heading: 'Travel',
         links: [
+            { label: 'Safari packages', href: '/safari-packages/' },
+            { label: 'Climb Kilimanjaro', href: '/kilimanjaro/' },
             { label: 'Honeymoon safaris', href: '/safari-packages/6-day-tanzania-honeymoon-safari/' },
             { label: 'Family safaris', href: '/safari-packages/6-day-tanzania-family-safari/' },
-            { label: 'The Great Migration', href: '/safari-packages/13-day-great-migration-safari/' },
-            { label: 'All safari packages', href: '/safari-packages/' },
+            { label: 'The Great Migration', href: '/enquire/?plan=migration' },
             { label: 'Safari add-ons', href: '/safari-add-ons/' },
-            { label: 'Climb Kilimanjaro', href: '/kilimanjaro/' },
         ],
     },
     {
-        heading: 'Where We Travel',
-        links: [
-            { label: 'Northern Circuit', href: '/safari-packages/#northern-circuit' },
-            { label: 'Kilimanjaro', href: '/kilimanjaro/' },
-            { label: 'Zanzibar', href: '/safari-packages/#zanzibar' },
-            { label: 'Guest reviews', href: '/#reviews' },
-        ],
-    },
-    {
-        heading: 'Polecat Safaris',
+        heading: 'Company',
         links: [
             { label: 'Our story', href: '/about/' },
             { label: 'Our positive impact', href: '/about/#impact' },
-            { label: 'Travel information', href: '/travel-information/' },
+            { label: 'Guest reviews', href: '/#reviews' },
+            { label: 'Gallery', href: '/gallery/' },
             { label: 'Journal', href: '/blogs/' },
-            { label: 'Enquire', href: '/enquire/' },
         ],
     },
     {
-        /* As on ~/web/mufasa_new, without "Our vehicles". The pages' text is
-           in src/content/legal, and the privacy policy is its own page. */
+        /* As on ~/web/mufasa_new, without "Our vehicles" and "Tipping
+           guideline", which have no page here. The legal pages' text is in
+           src/content/legal. */
         heading: 'Good to Know',
         links: [
+            { label: 'Travel information', href: '/travel-information/' },
+            { label: 'Zanzibar travel guide', href: '/zanzibar-travel-guide/' },
+            { label: 'Cost breakdown', href: '/cost-breakdown/' },
             { label: 'Our booking process', href: '/our-booking-process/' },
-            { label: 'Privacy policy', href: '/privacy-policy/' },
             { label: 'Refund policy', href: '/refund-policy/' },
+            { label: 'Privacy policy', href: '/privacy-policy/' },
             { label: 'Terms and conditions', href: '/terms-and-conditions/' },
         ],
     },

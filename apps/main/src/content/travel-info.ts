@@ -117,24 +117,28 @@ export const TRAVEL_INTRO = {
     ],
     /*
      * Full-bleed banner across the top of the page, which is the shape the
-     * reference uses, and the page title now sits on it. Guests walking out to
-     * a waiting vehicle — the moment all this packing is for. It used to be
-     * the 13-Day Great Migration itinerary's card photograph; that itinerary
-     * now has the operator's own migration frame, so this one is only used
-     * here.
+     * reference uses, and the page title now sits on it. A trip being planned
+     * over a paper map — which is what this page is for. It replaced a
+     * photograph of guests walking out to a game-drive vehicle, at the
+     * client's request for an image that reads as travel information.
      *
-     * The frame is bright from edge to edge — white sky, dust, a white shirt —
-     * so white type needs real weight under it: measured the way
-     * scripts/hero-scrim.py measures the homepage, the brightest pixel under
-     * the title column is (255,255,255) in every band, which needs 0.48 alpha
-     * for the title and 0.61 for the line under it. Hence the gradient in
-     * travel-information.astro, which is heavier at the foot than the
-     * itinerary heroes' because those photographs are darker where the title
-     * lands. Swapping this photograph means measuring it again.
+     * Not the operator's photograph: "Planning a trip over coffee", from
+     * Unsplash via Wikimedia Commons, CC0, so no credit is required
+     * (commons.wikimedia.org/wiki/File:Planning_a_trip_over_coffee_(Unsplash).jpg).
+     * Resized from 6689px to 1920px; the banner frames it at 45% down, which
+     * keeps the coffee, the camera, the laptop and the pen hand in the strip.
+     *
+     * The open map is white under the title column, so white type needs real
+     * weight under it: measured the way scripts/hero-scrim.py measures the
+     * homepage, the brightest pixel under the title column is pure white,
+     * which needs 0.48 alpha for the title and 0.61 for the line under it.
+     * Hence the band of scrim behind the title in travel-information.astro.
+     * Those figures are the ceiling — no photograph can need more — so the
+     * band holds for any replacement.
      */
-    image: '/images/guests-boarding-game-drive.webp',
+    image: '/images/travel-info-trip-planning.webp',
     imageAlt:
-        'Two guests walking hand in hand to an open safari vehicle where their guide is waiting',
+        'Looking down on a wooden table where two people plan a trip over an open road map: one holds a coffee, the other marks the route with a pen beside a laptop, a camera and a notebook',
 } as const
 
 /**

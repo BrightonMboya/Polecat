@@ -11,7 +11,8 @@
  * Kept from the planner it replaces:
  *   - ?itinerary=<slug> from an itinerary page names the journey above the
  *     card, presets the trip type and length, and reaches the inbox.
- *   - ?plan=<slug> from the homepage travel-style and experience cards
+ *   - ?plan=<slug> from the homepage travel-style, experience and destination
+ *     cards, and from the Zanzibar travel guide (ZANZIBAR_PLAN)
  *     presets the answers the card's title already gives
  *     (TRAVEL_STYLES[].preset, EXPERIENCES[].preset).
  *   - the answers POST to Web3Forms as labelled fields, and on failure the
@@ -26,7 +27,8 @@ import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import { CONTACT, WEB3FORMS, whatsappLink } from '../config'
 import { PACKAGES } from '../content/packages'
-import { EXPERIENCES, TRAVEL_STYLES } from '../content/home'
+import { DESTINATIONS, EXPERIENCES, TRAVEL_STYLES } from '../content/home'
+import { ZANZIBAR_PLAN } from '../content/zanzibar'
 
 const TRIP_TYPES = [
     { value: 'safari', label: 'Safari', hint: 'Serengeti, Ngorongoro & Tarangire' },
@@ -57,6 +59,27 @@ const INTERESTS = [
     { value: 'fly-in', label: 'Fly-in safaris' },
 ]
 
+/*
+ * The first question for ?plan=migration, in place of "What kind of trip?" —
+ * after the Great Migration planner on ~/web/mufasa_new, at the client's
+ * request. The herds move all year, so for these enquiries the "when" is
+ * really a "where", and the answer is what the reply turns on.
+ */
+const MIGRATION_LEGS = [
+    { value: 'calving', label: 'Ndutu & the calving season', hint: 'December – March' },
+    { value: 'western', label: 'The western corridor & Grumeti', hint: 'May – July' },
+    { value: 'crossings', label: 'The northern Serengeti & the Mara River crossings', hint: 'July – October' },
+    { value: 'unsure', label: 'Not sure yet', hint: 'Help me choose' },
+]
+
+/*
+ * The ?plan= slugs whose first step is the migration question. These also run
+ * the shorter sequence Mufasa's migration planner does — which months, how
+ * many, when, then contact — so the budget step is skipped and the guests
+ * step comes before the dates.
+ */
+const LEG_PLANS = ['migration']
+
 const STEP_COUNT = 5
 
 // Never offer a date in the past.
@@ -67,6 +90,7 @@ for (const [step, options] of [
     ['trip', TRIP_TYPES],
     ['budget', BUDGETS],
     ['interests', INTERESTS],
+    ['leg', MIGRATION_LEGS],
 ] as const) {
     for (const option of options) optionLabels[`${step}:${option.value}`] = option.label
 }
@@ -77,8 +101,20 @@ const presetOptions: Record<string, readonly { value: string }[]> = {
     trip: TRIP_TYPES,
     interests: INTERESTS,
 }
+/* The Kenya and Rwanda destination cards preset nothing — the planner has no
+   country step — but their name still reaches the inbox as the intent, and
+   their `tripHints` replace the Tanzania hints on the trip step. */
+const countryPlans = DESTINATIONS.items.flatMap((country) => {
+    if (!country.slug) return []
+    for (const trip of Object.keys(country.tripHints ?? {})) {
+        if (!TRIP_TYPES.some((option) => option.value === trip)) {
+            throw new Error(`Destination "${country.slug}" has a hint for trip "${trip}", which /enquire/ does not offer.`)
+        }
+    }
+    return [{ slug: country.slug, title: country.name, preset: undefined, tripHints: country.tripHints }]
+})
 const plans = Object.fromEntries(
-    [...TRAVEL_STYLES.items, ...EXPERIENCES.items].map((style, index, all) => {
+    [...TRAVEL_STYLES.items, ...EXPERIENCES.items, ...countryPlans, ZANZIBAR_PLAN].map((style, index, all) => {
         if (all.findIndex((other) => other.slug === style.slug) !== index) {
             throw new Error(`Two homepage cards share the ?plan= slug "${style.slug}".`)
         }
@@ -91,7 +127,16 @@ const plans = Object.fromEntries(
                 }
             }
         }
-        return [style.slug, { label: style.title, answers: style.preset ?? {} }]
+        const hints = 'tripHints' in style ? style.tripHints : undefined
+        return [
+            style.slug,
+            {
+                label: style.title,
+                answers: style.preset ?? {},
+                hints: hints ?? {},
+                legs: LEG_PLANS.includes(style.slug),
+            },
+        ]
     })
 )
 
@@ -207,14 +252,14 @@ const input =
                         <div
                             class="flex items-baseline justify-between text-[11px] leading-3.5 font-medium tracking-[0.18em] text-ink uppercase"
                         >
-                            <span>Step <span data-step-num>1</span> of {STEP_COUNT}</span>
+                            <span>Step <span data-step-num>1</span> of <span data-step-total>{STEP_COUNT}</span></span>
                             <span class="text-muted" data-step-pct>20%</span>
                         </div>
-                        <div class="mt-3 grid grid-cols-5 gap-1.5" aria-hidden="true">
+                        <div class="mt-3 flex gap-1.5" aria-hidden="true">
                             {
                                 Array.from({ length: STEP_COUNT }, (_, i) => (
                                     <span
-                                        class="h-0.5 bg-line transition-colors data-[done]:bg-primary"
+                                        class="h-0.5 flex-1 bg-line transition-colors data-[done]:bg-primary"
                                         data-segment={i}
                                     />
                                 ))
@@ -236,13 +281,15 @@ const input =
 
                         {/* 1. Trip type */}
                         <fieldset data-step="0" class="flex flex-col">
-                            <legend class="font-display text-[28px] leading-9 text-ink lg:text-[32px]">
+                            <legend class="font-display text-[28px] leading-9 text-ink lg:text-[32px]" data-first-title>
                                 What kind of trip?
                             </legend>
-                            <p class="pt-1 text-[15px] leading-6 text-muted">
+                            <p class="pt-1 text-[15px] leading-6 text-muted" data-first-hint>
                                 Pick the journey closest to the one you have in mind.
                             </p>
-                            <div class="grid grid-cols-1 gap-3.5 pt-7 sm:grid-cols-2">
+                            {/* Swapped for the list below by the script when
+                                the visitor came from a Great Migration link. */}
+                            <div class="grid grid-cols-1 gap-3.5 pt-7 sm:grid-cols-2" data-trip-options>
                                 {
                                     TRIP_TYPES.map((trip) => (
                                         <button
@@ -255,9 +302,25 @@ const input =
                                             <span class="text-[17px] leading-6 font-medium text-ink">
                                                 {trip.label}
                                             </span>
-                                            <span class="text-[13px] leading-5 text-muted">
+                                            <span class="text-[13px] leading-5 text-muted" data-hint>
                                                 {trip.hint}
                                             </span>
+                                        </button>
+                                    ))
+                                }
+                            </div>
+                            <div class="hidden flex-col gap-3 pt-7" data-leg-options>
+                                {
+                                    MIGRATION_LEGS.map((leg) => (
+                                        <button
+                                            type="button"
+                                            class="flex cursor-pointer flex-col items-start gap-1 border border-line px-5 py-4.5 text-left transition-colors hover:border-primary data-[selected]:border-primary data-[selected]:bg-primary/5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+                                            data-option="leg"
+                                            data-value={leg.value}
+                                            aria-pressed="false"
+                                        >
+                                            <span class="text-[17px] leading-6 font-medium text-ink">{leg.label}</span>
+                                            <span class="shrink-0 text-[13px] leading-5 text-muted">{leg.hint}</span>
                                         </button>
                                     ))
                                 }
@@ -645,7 +708,13 @@ const input =
         const thanks = root.querySelector('[data-thanks]')
         const field = (name) => form.elements.namedItem(name)
 
-        const answers = { trip: [], budget: [], interests: [] }
+        const answers = { trip: [], budget: [], interests: [], leg: [] }
+        /* Set from ?plan=; the first step then asks which part of the
+           migration rather than what kind of trip. */
+        let legs = false
+        /* The fieldsets to walk through, by data-step, in order. `index` is a
+           position in this list, not a step id. */
+        let order = Array.from({ length: total }, (_, i) => i)
         let index = 0
         let intent = null
         let source = null
@@ -662,7 +731,7 @@ const input =
 
         /* Whether the current step has what it needs to move on. */
         function complete(i) {
-            if (i === 0) return answers.trip.length > 0
+            if (i === 0) return legs ? answers.leg.length > 0 : answers.trip.length > 0
             if (i === 1) return field('arrival').value !== '' || field('undecided').checked
             if (i === 2) return Number(field('adults').value) >= 1
             if (i === 3) return answers.budget.length > 0
@@ -670,16 +739,18 @@ const input =
         }
 
         function sync() {
-            next.disabled = !complete(index)
+            next.disabled = !complete(order[index])
         }
 
         function show(i) {
             index = i
+            const id = order[i]
+            const count = order.length
             steps.forEach((s, n) => {
-                s.classList.toggle('hidden', n !== i)
-                s.classList.toggle('flex', n === i)
+                s.classList.toggle('hidden', n !== id)
+                s.classList.toggle('flex', n === id)
             })
-            const last = i === total - 1
+            const last = i === count - 1
             back.disabled = i === 0
             next.classList.toggle('hidden', last)
             next.classList.toggle('flex', !last)
@@ -690,11 +761,14 @@ const input =
             fineprint.classList.toggle('hidden', !last)
             status.classList.add('hidden')
 
-            const pct = Math.round(((i + 1) / total) * 100)
+            const pct = Math.round(((i + 1) / count) * 100)
             progress.querySelector('[data-step-num]').textContent = String(i + 1)
+            progress.querySelector('[data-step-total]').textContent = String(count)
             progress.querySelector('[data-step-pct]').textContent = `${pct}%`
             progress.querySelectorAll('[data-segment]').forEach((seg) => {
-                seg.toggleAttribute('data-done', Number(seg.dataset.segment) <= i)
+                const n = Number(seg.dataset.segment)
+                seg.hidden = n >= count
+                seg.toggleAttribute('data-done', n <= i)
             })
             sync()
         }
@@ -717,7 +791,7 @@ const input =
         form.addEventListener('input', sync)
 
         next.addEventListener('click', () => {
-            if (!complete(index)) return
+            if (!complete(order[index])) return
             show(index + 1)
             root.querySelector('[data-progress]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
         })
@@ -726,7 +800,7 @@ const input =
         /* Enter in a text field moves on rather than submitting early. */
         form.addEventListener('keydown', (event) => {
             if (event.key !== 'Enter' || event.target.tagName === 'TEXTAREA') return
-            if (index < total - 1) {
+            if (index < order.length - 1) {
                 event.preventDefault()
                 next.click()
             }
@@ -757,6 +831,21 @@ const input =
             for (const [step, values] of Object.entries(plan.answers)) {
                 answers[step] = [...values]
                 paintOptions(step)
+            }
+            if (plan.legs) {
+                legs = true
+                order = [0, 2, 1, 4]
+                root.querySelector('[data-first-title]').textContent = 'Which months are you planning for?'
+                root.querySelector('[data-first-hint]').textContent =
+                    'The herds move all year, so the months decide where in the Serengeti you stay.'
+                root.querySelector('[data-trip-options]').classList.add('hidden')
+                const list = root.querySelector('[data-leg-options]')
+                list.classList.remove('hidden')
+                list.classList.add('flex')
+            }
+            for (const [trip, hint] of Object.entries(plan.hints)) {
+                const span = form.querySelector(`[data-option="trip"][data-value="${trip}"] [data-hint]`)
+                if (span) span.textContent = hint
             }
         }
         const itinerary = itineraries[params.get('itinerary') ?? '']
@@ -829,6 +918,7 @@ const input =
             const ages = field('ages').value.trim()
             return {
                 'Trip type': labelsFor('trip')[0] ?? '—',
+                ...(legs ? { 'Migration leg': labelsFor('leg')[0] ?? '—' } : {}),
                 'Arrival date': field('undecided').checked
                     ? 'Not decided yet'
                     : longDate(field('arrival').value) || '—',
@@ -890,7 +980,7 @@ const input =
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault()
-            if (index !== total - 1 || !validContact(true)) return
+            if (index !== order.length - 1 || !validContact(true)) return
 
             submit.disabled = true
             try {

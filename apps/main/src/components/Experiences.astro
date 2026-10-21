@@ -16,20 +16,17 @@
 import { EXPERIENCES } from '../content/home'
 
 /*
- * White title over the top of each photograph, white copy over the foot.
+ * White title over the top of each photograph, white copy over the foot, each
+ * on its own band of scrim sized to the text — solid under it, fading out over
+ * the 3rem beyond — and nothing over the middle of the photograph.
  * Measured with `scripts/style-card-scrim.py --experiences`: the worst case
- * across the four is 0.47 under the title (3:1, large text) and 0.61 under
- * the copy (4.5:1). The stops hold 0.50 through the title band and reach 0.64
- * before the copy band starts at 72%.
+ * across the four is 0.48 under the title (3:1, large text) and 0.61 under
+ * the copy (4.5:1), so the bands hold 0.50 and 0.64.
  */
-const SCRIM =
-    'background: linear-gradient(180deg,' +
-    ' rgba(35,32,27,0.54) 0%,' +
-    ' rgba(35,32,27,0.50) 16%,' +
-    ' rgba(35,32,27,0.16) 36%,' +
-    ' rgba(35,32,27,0.20) 54%,' +
-    ' rgba(35,32,27,0.64) 72%,' +
-    ' rgba(35,32,27,0.76) 100%)'
+const fade = (direction: string, alpha: number) =>
+    `background: linear-gradient(${direction}, rgba(35,32,27,${alpha}) 0%, rgba(35,32,27,${alpha}) calc(100% - 3rem), rgba(35,32,27,0) 100%)`
+const TITLE_SCRIM = fade('180deg', 0.5)
+const COPY_SCRIM = fade('0deg', 0.64)
 
 const ARROW =
     'absolute top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow-[0_2px_10px_rgba(0,0,0,0.18)] transition-opacity hover:bg-white disabled:pointer-events-none disabled:opacity-0 lg:flex'
@@ -84,12 +81,15 @@ const ARROW =
                                     decoding="async"
                                     class="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                                 />
-                                <div class="absolute inset-0" style={SCRIM} aria-hidden="true" />
-                                <div class="absolute inset-0 flex flex-col justify-between p-5 lg:p-5.5">
-                                    <h3 class="font-display text-[24px] leading-[1.15] font-light text-white lg:text-[26px]">
-                                        {item.title}
-                                    </h3>
-                                    <p class="text-[15px] leading-6 text-white">{item.blurb}</p>
+                                <div class="absolute inset-0 flex flex-col justify-between">
+                                    <div class="px-5 pt-5 pb-12 lg:px-5.5 lg:pt-5.5" style={TITLE_SCRIM}>
+                                        <h3 class="font-display text-[24px] leading-[1.15] font-light text-white lg:text-[26px]">
+                                            {item.title}
+                                        </h3>
+                                    </div>
+                                    <div class="px-5 pt-12 pb-5 lg:px-5.5 lg:pb-5.5" style={COPY_SCRIM}>
+                                        <p class="text-[15px] leading-6 text-white">{item.blurb}</p>
+                                    </div>
                                 </div>
                             </a>
                         </li>

@@ -6,12 +6,9 @@ import { SITE, CONTACT, SOCIAL, whatsappLink } from '../config'
 const year = new Date().getFullYear()
 
 /*
- * Safaris · Where We Travel · Polecat Safaris · Good to Know.
- *
- * There was a fourth, Journal, built at build time from the categories that
- * actually had posts. It is gone by request. The journal itself is untouched —
- * /blogs/ and the category pages still build, they are just no longer linked
- * from here.
+ * Travel · Company · Good to Know · Contact Us, after the ~/web/mufasa_new
+ * footer. The first three come from FOOTER_COLUMNS; Contact Us is built here
+ * from CONTACT, as Mufasa builds its "Reach Us" column from `site`.
  */
 const columns = FOOTER_COLUMNS
 
@@ -35,38 +32,22 @@ const whatsapp = whatsappLink(
 ---
 
 <footer class="gutter flex flex-col items-center bg-cream pt-16 pb-10 lg:pt-22">
-    <div class="shell flex flex-col gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-15">
-        <div class="flex flex-col items-start gap-6.5 lg:w-75 lg:shrink-0">
+    <div class="shell flex flex-col gap-12 xl:flex-row xl:items-start xl:justify-between xl:gap-15">
+        <div class="flex flex-col items-start gap-6.5 xl:w-75 xl:shrink-0">
             <Wordmark />
             {/* The slogan alone. The tagline under it was removed by request;
                 it still lives on in SITE.tagline, which is where the meta
                 description and the schema get their sentence. */}
             <p class="font-display text-[21px] leading-7.5 text-primary italic">{SITE.slogan}</p>
-            <div class="flex flex-col gap-1.5">
-                <p class="text-[14px] leading-6 text-muted">{SITE.city}</p>
-                <a href={CONTACT.phoneHref} class="text-[14px] leading-6 text-ink hover:text-primary"
-                    >{CONTACT.phone}</a
-                >
-                <a
-                    href={`mailto:${CONTACT.email}`}
-                    class="text-[14px] leading-6 text-primary hover:underline">{CONTACT.email}</a
-                >
-                {/* The team works the WhatsApp inbox — same number as the
-                    landing page's enquiry handoff. */}
-                <a
-                    href={whatsapp}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-[14px] leading-6 text-muted transition-colors hover:text-primary"
-                    >Message us on WhatsApp</a
-                >
-            </div>
+            <p class="text-[14px] leading-6 text-muted">{SITE.city}</p>
         </div>
 
-        <nav class="grid grid-cols-2 gap-10 lg:flex lg:gap-12" aria-label="Footer">
+        {/* The brand sits above the columns until there is room for both on one
+            row; the last track is as wide as the email address needs. */}
+        <nav class="grid grid-cols-2 gap-10 lg:grid-cols-[1fr_1fr_1fr_auto] lg:gap-12 xl:flex-1" aria-label="Footer">
             {
                 columns.map((column) => (
-                    <div class="flex flex-col items-start gap-3 lg:w-40 lg:shrink-0">
+                    <div class="flex flex-col items-start gap-3">
                         <h2 class="pb-1 text-[11px] leading-3.5 font-medium tracking-[0.24em] text-ink uppercase">
                             {column.heading}
                         </h2>
@@ -81,6 +62,32 @@ const whatsapp = whatsappLink(
                     </div>
                 ))
             }
+            {/* The email address is too long for half the phone width, so on
+                phones this column takes the whole row. */}
+            <div class="col-span-2 flex flex-col items-start gap-3 sm:col-span-1">
+                <h2 class="pb-1 text-[11px] leading-3.5 font-medium tracking-[0.24em] text-ink uppercase">
+                    Contact Us
+                </h2>
+                <a href={CONTACT.phoneHref} class="text-[14px] leading-6.5 text-ink transition-colors hover:text-primary"
+                    >{CONTACT.phone}</a
+                >
+                <a
+                    href={`mailto:${CONTACT.email}`}
+                    class="text-[14px] leading-6.5 text-primary hover:underline">{CONTACT.email}</a
+                >
+                {/* The team works the WhatsApp inbox — same number as the
+                    landing page's enquiry handoff. */}
+                <a
+                    href={whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[14px] leading-6.5 text-muted transition-colors hover:text-primary"
+                    >Message us on WhatsApp</a
+                >
+                <a href="/enquire/" class="text-[14px] leading-6.5 text-muted transition-colors hover:text-primary"
+                    >Plan your safari</a
+                >
+            </div>
         </nav>
     </div>
 

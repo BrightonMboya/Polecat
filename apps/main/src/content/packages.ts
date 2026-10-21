@@ -5,7 +5,15 @@
  * Everything here — routes, lodges, day-by-day and rates — comes from the
  * operator's own itinerary documents, transcribed rather than invented. The
  * honeymoon itineraries lead, then the family and migration ones, then the
- * five Kilimanjaro climbs, longest last within each group.
+ * fly-in safaris, then the five Kilimanjaro climbs, shortest first within each
+ * group.
+ *
+ * Fourteen of them — the calving, migration and fly-in safaris — arrived
+ * together on 2026-10-22. Where a document contradicted itself, the
+ * day-by-day won over the lodge table and the operator still has to confirm
+ * it. Four carry no rate and quote "on request": the 12-Day Ultimate Great Migration,
+ * the 5-Day Fly-In Migration from Zanzibar, the 6-Day Tanzania Fly-In Luxury
+ * and the 7-Day Luxury Fly-In from Zanzibar.
  *
  * Three things are still outstanding and are marked where they occur:
  *   - The 8-Day Tanzania Family Safari came to us without a rate, so it quotes
@@ -108,8 +116,8 @@ export interface Route {
 
 /**
  * The three journeys the homepage's destination cards sell. An itinerary can
- * belong to more than one: the ten safaris are all northern-circuit, and three
- * of those either end on Zanzibar or extend onto it.
+ * belong to more than one: every safari is northern-circuit, and the ones that
+ * start on, end on or extend onto Zanzibar are zanzibar as well.
  *
  * `trekking` means the mountain, and only the mountain — the five Kilimanjaro
  * climbs and nothing else. It used to mean "days on foot", which pulled in the
@@ -218,6 +226,7 @@ const PT = {
     serengeti: { name: 'Central Serengeti (Seronera)', coordinates: [34.825, -2.45] as [number, number] },
     serengetiNorth: { name: 'Northern Serengeti (Mara River)', coordinates: [34.83, -1.6] as [number, number] },
     serengetiWest: { name: 'Western Serengeti', coordinates: [34.2, -2.15] as [number, number] },
+    ndutu: { name: 'Ndutu (Southern Serengeti)', coordinates: [35.0, -3.0] as [number, number] },
     natron: { name: 'Lake Natron', coordinates: [36.05, -2.4167] as [number, number] },
     eyasi: { name: 'Lake Eyasi', coordinates: [35.35, -3.55] as [number, number] },
     stoneTown: { name: 'Stone Town, Zanzibar', coordinates: [39.19, -6.165] as [number, number] },
@@ -728,6 +737,191 @@ export const PACKAGES: SafariPackage[] = [
             },
         ],
         featured: true,
+    },
+    {
+        slug: '7-day-great-migration-honeymoon-safari',
+        name: '7-Day Great Migration Honeymoon Safari',
+        region: 'Tarangire, Ngorongoro & the Serengeti',
+        category: 'Honeymoon',
+        routes: ['northern-circuit'],
+        duration: '7 Days / 6 Nights',
+        days: 7,
+        nights: 6,
+        price: 'From US$ 6,517 pp',
+        image: '/images/honeymoon-sundowner-toast-1400.webp',
+        imageSrcset:
+            '/images/honeymoon-sundowner-toast-900.webp 900w, /images/honeymoon-sundowner-toast-1400.webp 1400w',
+        imageAlt:
+            'A couple toasting with champagne on a rocky viewpoint at sunset, two director chairs and a table laid beside them',
+        summary:
+            'Six nights for couples that run from Tarangire’s elephants and a morning on the crater floor to the central Serengeti, then north to the Mara River for the crossings — finishing with a flight back to Arusha rather than the long road.',
+        priceFrom: 'US$ 6,517',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'Built for the Mara River crossing season, July to October. The crossings depend on the rain and on the herds, so nobody can put a date on them; two days in the north is what gives you a real chance.',
+        bestTime: 'July – October',
+        highlights: [
+            'The Great Migration and the Mara River crossings',
+            'Honeymoon rooms and tents chosen for every night',
+            'A private safari vehicle and a professional guide throughout',
+            'A guided wildlife walk on the first evening in Arusha',
+            'Tarangire, the Ngorongoro Crater and the Serengeti in one trip',
+            'Two nights in the northern Serengeti, where the crossings happen',
+            'A flight out of the Serengeti at the end instead of a day’s drive',
+        ],
+        destinations: ['Arusha', 'Tarangire', 'Ngorongoro', 'Central Serengeti', 'Northern Serengeti'],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Day 1' },
+                { ...PT.tarangire, label: 'Day 2' },
+                { ...PT.ngorongoro, label: 'Day 3' },
+                { ...PT.serengeti, label: 'Day 4' },
+                { ...PT.serengetiNorth, label: 'Days 5–7' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'Your Polecat Safaris guide meets you at Kilimanjaro International Airport and drives you to Hamerkop House by Lemala.',
+                    'Once you have settled in there is a guided wildlife walk, on the house — an easy first look at the country before the safari proper begins.',
+                ],
+                highlight: 'A complimentary guided wildlife walk on arrival',
+                overnight: 'Hamerkop House by Lemala, Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Tarangire National Park',
+                paragraphs: [
+                    'After breakfast you drive to Tarangire, the park of the giant baobabs and the biggest elephant herds in the north.',
+                    'The day is spent exploring it, and the evening is a quiet one at Elephant Springs.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'The Ngorongoro Crater',
+                paragraphs: [
+                    'On to the Ngorongoro Conservation Area and down onto the crater floor for a day looking for the Big Five.',
+                    'Afterwards you climb back to the rim and Lion’s Paw Camp, which looks straight out over the crater.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena', 'Zebra'],
+                highlight: 'A Big Five game drive on the crater floor',
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Ngorongoro to the Central Serengeti',
+                paragraphs: [
+                    'You carry on through the conservation area and out onto the Serengeti plains, game-driving on the way.',
+                    'The night is in the honeymoon tent at Serengeti Luxury Retreat, with nothing around it but the bush.',
+                ],
+                wildlife: ['Lion', 'Cheetah', 'Leopard', 'Giraffe', 'Wildebeest', 'Zebra'],
+                overnight: 'Serengeti Luxury Retreat — Honeymoon Tent, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'North to the Mara River',
+                paragraphs: [
+                    'After breakfast you game-drive north through the Serengeti, on the line the migration takes towards the Mara River.',
+                    'The afternoon goes on the herds and the predators following them, and you finish at River Camp.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Hyena', 'Crocodile'],
+                optional: [{ addon: 'balloon', note: 'over the central Serengeti at dawn, before the drive north' }],
+                overnight: 'River Camp by Karibu Camps, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'The Mara River Crossings',
+                paragraphs: [
+                    'A full day in the northern Serengeti, which is one of the best places in Africa to see the crossings.',
+                    'Your guide follows the herds, and when they go, thousands of wildebeest and zebra take to water with crocodile in it. It is the reason to come this far north.',
+                    'The last night in the Serengeti is at Kuria Hills Lodge.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Crocodile', 'Lion', 'Leopard', 'Hippo'],
+                highlight: 'A full day on the Mara River, where the crossings happen',
+                overnight: 'Kuria Hills Lodge, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'A Last Morning & the Flight Out',
+                paragraphs: [
+                    'One more morning game drive in the north, for a last look at the migration.',
+                    'Then the short transfer to the airstrip and the scheduled flight back to Arusha, in time for your onward international flight.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Elephant'],
+                meals: 'Breakfast',
+            },
+        ],
+        included: [
+            'A private pop-up roof 4×4 safari vehicle, with unlimited mileage on game drives',
+            'A professional safari guide throughout',
+            'All accommodation during the safari',
+            'Meals as listed — vegetarian, vegan, gluten-free and halal can all be catered for',
+            'The scheduled flight from the northern Serengeti to Arusha',
+            'Park fees, taxes and VAT',
+            'Airport transfers, and all transport by road',
+            'Unlimited bottled water, and beer and wine in the vehicle',
+            'Binoculars in the vehicle',
+            'All activities in the itinerary, unless marked optional',
+        ],
+        excluded: [
+            'International flights',
+            'The Tanzanian entry visa — US$ 50, or US$ 100 for US citizens',
+            'Travel insurance, souvenirs and other personal items',
+            'Tips — the guideline is US$ 20 per person per day',
+            'Optional activities, such as the balloon or a walking safari',
+        ],
+        faqs: [
+            {
+                question: 'When are the Mara River crossings?',
+                answer:
+                    'Usually July to October, when the migration reaches the northern Serengeti and the herds start crossing the river. When exactly is up to the rain and the wildebeest.',
+            },
+            FAQ_PRIVATE,
+            {
+                question: 'Can we add a balloon flight?',
+                answer:
+                    'Yes. A sunrise balloon flight over the Serengeti can be added as an optional extra, and it ends with a champagne breakfast in the bush.',
+            },
+            {
+                question: 'What will we see?',
+                answer:
+                    'Possibly the Big Five, and certainly the migration in season — wildebeest and zebra in numbers, with giraffe, cheetah, leopard, crocodile, hippo, hyena and several hundred kinds of bird alongside.',
+            },
+            {
+                question: 'Can the itinerary be changed?',
+                answer:
+                    'Yes. More nights in the Serengeti, Zanzibar at the end, different rooms or more of the romantic extras — tell us what you have in mind and we will redraft it.',
+            },
+        ],
+        brochure: {
+            intro: '/images/honeymoon-sundowner-toast-1400.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* Serengeti Luxury Retreat has no shoot yet (see accommodations.ts), and the last day has no overnight. */
+            dayImages: {
+                4: '/images/honeymoon-deck-sunrise-1400.webp',
+                7: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
     },
     {
         slug: '8-day-tanzania-zanzibar-honeymoon',
@@ -2293,6 +2487,1782 @@ export const PACKAGES: SafariPackage[] = [
         ],
     },
     {
+        slug: '10-day-great-migration-family-safari',
+        name: '10-Day Great Migration Family Safari',
+        region: 'Arusha, Tarangire, the Serengeti & Ngorongoro',
+        category: 'Family Safari',
+        routes: ['northern-circuit'],
+        duration: '10 Days / 9 Nights',
+        days: 10,
+        nights: 9,
+        price: 'From US$ 5,856 pp',
+        image: '/images/hero-family-game-viewing-1354.webp',
+        imageSrcset:
+            '/images/hero-family-game-viewing-900.webp 900w, /images/hero-family-game-viewing-1354.webp 1354w',
+        imageAlt:
+            'A girl standing on the bonnet of a safari vehicle while her parents watch and photograph a herd of gazelle and wildebeest on the plain',
+        summary:
+            'Nine nights for families, built around two in the northern Serengeti while the herds are on the Mara River — with a walking safari in Arusha National Park, Tarangire, a cultural afternoon in Mto wa Mbu and a last morning on the crater floor.',
+        priceFrom: 'US$ 5,856',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'July to October is when the migration reaches the northern Serengeti. The river crossings cannot be timed by anyone, which is why this itinerary gives the north a full extra day.',
+        bestTime: 'July – October',
+        highlights: [
+            'Two nights and a full extra day in the northern Serengeti',
+            'Time to follow the migration and look for the Mara River crossings',
+            'Lodges and tented camps that take families properly',
+            'A private safari vehicle and a professional guide for your family alone',
+            'A walking safari in Arusha National Park, with an armed ranger',
+            'A cultural afternoon in Mto wa Mbu',
+            'The central Serengeti on the way north and on the way back',
+            'The Big Five on the Ngorongoro Crater floor',
+        ],
+        destinations: [
+            'Arusha National Park',
+            'Tarangire',
+            'Mto wa Mbu',
+            'Karatu',
+            'Central Serengeti',
+            'Northern Serengeti',
+            'Ngorongoro',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Days 1–2' },
+                { ...PT.arushaPark, label: 'Day 2' },
+                { ...PT.tarangire, label: 'Days 3–4' },
+                { ...PT.mtoWaMbu, label: 'Day 4' },
+                { ...PT.karatu, label: 'Day 4' },
+                { ...PT.serengeti, label: 'Days 5 & 8' },
+                { ...PT.serengetiNorth, label: 'Days 6–7' },
+                { ...PT.ngorongoro, label: 'Days 9–10' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'Your Polecat Safaris guide meets you at Kilimanjaro International Airport and drives you to Mount Meru Game Lodge.',
+                    'A quiet first evening, which after a long flight with children is the right way to begin.',
+                ],
+                overnight: 'Mount Meru Game Lodge, Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Arusha National Park, on Foot and by Vehicle',
+                paragraphs: [
+                    'After breakfast, into Arusha National Park for a walking safari with an armed ranger, and then a game drive.',
+                    'Forest, open glades and the Momella Lakes, with giraffe, buffalo, zebra, warthog and colobus monkeys to find — and a smaller, gentler park than the ones to come, which suits a first day.',
+                ],
+                wildlife: ['Giraffe', 'Buffalo', 'Zebra', 'Warthog', 'Colobus monkey'],
+                highlight: 'A walking safari with an armed ranger',
+                overnight: 'Mount Meru Game Lodge, Arusha',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Tarangire National Park',
+                paragraphs: [
+                    'West to Tarangire, the park of giant baobabs and the biggest elephant herds in the north.',
+                    'A full day of game driving, and then Elephant Springs by Karibu Camps.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                optional: [{ addon: 'night-game-drive' }],
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Tarangire at First Light & Mto wa Mbu',
+                paragraphs: [
+                    'An early game drive in Tarangire, before the park gets busy.',
+                    'Then Mto wa Mbu, for a guided afternoon with the people who live there — the farms, the market and everyday Tanzanian life — before you carry on to Kitela Lodge in Karatu.',
+                ],
+                optional: [{ addon: 'zipline' }, { addon: 'biking', note: 'through the village and the rice paddies' }],
+                highlight: 'A guided cultural afternoon in Mto wa Mbu',
+                overnight: 'Kitela Lodge, Karatu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Into the Central Serengeti',
+                paragraphs: [
+                    'Through the Ngorongoro Conservation Area and onto the Serengeti plains, with game along the way.',
+                    'You stay at Sametu Camp, well placed for the Seronera country.',
+                ],
+                overnight: 'Sametu Camp, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'North to the Mara River',
+                paragraphs: [
+                    'After breakfast you drive north through the Serengeti, following the migration towards the Mara River.',
+                    'Game viewing on the way, an afternoon drive once you arrive, and then Enkutoto Acacia Collection.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Elephant'],
+                overnight: 'Enkutoto Acacia Collection, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'A Full Day in the Northern Serengeti',
+                paragraphs: [
+                    'The extra day — and the reason for it. The herds move when they move, and a crossing is something you wait for rather than book, so your guide spends the day following them and working the river.',
+                    'Between the herds there is plenty else: lion, leopard, elephant, hyena and giraffe all live up here.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Leopard', 'Elephant', 'Hyena', 'Giraffe'],
+                optional: [{ addon: 'balloon' }, { addon: 'bush-breakfast' }],
+                highlight: 'A full day to look for the Mara River crossings',
+                overnight: 'Enkutoto Acacia Collection, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 8,
+                label: 'Day 8',
+                title: 'Back Through the Serengeti',
+                paragraphs: [
+                    'A last morning drive in the north, and then the long, game-filled road south across the plains.',
+                    'You reach Sametu Camp in the central Serengeti in time for dinner.',
+                ],
+                overnight: 'Sametu Camp, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 9,
+                label: 'Day 9',
+                title: 'Central Serengeti to the Crater Rim',
+                paragraphs: [
+                    'A morning game drive in the central Serengeti before you leave the park and climb into the Ngorongoro Conservation Area.',
+                    'Lion’s Paw Camp sits near the crater rim — an afternoon to rest and take in the highlands before the descent.',
+                ],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 10,
+                label: 'Day 10',
+                title: 'The Ngorongoro Crater & Departure',
+                paragraphs: [
+                    'An early breakfast and down onto the crater floor, to look for the Big Five — the endangered black rhino among them.',
+                    'A picnic lunch, and then the drive back towards Arusha and on to Kilimanjaro International Airport for your flight home.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Leopard'],
+                highlight: 'The Big Five on the crater floor',
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'A private 4×4 safari vehicle with a pop-up roof',
+            'A professional safari guide throughout',
+            'All accommodation during the safari',
+            'All meals, with vegetarian, vegan, gluten-free and halal diets catered for',
+            'Unlimited-mileage game drives',
+            'All activities, unless marked as optional',
+            'All transport by road',
+            'Park fees',
+            'Airport transfers',
+            'Use of binoculars',
+            'Unlimited bottled water, and beer and wine in the vehicle',
+            'Taxes and VAT',
+        ],
+        excluded: [
+            'International flights',
+            'Tanzanian entry visa — US$ 50, or US$ 100 for US citizens',
+            'Travel insurance, souvenirs and other personal items',
+            'Tips — our guideline is US$ 20 per person per day',
+            'Optional activities, such as the balloon flight',
+        ],
+        faqs: [
+            {
+                question: 'When is the best time to see the migration?',
+                answer:
+                    'July to October, when the herds reach the northern Serengeti and the Mara River crossings can happen.',
+            },
+            {
+                question: 'Why the extra day in the north?',
+                answer:
+                    'Because nobody can predict a crossing. A full day more on the river is what gives your family a real chance of being there when the herds go in.',
+            },
+            {
+                question: 'Is this safari suitable for children?',
+                answer:
+                    'Yes — it was planned with families in mind: wildlife, a cultural afternoon, comfortable distances and lodges that look after children well.',
+            },
+            {
+                question: 'Will we see the Big Five?',
+                answer:
+                    'The Ngorongoro Crater gives you one of the best chances in Africa to see all five in a single drive.',
+            },
+            FAQ_PRIVATE,
+            {
+                question: 'Can the itinerary be changed?',
+                answer:
+                    'Yes. Add Serengeti nights, a balloon flight, or a few days on Zanzibar at the end. Tell us what you have in mind and we will redraft it.',
+            },
+        ],
+        brochure: {
+            intro: '/images/hero-family-game-viewing-1354.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                10: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
+    },
+    {
+        slug: '5-day-ndutu-calving-fly-in-safari',
+        name: '5-Day Ndutu Calving Season Fly-In Safari',
+        region: 'Ndutu, Southern Serengeti & Ngorongoro',
+        category: 'Great Migration',
+        routes: ['northern-circuit'],
+        duration: '5 Days / 4 Nights',
+        days: 5,
+        nights: 4,
+        price: 'From US$ 3,797 pp',
+        image: '/images/hero-camp-firepit-dusk-1220.webp',
+        imageSrcset:
+            '/images/hero-camp-firepit-dusk-900.webp 900w, /images/hero-camp-firepit-dusk-1220.webp 1220w',
+        imageAlt:
+            'A fire burning in a pit before canvas camp tents at dusk, director chairs and lanterns set out on the ground around it',
+        summary:
+            'Four nights built around the calving season: a bush flight from Arusha straight onto the Ndutu plains, two nights among the herds as the wildebeest give birth, then the crater floor on the way home.',
+        priceFrom: 'US$ 3,797',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'The calving runs from December to March and peaks in January and February, but its timing moves with the rain — no operator can put a date on it.',
+        bestTime: 'December – March',
+        highlights: [
+            'A bush flight from Arusha straight into the calving grounds',
+            'Two nights close to the Ndutu plains',
+            'Newborn wildebeest calves and the herds around them',
+            'Lion, cheetah and hyena working the short-grass plains',
+            'A private 4×4 and a professional guide throughout',
+            'More time on safari and less on long road transfers',
+            'A last morning on the Ngorongoro Crater floor',
+        ],
+        destinations: ['Arusha', 'Ndutu', 'Ngorongoro'],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Days 1–2 & 5' },
+                { ...PT.ndutu, label: 'Days 2–4' },
+                { ...PT.ngorongoro, label: 'Days 4–5' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'You are met at Kilimanjaro International Airport and driven to Arusha Coffee Lodge, set among the rows of a working coffee plantation.',
+                    'A quiet evening and a proper night’s sleep before the safari starts.',
+                ],
+                overnight: 'Arusha Coffee Lodge, Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Fly to Ndutu',
+                paragraphs: [
+                    'After breakfast you transfer to Arusha Airport for the bush flight south-west to the Ndutu region.',
+                    'Your guide meets you at the airstrip and the first game drive begins there. In the calving season the short-grass plains fill with wildebeest giving birth, and the lion, cheetah and hyena are never far behind them.',
+                    'You finish at Lake Masek Tented Lodge, your base for two nights.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Gazelle', 'Lion', 'Cheetah', 'Hyena'],
+                highlight: 'Straight from the airstrip onto the calving plains',
+                overnight: 'Lake Masek Tented Lodge, Ndutu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'A Full Day on the Calving Grounds',
+                paragraphs: [
+                    'A whole day out on Ndutu and the southern Serengeti plains, following the herds and looking for the newborn calves and the cats drawn in by them.',
+                    'Because the vehicle is yours, the day goes where the animals go rather than to a timetable — which on open plains in good light is also what makes the photographs.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Cheetah', 'Hyena', 'Gazelle'],
+                optional: [
+                    { addon: 'balloon', note: 'launching from Ndutu in the calving season' },
+                ],
+                overnight: 'Lake Masek Tented Lodge, Ndutu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Ndutu to the Ngorongoro Highlands',
+                paragraphs: [
+                    'A last morning game drive around Ndutu, then the road east into the Ngorongoro Conservation Area.',
+                    'The open plains give way to the green of the highlands, with game to see on the way. You arrive at Lion’s Paw Camp, close to the crater, with the afternoon to yourselves.',
+                ],
+                optional: [
+                    { addon: 'walking-safari', note: 'on the crater rim' },
+                ],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'The Ngorongoro Crater & Departure',
+                paragraphs: [
+                    'An early breakfast and then down onto the crater floor, which holds one of the great concentrations of wildlife anywhere — lion, elephant, buffalo, hippo and, with luck, the black rhino.',
+                    'A picnic lunch on the floor, then the climb out and the road back to Arusha, and on to Kilimanjaro International Airport for your onward flight.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo'],
+                highlight: 'A final morning on the crater floor',
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'A pop-up roof 4×4 safari vehicle, with unlimited mileage on game drives',
+            'A professional safari guide throughout',
+            'All accommodation during the safari',
+            'All meals, catered for vegetarian, vegan, gluten-free and halal diets',
+            'The domestic bush flight from Arusha to Ndutu',
+            'All activities, unless marked as optional',
+            'Park fees',
+            'Airport transfers, and all transport by road',
+            'Binoculars to use on safari',
+            'Unlimited bottled water, and beer and wine in the vehicle',
+            'Taxes and VAT',
+        ],
+        excluded: [
+            'International flights',
+            'Tanzania entry visa — US$ 50, or US$ 100 for US citizens',
+            'Travel insurance, souvenirs and other personal items',
+            'Tips — our guideline is US$ 20 per person per day',
+            'Optional activities, such as the balloon flight or a walking safari',
+        ],
+        faqs: [
+            {
+                question: 'When is the calving season?',
+                answer:
+                    'Broadly December to March. January and February are usually the strongest months for newborn calves and for predator activity, but the timing moves with the rain.',
+            },
+            {
+                question: 'Why fly in to Ndutu?',
+                answer:
+                    'It saves a long day on the road and puts you straight into the migration country, so the time goes on the animals instead of the transfer.',
+            },
+            {
+                question: 'What will we see?',
+                answer:
+                    'Very large herds of wildebeest, the calves among them, zebra and gazelle — and the lion, cheetah and hyena that follow the herds south.',
+            },
+            {
+                question: 'Does it suit a couple or a honeymoon?',
+                answer:
+                    'Yes. Private drives, luxury lodges and the bush flight make it a good fit for two, and it is short enough to pair with a few nights on the coast.',
+            },
+            FAQ_CUSTOMISE,
+        ],
+        brochure: {
+            intro: '/images/hero-camp-firepit-dusk-1220.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                5: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
+    },
+    {
+        slug: '5-day-fly-in-migration-safari-from-zanzibar',
+        name: '5-Day Fly-In Great Migration Safari from Zanzibar',
+        region: 'Northern Serengeti, Ngorongoro & Tarangire',
+        category: 'Great Migration',
+        routes: ['northern-circuit', 'zanzibar'],
+        duration: '5 Days / 4 Nights',
+        days: 5,
+        nights: 4,
+        price: 'Price on request',
+        image: '/images/hero-beach-infinity-pool-1400.webp',
+        imageSrcset:
+            '/images/hero-beach-infinity-pool-900.webp 900w, /images/hero-beach-infinity-pool-1400.webp 1400w, /images/hero-beach-infinity-pool-1920.webp 1920w',
+        imageAlt:
+            'An infinity pool lined with palms and white parasols in front of a thatched beach lodge, the sea beyond it and the palms reflected in the water',
+        summary:
+            'Four nights from the beach to the river: a flight from Zanzibar into the Northern Serengeti for the Mara River crossings, then south through the Serengeti to the Ngorongoro Crater and Tarangire, and a flight back to the coast.',
+        priceFrom: 'On request',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'The rate for this itinerary is being confirmed and is deliberately not published here. Ask us and we will quote it against your dates. Nights on Zanzibar either side of the safari are not included.',
+        bestTime: 'July – October',
+        highlights: [
+            'A scheduled flight from Zanzibar straight into the Northern Serengeti',
+            'Two days in the Mara River crossing country while the migration is there',
+            'Game viewing south through the Serengeti’s changing country',
+            'A game drive on the floor of the Ngorongoro Crater, a UNESCO World Heritage site',
+            'Tarangire’s elephant herds on the last morning',
+            'Camps placed close to the wildlife, and a private vehicle and guide throughout',
+            'Written as a safari to add to a Zanzibar holiday',
+        ],
+        destinations: ['Zanzibar', 'Northern Serengeti', 'Serengeti', 'Ngorongoro Crater', 'Tarangire'],
+        route: {
+            start: PT.zanzibarAirport,
+            points: [
+                { ...PT.serengetiNorth, label: 'Days 1–3' },
+                { ...PT.serengeti, label: 'Day 3' },
+                { ...PT.ngorongoro, label: 'Days 3–4' },
+                { ...PT.tarangire, label: 'Days 4–5' },
+            ],
+            end: PT.zanzibarAirport,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Fly from Zanzibar to the Northern Serengeti',
+                paragraphs: [
+                    'After breakfast you transfer to Zanzibar Airport for the scheduled flight to the Northern Serengeti.',
+                    'Your guide meets you at the airstrip and the first game drive starts straight away. Between July and October this is where the herds gather around the Mara River, so the wildebeest and zebra are the first thing you go looking for — with lion, elephant and leopard alongside them.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Elephant', 'Giraffe', 'Crocodile', 'Leopard'],
+                overnight: 'Mara River Camp, Northern Serengeti',
+                meals: 'Lunch & dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'A Full Day in the Northern Serengeti',
+                paragraphs: [
+                    'A whole day in the country the migration moves through, with a guide who follows the herds rather than a timetable.',
+                    'If the conditions are right you may see thousands of wildebeest and zebra cross the Mara River with the predators waiting for them. Crossings happen when the herds decide, so nobody can promise one, but this is the place and the season to be.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Cheetah', 'Leopard', 'Nile crocodile'],
+                highlight: 'The Mara River crossing country, in season',
+                overnight: 'Lala Salama Camp, Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'South Through the Serengeti',
+                paragraphs: [
+                    'After breakfast you work south through the Serengeti’s changing country towards the Seronera Valley in the centre of the park, one of its best wildlife areas and known for its predators, game viewing the whole way.',
+                    'The night is at Lion’s Paw Camp.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Hippo', 'Buffalo', 'Hyena'],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'The Ngorongoro Crater',
+                paragraphs: [
+                    'Down onto the crater floor after breakfast, for a game drive among one of the densest concentrations of wildlife in Africa and some of the best odds anywhere on the Big Five.',
+                    'Afterwards you climb out and drive on to Elephant Springs, close to Tarangire.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Flamingo'],
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Tarangire & the Flight Back to Zanzibar',
+                paragraphs: [
+                    'A last game drive in Tarangire, among the elephant herds and the old baobabs.',
+                    'Then the airstrip and the flight back to Zanzibar.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'Return domestic flights, Zanzibar – Northern Serengeti – Zanzibar',
+            ...INCLUDED_CORE.slice(0, 2),
+            'Luxury accommodation as listed',
+            'All meals during the safari',
+            'Game drives in the Serengeti, the Ngorongoro Crater and Tarangire',
+            'Park and conservation fees',
+            'Airport transfers',
+            'Bottled drinking water during the safari',
+        ],
+        excluded: [
+            'International flights',
+            'Accommodation on Zanzibar before or after the safari',
+            'Tanzanian visa fees',
+            'Travel insurance',
+            'Items of a personal nature',
+            'Tips and gratuities',
+            'Optional activities',
+        ],
+        faqs: [
+            {
+                question: 'When is the best time for this safari?',
+                answer:
+                    'July to October, when the migration reaches the Northern Serengeti and the Mara River crossings are possible. August and September are usually the peak of the crossings.',
+            },
+            {
+                question: 'Will we see a river crossing?',
+                answer:
+                    'Crossings depend on the herds, the rain and the animals themselves, so nobody can guarantee one. Your guide will put you where they are most likely through the season.',
+            },
+            {
+                question: 'Can we combine it with a holiday on Zanzibar?',
+                answer:
+                    'That is what it is written for: it starts and ends at Zanzibar Airport, so it slots between nights on the beach.',
+            },
+            FAQ_PRIVATE,
+        ],
+        brochure: {
+            intro: '/images/hero-beach-infinity-pool-1400.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                5: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
+    },
+    {
+        slug: '6-day-luxury-calving-safari',
+        name: '6-Day Luxury Tanzania Great Migration Calving Safari',
+        region: 'Tarangire, Ndutu & Ngorongoro',
+        category: 'Great Migration',
+        routes: ['northern-circuit'],
+        duration: '6 Days / 5 Nights',
+        days: 6,
+        nights: 5,
+        price: 'From US$ 3,882 pp',
+        image: '/images/hero-firepit-dinner-1400.webp',
+        imageSrcset:
+            '/images/hero-firepit-dinner-900.webp 900w, /images/hero-firepit-dinner-1400.webp 1400w, /images/hero-firepit-dinner-1920.webp 1920w',
+        imageAlt:
+            'A couple laughing over dinner at a table laid out in the bush, a fire burning in the foreground and lanterns hung in the trees behind them',
+        summary:
+            'Five nights by road for the calving season: Tarangire’s elephant first, then two nights on the southern Serengeti plains at Ndutu while the wildebeest give birth, and the Ngorongoro Crater to finish.',
+        priceFrom: 'US$ 3,882',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'The calving runs from December to March, with the most newborn calves in January and February. Its timing moves with the rain.',
+        bestTime: 'December – March',
+        highlights: [
+            'The Great Migration calving season on the Ndutu plains',
+            'Two nights in the southern Serengeti, close to the herds',
+            'Strong chances of predator action around the calving',
+            'Tarangire, home to Tanzania’s largest elephant herds',
+            'A Big Five morning on the Ngorongoro Crater floor',
+            'Luxury lodges and tented camps throughout',
+            'A private 4×4 and a professional guide throughout',
+        ],
+        destinations: ['Arusha', 'Tarangire', 'Ndutu', 'Ngorongoro'],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Day 1' },
+                { ...PT.tarangire, label: 'Day 2' },
+                { ...PT.ndutu, label: 'Days 3–5' },
+                { ...PT.ngorongoro, label: 'Days 5–6' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'You are met at Kilimanjaro International Airport and driven to Gran Meliá Arusha.',
+                    'The rest of the day is yours, in the hotel’s gardens, before the safari starts in the morning.',
+                ],
+                overnight: 'Gran Meliá Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Tarangire National Park',
+                paragraphs: [
+                    'After breakfast, west to Tarangire — ancient baobabs, a seasonal river and one of the largest elephant populations in East Africa.',
+                    'A full day’s game drive through it, looking for elephant, lion, giraffe and zebra, with the birdlife thrown in, and then Elephant Springs by Karibu Camps for the night.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                optional: [
+                    { addon: 'walking-safari', note: 'along the river, among the baobabs' },
+                ],
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Through Ngorongoro to Ndutu',
+                paragraphs: [
+                    'The road west through the Ngorongoro Conservation Area and down onto the southern Serengeti plains at Ndutu, where the migration gathers for the calving.',
+                    'The drive is a game drive as you go — the big herds of wildebeest, zebra and gazelle, and the predators keeping pace with them — and it ends at Serengeti Woodland Camp by Karibu Camps.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Gazelle', 'Lion', 'Hyena'],
+                overnight: 'Serengeti Woodland Camp by Karibu Camps, Ndutu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'A Full Day on the Calving Grounds',
+                paragraphs: [
+                    'A whole day on the southern plains with your guide, following the herds.',
+                    'This is when the calves take their first steps, a great many of them each day, and when the lion, cheetah, leopard and hyena are most active around them.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Cheetah', 'Leopard', 'Hyena'],
+                optional: [
+                    { addon: 'balloon', note: 'launching from Ndutu in the calving season' },
+                ],
+                highlight: 'A full day among the calving herds',
+                overnight: 'Serengeti Woodland Camp by Karibu Camps, Ndutu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Ndutu to the Ngorongoro Highlands',
+                paragraphs: [
+                    'A last morning game drive on the southern plains, then the road back into the Ngorongoro Conservation Area.',
+                    'You finish at Lion’s Paw Camp on the crater rim, with the view and the afternoon to yourselves before an early start.',
+                ],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'The Ngorongoro Crater & Departure',
+                paragraphs: [
+                    'An early breakfast and down onto the crater floor for a half-day game drive — the best chance on this trip at all of the Big Five, the black rhino among them.',
+                    'Then back to Arusha and on to Kilimanjaro International Airport for your onward flight.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Leopard', 'Hippo'],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'A pop-up roof 4×4 safari vehicle, with unlimited mileage on game drives',
+            'A professional safari guide throughout',
+            'All accommodation during the safari',
+            'All meals, catered for vegetarian, vegan, gluten-free and halal diets',
+            'All activities, unless marked as optional',
+            'Park fees',
+            'Airport transfers, and all transport by road',
+            'Binoculars to use on safari',
+            'Unlimited bottled water, and beer and wine in the vehicle',
+            'Taxes and VAT',
+        ],
+        excluded: [
+            'International flights',
+            'Tanzania entry visa — US$ 50, or US$ 100 for US citizens',
+            'Travel insurance, souvenirs and other personal items',
+            'Tips — our guideline is US$ 20 per person per day',
+            'Optional activities, such as the balloon flight or a walking safari',
+        ],
+        faqs: [
+            {
+                question: 'When is the calving season?',
+                answer:
+                    'December to March. January and February bring the most newborn wildebeest on the southern Serengeti plains.',
+            },
+            {
+                question: 'What makes the southern Serengeti special at this time of year?',
+                answer:
+                    'The herds come down onto the short-grass plains around Ndutu to give birth, and the lion, cheetah, leopard and hyena come with them.',
+            },
+            {
+                question: 'Will we see the Big Five?',
+                answer:
+                    'The Ngorongoro Crater gives you one of the best chances in Africa of all five in a single game drive. Nobody can promise the rhino, but the crater is where it is most often found.',
+            },
+            FAQ_PRIVATE,
+            FAQ_CUSTOMISE,
+        ],
+        brochure: {
+            intro: '/images/hero-firepit-dinner-1400.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                6: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
+    },
+    {
+        slug: '7-day-private-luxury-great-migration-safari',
+        name: '7-Day Private Luxury Great Migration Safari',
+        region: 'The Serengeti, Ngorongoro & Tarangire',
+        category: 'Great Migration',
+        routes: ['northern-circuit'],
+        duration: '7 Days / 6 Nights',
+        days: 7,
+        nights: 6,
+        price: 'From US$ 6,690 pp',
+        image: '/images/serengeti-migration-game-drive-1400.webp',
+        imageSrcset:
+            '/images/serengeti-migration-game-drive-900.webp 900w, /images/serengeti-migration-game-drive-1400.webp 1400w, /images/serengeti-migration-game-drive-1920.webp 1920w',
+        imageAlt:
+            'Wildebeest grazing beneath a lone acacia on the Serengeti, a safari vehicle parked beside them',
+        summary:
+            'Six nights that fly you straight to the northern Serengeti for the Mara River crossings, then work back south by road — the central Serengeti, the Ngorongoro highlands, Elephant Springs and a last game drive in Tarangire.',
+        priceFrom: 'US$ 6,690',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'Built for the migration season, July to October. The crossings depend on the rain and on the herds, so they cannot be promised for a given day.',
+        bestTime: 'July – October',
+        highlights: [
+            'A bush flight from Arusha straight to the northern Serengeti',
+            'The Mara River crossings, season permitting',
+            'Two nights at Nimali Mara',
+            'Both the northern and the central Serengeti',
+            'A private luxury vehicle and a professional guide throughout',
+            'A night in the Ngorongoro highlands and one at Elephant Springs',
+            'A final game drive in Tarangire on the way out',
+        ],
+        destinations: ['Arusha', 'Northern Serengeti', 'Central Serengeti', 'Ngorongoro', 'Tarangire'],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Day 1' },
+                { ...PT.serengetiNorth, label: 'Days 2–4' },
+                { ...PT.serengeti, label: 'Days 4–5' },
+                { ...PT.ngorongoro, label: 'Day 5' },
+                { ...PT.tarangire, label: 'Days 6–7' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'You are met at Kilimanjaro International Airport and driven to Elewana Arusha Coffee Lodge, among the coffee plantations and the gardens outside town.',
+                    'Nothing is planned for the rest of the day, which is the point of it.',
+                ],
+                overnight: 'Elewana Arusha Coffee Lodge, Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Fly to the Northern Serengeti',
+                paragraphs: [
+                    'After breakfast you transfer to Arusha Airport for the scheduled bush flight north.',
+                    'Your guide meets you at the airstrip and the first game drive starts there. In season the herds are massed across these plains, waiting to cross the Mara River.',
+                    'You finish at Nimali Mara.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Crocodile', 'Topi'],
+                overnight: 'Nimali Mara, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'The Mara River',
+                paragraphs: [
+                    'A whole day in the north, given to the crossing points along the river.',
+                    'Your guide follows the herds and puts you near a crossing whenever one is building — thousands of wildebeest and zebra bunched on the bank before they go into the water.',
+                    'Between crossings there is a great deal else to see across the open country.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Crocodile', 'Lion', 'Leopard', 'Hippo'],
+                highlight: 'A full day at the Mara River crossing points',
+                overnight: 'Nimali Mara, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'North to the Central Serengeti',
+                paragraphs: [
+                    'After breakfast you drive south through the Serengeti, game-viewing all the way.',
+                    'The central Serengeti holds its predators and its plains game all year, and the afternoon goes on the Seronera area before you reach Meliá Serengeti.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Giraffe', 'Hippo'],
+                overnight: 'Meliá Serengeti Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'The Serengeti to Ngorongoro',
+                paragraphs: [
+                    'An early game drive in the central Serengeti, then the road south-east off the plains and up into the Ngorongoro highlands.',
+                    'There is game for much of the way. The evening is a quiet one at Lion’s Paw Camp.',
+                ],
+                wildlife: ['Lion', 'Cheetah', 'Wildebeest', 'Zebra', 'Gazelle'],
+                optional: [{ addon: 'balloon', note: 'over the central Serengeti at dawn' }],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'Elephant Springs',
+                paragraphs: [
+                    'After breakfast you drive on to Elephant Springs, taking in the country and the game on the way.',
+                    'The day is a slower one: time to look at the landscape, rest, and take stock of what the last few days have shown you.',
+                ],
+                optional: [{ addon: 'walking-safari' }],
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'Tarangire & Departure',
+                paragraphs: [
+                    'A last game drive in Tarangire, among the elephant herds and the old baobabs.',
+                    'Depending on your flight there is a picnic lunch, and then the drive to Kilimanjaro International Airport for your onward flight.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'A private pop-up roof 4×4 safari vehicle, with unlimited mileage on game drives',
+            'A professional safari guide throughout',
+            'All accommodation during the safari',
+            'Meals as listed — vegetarian, vegan, gluten-free and halal can all be catered for',
+            'The scheduled bush flight from Arusha to the northern Serengeti',
+            'Park fees, taxes and VAT',
+            'Airport transfers, and all transport by road',
+            'Unlimited bottled water, and beer and wine in the vehicle',
+            'Binoculars in the vehicle',
+            'All activities in the itinerary, unless marked optional',
+        ],
+        excluded: [
+            'International flights',
+            'The Tanzanian entry visa — US$ 50, or US$ 100 for US citizens',
+            'Travel insurance, souvenirs and other personal items',
+            'Tips — the guideline is US$ 20 per person per day',
+            'Optional activities, such as the balloon or a walking safari',
+        ],
+        faqs: [
+            {
+                question: 'When are the Mara River crossings?',
+                answer:
+                    'Usually between July and October. Exactly when depends on the rain and on where the herds are grazing, which is why this itinerary gives the north two nights.',
+            },
+            FAQ_PRIVATE,
+            {
+                question: 'What will we see?',
+                answer:
+                    'Possibly the Big Five, and in season the migration itself — wildebeest and zebra in huge numbers, with crocodile, giraffe, cheetah, leopard, hyena, hippo and several hundred kinds of bird.',
+            },
+            FAQ_CUSTOMISE,
+        ],
+        brochure: {
+            intro: '/images/serengeti-migration-game-drive-1400.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                7: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
+    },
+    {
+        slug: '8-day-great-migration-fly-in-safari',
+        name: '8-Day Great Migration Fly-In Safari',
+        region: 'The Serengeti, Ngorongoro & Tarangire',
+        category: 'Great Migration',
+        routes: ['northern-circuit'],
+        duration: '8 Days / 7 Nights',
+        days: 8,
+        nights: 7,
+        price: 'From US$ 7,505 pp',
+        image: '/images/hero-acacia-chairs-1400.webp',
+        imageSrcset:
+            '/images/hero-acacia-chairs-900.webp 900w, /images/hero-acacia-chairs-1400.webp 1400w, /images/hero-acacia-chairs-1920.webp 1920w',
+        imageAlt:
+            'Two guests in safari chairs on a camp deck, glasses of wine on a table between them, looking out at an acacia and a flat-topped hill across the grass',
+        summary:
+            'Seven nights that start with a flight to the northern Serengeti and two days on the Mara River, then come south by road — the central Serengeti, a day on the crater floor and two unhurried nights in Tarangire.',
+        priceFrom: 'US$ 7,505',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'Built for the Mara River crossing season, July to October, with July to September the peak. The crossings follow the rain and the grazing, so nobody can put a date on them.',
+        bestTime: 'July – October',
+        highlights: [
+            'A scheduled flight to the northern Serengeti, cutting out the longest drive',
+            'Two nights near the Mara River for the crossings',
+            'A Big Five game drive on the Ngorongoro Crater floor',
+            'Two nights at Lemala Mpingo Ridge in Tarangire',
+            'Luxury lodges and tented camps throughout',
+            'A private safari vehicle and a professional guide',
+            'Time enough for photographers to wait for the light',
+        ],
+        destinations: ['Arusha', 'Northern Serengeti', 'Central Serengeti', 'Ngorongoro', 'Tarangire'],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Days 1 & 8' },
+                { ...PT.serengetiNorth, label: 'Days 2–4' },
+                { ...PT.serengeti, label: 'Days 4–5' },
+                { ...PT.ngorongoro, label: 'Days 5–6' },
+                { ...PT.tarangire, label: 'Days 6–8' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'Your Polecat Safaris guide meets you at Kilimanjaro International Airport and drives you to Gran Meliá Arusha.',
+                    'The rest of the day is yours, to rest before the safari starts.',
+                ],
+                overnight: 'Gran Meliá Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Fly to the Northern Serengeti',
+                paragraphs: [
+                    'After breakfast you transfer to Arusha Airport for the scheduled bush flight north.',
+                    'The first game drive starts at the airstrip. In season this is crossing country, with wildebeest and zebra gathered in their thousands along the Mara River.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Crocodile', 'Cheetah'],
+                overnight: 'River Camp by Karibu Camps, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'A Full Day on the Mara River',
+                paragraphs: [
+                    'A whole day in the north with your guide, following the herds as they move across the plains and down to the river.',
+                    'Where the herds are, the predators are too, and a day this long gives you the best chance of being there when something happens.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Leopard', 'Cheetah', 'Elephant'],
+                highlight: 'A full day following the migration to the Mara River',
+                overnight: 'River Camp by Karibu Camps, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'North to the Central Serengeti',
+                paragraphs: [
+                    'After breakfast you game-drive south through the Serengeti to its centre.',
+                    'You arrive at Lala Salama in time to rest after the journey.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Cheetah', 'Giraffe', 'Hippo'],
+                overnight: 'Lala Salama Serengeti Camp, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'The Serengeti to the Ngorongoro Highlands',
+                paragraphs: [
+                    'A last morning game drive in the central Serengeti, then on through the Ngorongoro Conservation Area.',
+                    'Lion’s Paw Camp sits close to the crater rim, which puts you first in line for tomorrow.',
+                ],
+                wildlife: ['Lion', 'Cheetah', 'Wildebeest', 'Zebra', 'Gazelle'],
+                optional: [{ addon: 'balloon', note: 'over the central Serengeti at dawn' }],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'The Ngorongoro Crater & on to Tarangire',
+                paragraphs: [
+                    'An early breakfast and down onto the crater floor for a Big Five game drive — lion, elephant, buffalo, hippo, hyena, and the endangered black rhino.',
+                    'After a picnic lunch you drive on to Tarangire and Lemala Mpingo Ridge.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena'],
+                highlight: 'A Big Five game drive on the crater floor',
+                overnight: 'Lemala Mpingo Ridge, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'A Full Day in Tarangire',
+                paragraphs: [
+                    'A whole day in Tarangire, with its elephant herds and its ancient baobabs, working along the Tarangire River with your guide.',
+                    'Then back to Mpingo Ridge for a second evening.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo', 'Eland'],
+                optional: [{ addon: 'walking-safari' }],
+                overnight: 'Lemala Mpingo Ridge, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 8,
+                label: 'Day 8',
+                title: 'Tarangire at First Light, Shanga & Departure',
+                paragraphs: [
+                    'An early game drive, out before most of the other vehicles, while the air is cool and the animals are moving.',
+                    'Then the road back towards Arusha. Flights allowing, you stop at Shanga, where artisans make jewellery, glassware and textiles by hand.',
+                    'On to Kilimanjaro International Airport for your onward flight.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe'],
+                highlight: 'An early drive in Tarangire, ahead of the other vehicles',
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'A private pop-up roof 4×4 safari vehicle, with unlimited mileage on game drives',
+            'A professional safari guide throughout',
+            'All accommodation during the safari',
+            'Meals as listed — vegetarian, vegan, gluten-free and halal can all be catered for',
+            'The scheduled bush flight from Arusha to the northern Serengeti',
+            'Park fees, taxes and VAT',
+            'Airport transfers, and all transport by road',
+            'Unlimited bottled water, and beer and wine in the vehicle',
+            'Binoculars in the vehicle',
+            'All activities in the itinerary, unless marked optional',
+        ],
+        excluded: [
+            'International flights',
+            'The Tanzanian entry visa — US$ 50, or US$ 100 for US citizens',
+            'Travel insurance, souvenirs and other personal items',
+            'Tips — the guideline is US$ 20 per person per day',
+            'Optional activities, such as the balloon or a walking safari',
+        ],
+        faqs: [
+            {
+                question: 'When are the Mara River crossings?',
+                answer:
+                    'Generally July to October, when the migration reaches the northern Serengeti. The herds move with the rain and the grazing, so the crossings cannot be timed.',
+            },
+            {
+                question: 'Why fly in?',
+                answer:
+                    'The flight replaces the longest drive of the trip, so the time goes on game drives and the lodges instead of the road.',
+            },
+            {
+                question: 'Will we see the Big Five?',
+                answer:
+                    'The Ngorongoro Crater is one of the best places in Africa to try, black rhino included.',
+            },
+            FAQ_PRIVATE,
+            {
+                question: 'Can the itinerary be changed?',
+                answer:
+                    'Yes. More Serengeti nights, Zanzibar at the end, different lodges or a balloon flight — tell us and we will redraft it.',
+            },
+        ],
+        brochure: {
+            intro: '/images/hero-acacia-chairs-1400.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                8: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
+    },
+    {
+        slug: '9-day-western-serengeti-migration-safari',
+        name: '9-Day Luxury Western Serengeti Migration Safari',
+        region: 'Tarangire, the Western Serengeti & Ngorongoro',
+        category: 'Great Migration',
+        routes: ['northern-circuit'],
+        duration: '9 Days / 8 Nights',
+        days: 9,
+        nights: 8,
+        price: 'From US$ 5,271 pp',
+        image: '/images/hero-tree-climbing-lion-1600.webp',
+        imageSrcset:
+            '/images/hero-tree-climbing-lion-900.webp 900w, /images/hero-tree-climbing-lion-1600.webp 1600w',
+        imageAlt: 'A young lion asleep draped along a thick tree branch, a hind leg hanging down below it',
+        summary:
+            'Eight nights that follow the migration west: Tarangire and Lake Manyara first, a walk in the Ngorongoro highlands, then the central Serengeti and the Western Corridor while the herds are there — finishing on the crater floor and at Shanga.',
+        priceFrom: 'US$ 5,271',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'May to July is when the migration moves through the Western Corridor, and this itinerary is timed for it. The herds go where the rain sends them, so the exact days in the west are your guide’s call on the ground.',
+        bestTime: 'May – July',
+        highlights: [
+            'Follows the migration through the Western Corridor of the Serengeti',
+            'Luxury lodges and tented camps for all eight nights',
+            'A private safari vehicle and a professional guide throughout',
+            'Tarangire, Lake Manyara, the Serengeti and the Ngorongoro Crater',
+            'A guided walking safari in the Ngorongoro highlands',
+            'A guided nature walk around Lion’s Paw Camp on the crater rim',
+            'Shanga, where artisans with disabilities work with recycled materials',
+        ],
+        destinations: [
+            'Arusha',
+            'Tarangire',
+            'Lake Manyara',
+            'Central Serengeti',
+            'Western Serengeti',
+            'Ngorongoro',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Days 1 & 8–9' },
+                { ...PT.tarangire, label: 'Day 2' },
+                { ...PT.manyara, label: 'Day 3' },
+                { ...PT.ngorongoro, label: 'Days 3 & 7–8' },
+                { ...PT.serengeti, label: 'Days 4 & 6–7' },
+                { ...PT.serengetiWest, label: 'Days 5–6' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'Your Polecat Safaris guide meets you at Kilimanjaro International Airport and drives you to Arusha Serena Hotel, Resort & Spa.',
+                    'Nothing else is asked of the day. Settle in, and get ready for the parks.',
+                ],
+                overnight: 'Arusha Serena Hotel, Resort & Spa',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Tarangire National Park',
+                paragraphs: [
+                    'After breakfast, west to Tarangire — the ancient baobabs, and the elephant herds the park is known for.',
+                    'A day in the park with your guide, looking for lion, giraffe, zebra and buffalo among them, and then on to Escarpment Luxury Lodge for the evening.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                optional: [{ addon: 'night-game-drive' }],
+                overnight: 'Escarpment Luxury Lodge, Lake Manyara',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Lake Manyara & a Walk in the Highlands',
+                paragraphs: [
+                    'A half-day game drive in Lake Manyara National Park: groundwater forest, a great deal of birdlife, and the lions here that climb trees.',
+                    'Elephant, hippo, baboon, blue monkey and flamingo are all likely before you leave the park and climb into the Ngorongoro highlands.',
+                    'There you set out on foot with a guide and a ranger — the same country, at walking pace — before Ngorongoro Serena Safari Lodge on the crater rim.',
+                ],
+                wildlife: ['Tree-climbing lion', 'Elephant', 'Hippo', 'Baboon', 'Blue monkey', 'Flamingo'],
+                optional: [{ addon: 'treetop-walk' }],
+                highlight: 'A guided walking safari in the Ngorongoro highlands, with a ranger',
+                overnight: 'Ngorongoro Serena Safari Lodge, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Into the Central Serengeti',
+                paragraphs: [
+                    'Through the Ngorongoro Conservation Area and down onto the Serengeti plains, with game the whole way.',
+                    'You stay at Sametu Camp in the central Serengeti.',
+                ],
+                overnight: 'Sametu Camp, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'West, After the Herds',
+                paragraphs: [
+                    'After breakfast you head west into the Western Corridor, where the migration moves through between May and July.',
+                    'A day of game viewing on the way, and then Lahia Tented Lodge.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra'],
+                overnight: 'Lahia Tented Lodge, Western Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'A Day in the Western Corridor',
+                paragraphs: [
+                    'A full day in the west — remote country, the seasonal migration, and the resident predators that stay when the herds have gone.',
+                    'In the afternoon you work your way back to the central Serengeti and Sametu Camp.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion'],
+                optional: [{ addon: 'balloon' }],
+                overnight: 'Sametu Camp, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'Serengeti to the Crater Rim',
+                paragraphs: [
+                    'One last morning game drive in the Serengeti, and lunch before you leave.',
+                    'Then back into the Ngorongoro Conservation Area to Lion’s Paw Camp on the crater rim, where a guide takes you on a late-afternoon walk around the camp with the highlands falling away below.',
+                ],
+                highlight: 'A guided nature walk around Lion’s Paw Camp',
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 8,
+                label: 'Day 8',
+                title: 'The Ngorongoro Crater',
+                paragraphs: [
+                    'An early breakfast and down onto the crater floor, the best place in Tanzania to look for all of the Big Five in one drive.',
+                    'Afterwards the road back to Arusha, and a last evening at Elewana Arusha Coffee Lodge.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Leopard'],
+                overnight: 'Elewana Arusha Coffee Lodge, Arusha',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 9,
+                label: 'Day 9',
+                title: 'Shanga & Departure',
+                paragraphs: [
+                    'Time allowing, a visit to Shanga after breakfast — a social enterprise where artisans with disabilities make things by hand from recycled materials.',
+                    'Then Kilimanjaro International Airport, and your onward flight.',
+                ],
+                highlight: 'Shanga, before the airport',
+                meals: 'Breakfast',
+            },
+        ],
+        included: [
+            'A private 4×4 safari vehicle with a pop-up roof',
+            'A professional safari guide throughout',
+            'All accommodation during the safari',
+            'All meals, with vegetarian, vegan, gluten-free and halal diets catered for',
+            'Unlimited-mileage game drives',
+            'All activities, unless marked as optional',
+            'All transport by road',
+            'Park fees',
+            'Airport transfers',
+            'Use of binoculars',
+            'Unlimited bottled water, and beer and wine in the vehicle',
+            'Taxes and VAT',
+        ],
+        excluded: [
+            'International flights',
+            'Tanzanian entry visa — US$ 50, or US$ 100 for US citizens',
+            'Travel insurance, souvenirs and other personal items',
+            'Tips — our guideline is US$ 20 per person per day',
+            'Optional activities, such as the balloon flight',
+        ],
+        faqs: [
+            {
+                question: 'When is the best time for this itinerary?',
+                answer:
+                    'May to July, when the migration moves through the Western Serengeti and the Grumeti River country. That is the window this trip is built around.',
+            },
+            {
+                question: 'Will we see the migration?',
+                answer:
+                    'In season, yes — you follow the herds through the central and western Serengeti, and where the herds are, the predators are too.',
+            },
+            FAQ_PRIVATE,
+            {
+                question: 'Do we go into the Ngorongoro Crater?',
+                answer:
+                    'Yes. Day 8 is a game drive on the crater floor, looking for the Big Five, black rhino included.',
+            },
+            {
+                question: 'Can the itinerary be changed?',
+                answer:
+                    'Yes. Add nights, add a balloon flight over the Serengeti, fly between the parks rather than drive, or finish with a few days on Zanzibar. Tell us what you have in mind and we will redraft it.',
+            },
+        ],
+        brochure: {
+            intro: '/images/hero-tree-climbing-lion-1600.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                9: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
+    },
+    {
+        slug: '9-day-northern-serengeti-to-ndutu-calving-safari',
+        name: '9-Day Tanzania Calving Migration Safari',
+        region: 'Northern Serengeti to Ndutu, Ngorongoro & Tarangire',
+        category: 'Great Migration',
+        routes: ['northern-circuit'],
+        duration: '9 Days / 8 Nights',
+        days: 9,
+        nights: 8,
+        price: 'From US$ 6,355 pp',
+        image: '/images/hero-long-table-lanterns-900.webp',
+        imageSrcset:
+            '/images/hero-long-table-lanterns-900.webp 900w, /images/hero-long-table-lanterns-1600.webp 1600w',
+        imageAlt: 'A long dinner table laid in red under a tree at dusk, lit by hanging lanterns and candles',
+        summary:
+            'Eight nights that cross the whole Serengeti from north to south in the calving season — a bush flight to the quiet northern wilderness, down through the central plains to the herds at Ndutu, then the crater and Tarangire.',
+        priceFrom: 'US$ 6,355',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'From December to March the herds are in the south, so the northern Serengeti is quieter than at any other time — and, depending on your dates and lodges, some camps there are better value then. That can stretch to a longer stay or a better room.',
+        bestTime: 'December – March',
+        highlights: [
+            'A bush flight to the northern Serengeti, then the whole park north to south',
+            'Two nights in the north for its kopjes, valleys and resident game',
+            'The central Serengeti on the way through',
+            'Two nights at Ndutu for the calving season',
+            'Newborn wildebeest and the predators that follow the herds',
+            'The Ngorongoro Crater floor and a full day in Tarangire',
+            'Shanga on the way to the airport',
+            'A private 4×4 and a professional guide throughout',
+        ],
+        destinations: [
+            'Arusha',
+            'Northern Serengeti',
+            'Central Serengeti',
+            'Ndutu',
+            'Ngorongoro',
+            'Tarangire',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Days 1–2 & 8–9' },
+                { ...PT.serengetiNorth, label: 'Days 2–4' },
+                { ...PT.serengeti, label: 'Days 4–5' },
+                { ...PT.ndutu, label: 'Days 5–7' },
+                { ...PT.ngorongoro, label: 'Day 7' },
+                { ...PT.tarangire, label: 'Days 7–9' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'You are met at Kilimanjaro International Airport and driven to Kahawa House in Arusha.',
+                    'An evening to get over the flight before the safari begins.',
+                ],
+                overnight: 'Kahawa House, Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Fly to the Northern Serengeti',
+                paragraphs: [
+                    'After breakfast you transfer to Arusha Airport for the flight north. Your guide meets you at the airstrip and the drive to Nimali Mara is your first game drive.',
+                    'The north is open plain, rocky kopjes, valleys and woodland. The migration is far to the south at this time of year, which leaves the resident game and a great deal of space.',
+                ],
+                wildlife: ['Lion', 'Elephant', 'Giraffe', 'Topi', 'Buffalo'],
+                overnight: 'Nimali Mara, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'The Northern Serengeti',
+                paragraphs: [
+                    'A full day in the north, for the north’s own sake rather than for the herds: the kopjes, the valleys and the woodland, and the animals that live there all year.',
+                    'With fewer vehicles about outside the migration months, sightings tend to be unhurried, and there is time to stop, watch and photograph without moving on to the next one.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Elephant', 'Giraffe', 'Buffalo', 'Topi'],
+                highlight: 'The northern Serengeti at its quietest',
+                overnight: 'Kuria Hills Lodge, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'North to the Central Serengeti',
+                paragraphs: [
+                    'A morning game drive in the north, then south through the park, the country changing around you as you go.',
+                    'The drive continues as a game drive across the central plains and kopjes, and ends at Meliá Serengeti Lodge.',
+                ],
+                wildlife: ['Lion', 'Cheetah', 'Leopard', 'Elephant', 'Giraffe', 'Hippo'],
+                overnight: 'Meliá Serengeti Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'Central Serengeti to Ndutu',
+                paragraphs: [
+                    'After breakfast, a game drive south across the central Serengeti towards the Ndutu plains, where the herds gather for the calving between December and March.',
+                    'You arrive at Safari Haven Migration Camp, and the afternoon is a game drive around Ndutu.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Gazelle', 'Lion', 'Hyena'],
+                overnight: 'Safari Haven Migration Camp, Ndutu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'A Full Day on the Calving Grounds',
+                paragraphs: [
+                    'The whole day goes to the calving. The southern plains become a nursery as the wildebeest give birth, and the young draw the predators in.',
+                    'You take a picnic lunch rather than coming back to camp at midday, so the hours go on the herds, the calves and whatever is hunting them.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Cheetah', 'Hyena', 'Gazelle'],
+                optional: [
+                    { addon: 'balloon', note: 'launching from Ndutu in the calving season' },
+                ],
+                highlight: 'A full day among the calving herds, with a picnic lunch out on the plains',
+                overnight: 'Safari Haven Migration Camp, Ndutu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'The Ngorongoro Crater',
+                paragraphs: [
+                    'You leave Ndutu after breakfast for the Ngorongoro Conservation Area and go down onto the crater floor, where elephant, lion, buffalo, hippo and, with luck, the black rhino live in one of the densest concentrations of wildlife anywhere.',
+                    'After the crater, on to Elephant Springs for the night.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo'],
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 8,
+                label: 'Day 8',
+                title: 'Tarangire National Park',
+                paragraphs: [
+                    'A full day in Tarangire, the park of the great elephant herds and the ancient baobabs.',
+                    'An unhurried game drive for elephant, lion, giraffe, zebra and buffalo, with a great many birds besides.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo'],
+                optional: [
+                    { addon: 'walking-safari', note: 'along the river, among the baobabs' },
+                ],
+                overnight: 'Arusha Coffee Lodge, Arusha',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 9,
+                label: 'Day 9',
+                title: 'Tarangire, Shanga & Departure',
+                paragraphs: [
+                    'An early game drive in Tarangire, while the animals are active and the park is still quiet, then breakfast and the road towards Arusha.',
+                    'On the way you stop at Shanga, a social enterprise that trains and employs people with disabilities.',
+                    'Then Kilimanjaro International Airport and your onward flight.',
+                ],
+                highlight: 'Shanga — work and training for artisans with disabilities',
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'A pop-up roof 4×4 safari vehicle, with unlimited mileage on game drives',
+            'A professional safari guide throughout',
+            'All accommodation during the safari',
+            'All meals, catered for vegetarian, vegan, gluten-free and halal diets',
+            'The domestic flight from Arusha to the northern Serengeti',
+            'All activities, unless marked as optional',
+            'Park fees',
+            'Airport transfers, and all transport by road',
+            'Binoculars to use on safari',
+            'Unlimited bottled water, and beer and wine in the vehicle',
+            'Taxes and VAT',
+        ],
+        excluded: [
+            'International flights',
+            'Tanzania entry visa — US$ 50, or US$ 100 for US citizens',
+            'Travel insurance, souvenirs and other personal items',
+            'Tips — our guideline is US$ 20 per person per day',
+            'Optional activities, such as the balloon flight or a walking safari',
+        ],
+        faqs: [
+            {
+                question: 'Why start in the northern Serengeti?',
+                answer:
+                    'Because between December and March you get two different Serengetis on one trip: the north, empty of the migration and full of space and resident game, and then the calving in the south. The north is often better value at this time of year too.',
+            },
+            {
+                question: 'Will we see the migration?',
+                answer:
+                    'From December to March the herds gather around Ndutu for the calving, and this itinerary spends two nights there. Wildlife moves with the rain, so nobody can guarantee a sighting.',
+            },
+            {
+                question: 'Is it a good safari for photographers?',
+                answer:
+                    'Yes — newborn animals and the predators around them, big open landscapes and big skies, and a private vehicle that stops for as long as you want it to.',
+            },
+            FAQ_PRIVATE,
+            FAQ_CUSTOMISE,
+        ],
+        brochure: {
+            intro: '/images/hero-long-table-lanterns-1600.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                9: '/images/hero-sundowner-baobab-1400.webp',
+            },
+        },
+    },
+    {
+        slug: '12-day-ultimate-great-migration-safari',
+        name: '12-Day Ultimate Great Migration Safari',
+        region: 'Lake Natron, the Serengeti & Lake Eyasi',
+        category: 'Great Migration',
+        routes: ['northern-circuit'],
+        duration: '12 Days / 11 Nights',
+        days: 12,
+        nights: 11,
+        /* The operator's document carries no rate. */
+        price: 'Price on request',
+        image: '/images/hero-sundowner-baobab-1400.webp',
+        imageSrcset:
+            '/images/hero-sundowner-baobab-900.webp 900w, /images/hero-sundowner-baobab-1400.webp 1400w, /images/hero-sundowner-baobab-1920.webp 1920w',
+        imageAlt:
+            'Guests on cushions and rugs beneath a great baobab, drinks laid out on a camp table as the sky turns orange',
+        summary:
+            'Eleven nights following the migration from Lake Natron to the Mara River, then south through the central Serengeti to the crater — with the Hadzabe and Datoga at Lake Eyasi, Lake Manyara, and the Materuni waterfall and Kikuletwa hot springs at the end.',
+        priceFrom: 'On request',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'The rate for this itinerary is being confirmed and is not published here. Ask us and we will quote it against your dates and your party.',
+        bestTime: 'July – October',
+        highlights: [
+            'Follows the migration from Lake Natron to the northern Serengeti',
+            'Two nights on the Mara River, for the crossings in season',
+            'Tarangire, the Serengeti, the Ngorongoro Crater, Lake Manyara and Lake Eyasi',
+            'Lake Natron and Ol Doinyo Lengai',
+            'A morning with the Hadzabe and the Datoga at Lake Eyasi',
+            'The Materuni waterfall and the Kikuletwa hot springs',
+            'A private safari vehicle and a professional guide throughout',
+            'Luxury lodges and tented camps for all eleven nights',
+        ],
+        destinations: [
+            'Tarangire',
+            'Lake Natron',
+            'Northern Serengeti',
+            'Central Serengeti',
+            'Ngorongoro',
+            'Lake Eyasi',
+            'Lake Manyara',
+            'Materuni',
+        ],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Days 1 & 10–12' },
+                { ...PT.tarangire, label: 'Day 2' },
+                { ...PT.natron, label: 'Day 3' },
+                { ...PT.serengetiNorth, label: 'Days 4–5' },
+                { ...PT.serengeti, label: 'Days 6–7' },
+                { ...PT.ngorongoro, label: 'Days 7–8' },
+                { ...PT.eyasi, label: 'Days 8–9' },
+                { ...PT.manyara, label: 'Day 10' },
+                { ...PT.materuni, label: 'Day 11' },
+                { ...PT.chemka, label: 'Day 11' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'Your Polecat Safaris guide meets you at Kilimanjaro International Airport and drives you to Arusha Serena Hotel, Resort & Spa.',
+                    'A quiet evening before the safari begins.',
+                ],
+                overnight: 'Arusha Serena Hotel, Resort & Spa',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Tarangire National Park',
+                paragraphs: [
+                    'After breakfast, west to Tarangire — giant baobabs and the elephant herds the park is known for.',
+                    'A full day of game driving, and then Elephant Springs by Karibu Camps.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo', 'Eland'],
+                optional: [{ addon: 'night-game-drive' }],
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'Lake Natron',
+                paragraphs: [
+                    'North through the Great Rift Valley to Lake Natron, one of the strangest and least visited places in Tanzania.',
+                    'Ol Doinyo Lengai stands over the lake, and there is time for the waterfalls or the shore. You sleep in air-conditioned glamping tents at Africa Safari Lake Natron.',
+                ],
+                highlight: 'Lake Natron, under Ol Doinyo Lengai',
+                overnight: 'Africa Safari Lake Natron',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Into the Northern Serengeti',
+                paragraphs: [
+                    'After breakfast you cross into the northern Serengeti, where the migration gathers along the Mara River.',
+                    'An afternoon game drive, and then Enkutoto Acacia Collection.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Crocodile'],
+                overnight: 'Enkutoto Acacia Collection, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'The Mara River',
+                paragraphs: [
+                    'A full day in the north, looking for a crossing — the herds going into the river, and the crocodile waiting for them.',
+                    'It happens when the herds decide, which is why you have the whole day for it.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Crocodile'],
+                optional: [{ addon: 'balloon' }, { addon: 'bush-breakfast' }],
+                highlight: 'Mara River crossings, season and herds permitting',
+                overnight: 'Enkutoto Acacia Collection, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'South to the Central Serengeti',
+                paragraphs: [
+                    'A game drive the length of the park, south towards the central Serengeti.',
+                    'You stay at Sametu Camp by Karibu Camps, out in the wilderness.',
+                ],
+                overnight: 'Sametu Camp, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'Serengeti to the Crater Rim',
+                paragraphs: [
+                    'One last morning game drive in the central Serengeti, and then on into the Ngorongoro Conservation Area.',
+                    'Lion’s Paw Camp sits on the crater rim, an afternoon to rest before the descent.',
+                ],
+                optional: [{ addon: 'olduvai-gorge' }],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 8,
+                label: 'Day 8',
+                title: 'The Ngorongoro Crater',
+                paragraphs: [
+                    'An early breakfast and down onto the crater floor, for a game drive in search of the Big Five.',
+                    'After lunch you leave the crater for Kisima Ngeda Tented Camp, near the shore of Lake Eyasi.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena'],
+                overnight: 'Kisima Ngeda Tented Camp, Lake Eyasi',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 9,
+                label: 'Day 9',
+                title: 'The Hadzabe & the Datoga',
+                paragraphs: [
+                    'A morning at Lake Eyasi with the Hadzabe, who still live by hunting and gathering, and the Datoga, who work as blacksmiths.',
+                    'Later you move on to Jungle Pearl Resort for the evening.',
+                ],
+                highlight: 'A morning with the Hadzabe and the Datoga',
+                overnight: 'Jungle Pearl Resort',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 10,
+                label: 'Day 10',
+                title: 'Lake Manyara National Park',
+                paragraphs: [
+                    'After breakfast, a game drive in Lake Manyara: forest, flamingos, and the lions that climb trees.',
+                    'Then back to Arusha and Arusha Serena Hotel, Resort & Spa.',
+                ],
+                wildlife: ['Tree-climbing lion', 'Flamingo', 'Elephant'],
+                optional: [{ addon: 'treetop-walk' }],
+                overnight: 'Arusha Serena Hotel, Resort & Spa',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 11,
+                label: 'Day 11',
+                title: 'Materuni Falls & Kikuletwa Hot Springs',
+                paragraphs: [
+                    'The Materuni waterfall in the morning, reached on a guided walk through coffee farms and rainforest.',
+                    'Then the Kikuletwa hot springs, where the water is warm and very clear, for a swim before your last evening back at Arusha Serena.',
+                ],
+                highlight: 'A swim in the Kikuletwa hot springs',
+                overnight: 'Arusha Serena Hotel, Resort & Spa',
+                meals: 'Breakfast & lunch',
+            },
+            {
+                n: 12,
+                label: 'Day 12',
+                title: 'Departure',
+                paragraphs: [
+                    'A slow breakfast, and then a private transfer to Kilimanjaro International Airport for your onward flight.',
+                ],
+                meals: 'Breakfast',
+            },
+        ],
+        included: [
+            'A private luxury 4×4 safari vehicle',
+            'A professional English-speaking safari guide',
+            'Luxury accommodation throughout',
+            'All meals during the safari',
+            'All scheduled game drives',
+            'The cultural visits at Lake Eyasi',
+            'Park and conservation fees',
+            'Airport transfers',
+            'Bottled drinking water on game drives',
+            'Government taxes',
+        ],
+        excluded: EXCLUDED_CORE,
+        faqs: [
+            {
+                question: 'When is the best time to follow the migration?',
+                answer:
+                    'July to October, when the herds reach the northern Serengeti and the Mara River crossings are at their height.',
+            },
+            {
+                question: 'Is Lake Natron worth the detour?',
+                answer:
+                    'Yes. Volcanic country, flamingo breeding grounds in season, waterfalls, and Ol Doinyo Lengai over all of it — there is nowhere else in Tanzania like it.',
+            },
+            {
+                question: 'What cultural visits are included?',
+                answer:
+                    'A morning with the Hadzabe hunter-gatherers and the Datoga blacksmiths at Lake Eyasi.',
+            },
+            {
+                question: 'Will we see the Big Five?',
+                answer:
+                    'The Ngorongoro Crater is one of the best places in Africa to see all five in a single game drive.',
+            },
+            {
+                question: 'Can the itinerary be changed?',
+                answer:
+                    'Yes. Stay longer in the Serengeti, add a balloon flight, or finish with a beach holiday on Zanzibar. Tell us what you have in mind and we will redraft it.',
+            },
+        ],
+        brochure: {
+            intro: '/images/hero-sundowner-baobab-1400.webp',
+            closing: '/images/migration-herd-vehicle-1400.webp',
+            /* The last day has no overnight. */
+            dayImages: {
+                12: '/images/hero-acacia-chairs-1400.webp',
+            },
+        },
+    },
+    {
         slug: '13-day-great-migration-safari',
         name: '13-Day Great Migration Safari',
         region: 'Lake Natron, the Serengeti & Kilimanjaro',
@@ -2623,6 +4593,625 @@ export const PACKAGES: SafariPackage[] = [
                 13: '/images/hero-sundowner-baobab-1400.webp',
             },
         },
+    },
+    /* ------------------------------------------------------------ Fly-in */
+    {
+        slug: '4-day-luxury-fly-in-safari-from-zanzibar',
+        name: '4-Day Luxury Fly-In Safari from Zanzibar',
+        region: 'Serengeti & Ngorongoro Crater',
+        category: 'Fly-In Safari',
+        routes: ['northern-circuit', 'zanzibar'],
+        duration: '4 Days / 3 Nights',
+        days: 4,
+        nights: 3,
+        price: 'From US$ 3,404 pp',
+        image: '/images/style-fly-in.webp',
+        imageSrcset: '/images/style-fly-in.webp 1400w',
+        imageAlt:
+            'A pilot in uniform carrying two kit bags away from a single-engine Cessna parked on a gravel bush airstrip',
+        summary:
+            'Three nights off the beach: a flight from Zanzibar straight onto the Serengeti, two nights at Meliá Serengeti Lodge, a night on the Ngorongoro Crater rim and a morning on the crater floor before you fly back to the coast.',
+        priceFrom: 'US$ 3,404',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'Written as an addition to a Zanzibar beach holiday, so it starts and ends at Zanzibar Airport. Rates move with the season and with lodge availability.',
+        bestTime: 'June – October & December – March',
+        highlights: [
+            'A scheduled flight from Zanzibar straight into the Serengeti, so the first game drive starts at the airstrip',
+            'Two nights at Meliá Serengeti Lodge',
+            'Three days of game viewing on the Serengeti plains',
+            'A night at Lion’s Paw Camp on the Ngorongoro Crater rim',
+            'A morning on the crater floor, looking for the Big Five and the black rhino',
+            'A private vehicle and a professional guide for your party alone',
+        ],
+        destinations: ['Zanzibar', 'Serengeti', 'Ngorongoro Crater'],
+        route: {
+            start: PT.zanzibarAirport,
+            points: [
+                { ...PT.serengeti, label: 'Days 1–3' },
+                { ...PT.ngorongoro, label: 'Days 3–4' },
+            ],
+            end: PT.zanzibarAirport,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Fly from Zanzibar to the Serengeti',
+                paragraphs: [
+                    'After breakfast you transfer to Zanzibar Airport for the scheduled flight to the Serengeti.',
+                    'Your guide meets you at the airstrip and the first game drive starts there, across plains that hold lion, elephant, cheetah, giraffe and the big herds of wildebeest and zebra. The evening is at Meliá Serengeti Lodge.',
+                ],
+                wildlife: ['Lion', 'Elephant', 'Giraffe', 'Wildebeest', 'Zebra', 'Cheetah', 'Hyena'],
+                overnight: 'Meliá Serengeti Lodge, Central Serengeti',
+                meals: 'Lunch & dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'A Full Day in the Serengeti',
+                paragraphs: [
+                    'A whole day out with your guide, working the park’s different country for the resident predators and the grazing herds, with a picnic lunch out in the bush.',
+                    'Depending on the season and where the herds are, part of the Great Wildebeest Migration may be within reach. Back to Meliá Serengeti for the evening.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Wildebeest', 'Zebra', 'Giraffe', 'Buffalo'],
+                overnight: 'Meliá Serengeti Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'The Serengeti to the Ngorongoro Highlands',
+                paragraphs: [
+                    'A morning at leisure at the lodge, then an afternoon game drive across the plains.',
+                    'Afterwards you drive up into the Ngorongoro highlands to Lion’s Paw Camp on the crater rim, ready for an early start on the crater floor.',
+                ],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'The Ngorongoro Crater & Back to Zanzibar',
+                paragraphs: [
+                    'An early breakfast and down onto the floor of the Ngorongoro Crater, a UNESCO World Heritage site, for a game drive in search of the Big Five — the endangered black rhino among them — with elephant, lion, buffalo, hippo, hyena and a great deal of birdlife besides.',
+                    'After the drive you transfer to the airport for the scheduled flight back to Zanzibar.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena', 'Flamingo'],
+                highlight: 'A morning on the Ngorongoro Crater floor',
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'Domestic flights from Zanzibar to the Serengeti and back',
+            ...INCLUDED_CORE.slice(0, 2),
+            'All accommodation as listed',
+            'Meals during the safari as shown in the itinerary',
+            'Park and conservation fees',
+            'Airport transfers',
+            'Water, wine, beer, soft drinks and juice in the safari vehicle',
+        ],
+        excluded: [
+            'International flights',
+            'Travel insurance',
+            'Tanzanian visa fees',
+            'Items of a personal nature',
+            'Tips and gratuities',
+            'Optional activities not listed in the itinerary',
+        ],
+        faqs: [
+            {
+                question: 'Can I go on safari in the Serengeti from Zanzibar?',
+                answer:
+                    'Yes. Flying in is the easy way to do it: you leave the beach after breakfast and are on a game drive by the afternoon, with none of the day lost to the road.',
+            },
+            {
+                question: 'Does it suit a honeymoon?',
+                answer:
+                    'Yes. A Serengeti lodge, a night on the crater rim and the beaches either side of it make this an easy one for couples to fit into a Zanzibar stay.',
+            },
+            {
+                question: 'What might we see?',
+                answer:
+                    'Lion, elephant, giraffe, zebra, wildebeest, buffalo, hippo and hyena, and in the crater the endangered black rhino. What you actually see depends on where the animals are and the conditions on the day.',
+            },
+            FAQ_CUSTOMISE,
+        ],
+    },
+    {
+        slug: '6-day-tanzania-fly-in-luxury-safari',
+        name: '6-Day Tanzania Fly-In Luxury Safari',
+        region: 'Serengeti, Ngorongoro & Tarangire',
+        category: 'Fly-In Safari',
+        routes: ['northern-circuit'],
+        duration: '6 Days / 5 Nights',
+        days: 6,
+        nights: 5,
+        price: 'Price on request',
+        image: '/images/hero-bush-daybed-shelter-900.webp',
+        imageSrcset:
+            '/images/hero-bush-daybed-shelter-900.webp 900w, /images/hero-bush-daybed-shelter-1600.webp 1600w',
+        imageAlt:
+            'A cushioned daybed under a rustic timber shelter on a brick floor, a lantern hanging from a post and woodland all around',
+        summary:
+            'Five nights that fly straight from Arusha to the Northern Serengeti for the migration country, then drive back south through the central Serengeti, the Ngorongoro Crater and Tarangire.',
+        priceFrom: 'On request',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'The rate for this itinerary is being confirmed and is deliberately not published here. Ask us and we will quote it against your dates and your party.',
+        bestTime: 'July – October',
+        highlights: [
+            'A first night at Gran Meliá Arusha',
+            'A scheduled bush flight from Arusha straight to the Northern Serengeti',
+            'The migration country, with a chance of the Mara River crossings in season',
+            'The central Serengeti plains on the drive south',
+            'A Big Five game drive on the Ngorongoro Crater floor',
+            'A last morning in Tarangire among the elephant herds',
+            'A private luxury vehicle and a professional guide throughout',
+        ],
+        destinations: ['Arusha', 'Northern Serengeti', 'Central Serengeti', 'Ngorongoro', 'Tarangire'],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Day 1' },
+                { ...PT.serengetiNorth, label: 'Days 2–3' },
+                { ...PT.serengeti, label: 'Days 3–4' },
+                { ...PT.ngorongoro, label: 'Days 4–5' },
+                { ...PT.tarangire, label: 'Days 5–6' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'You are met at Kilimanjaro International Airport and driven to Gran Meliá Arusha.',
+                    'The evening is yours to recover from the flight in. The safari starts in the morning.',
+                ],
+                overnight: 'Gran Meliá Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Fly to the Northern Serengeti',
+                paragraphs: [
+                    'After breakfast you transfer to Arusha Airport for the scheduled bush flight north.',
+                    'Your guide meets you on arrival and the first game drive begins at the airstrip. In the migration season this is the country of the big herds of wildebeest and zebra and the Mara River crossing points.',
+                ],
+                wildlife: ['Wildebeest', 'Zebra', 'Lion', 'Elephant', 'Giraffe', 'Crocodile'],
+                overnight: 'Mara River Camp, Northern Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'The Northern Serengeti to the Central Serengeti',
+                paragraphs: [
+                    'A morning game drive in the north, then the long run south through the Serengeti, which is a game drive in its own right.',
+                    'You carry on exploring once you reach the central Serengeti, and finish at Meliá Serengeti Lodge.',
+                ],
+                wildlife: ['Wildebeest', 'Lion', 'Leopard', 'Cheetah', 'Elephant', 'Giraffe', 'Zebra'],
+                overnight: 'Meliá Serengeti Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'The Serengeti to the Ngorongoro Highlands',
+                paragraphs: [
+                    'A morning game drive on the central plains, looking for the predators, the elephants and the giraffe.',
+                    'Then on through the Ngorongoro Conservation Area, where the open plains give way to the highlands, to Lion’s Paw Camp and an early start on the crater tomorrow.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Hippo', 'Hyena', 'Giraffe'],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'The Ngorongoro Crater',
+                paragraphs: [
+                    'An early breakfast and down onto the crater floor for a Big Five game drive — lion, elephant, buffalo, hippo and the endangered black rhino among them.',
+                    'Afterwards you drive on to Lemala Mpingo Ridge, which looks out over Tarangire.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena', 'Flamingo'],
+                highlight: 'A Big Five game drive on the Ngorongoro Crater floor',
+                overnight: 'Lemala Mpingo Ridge, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'Tarangire & Departure',
+                paragraphs: [
+                    'A last game drive in Tarangire, following the Tarangire River among the elephant herds and the old baobabs.',
+                    'Then the road to Kilimanjaro International Airport and your onward flight.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo', 'Greater kudu'],
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'The scheduled bush flight from Arusha to the Northern Serengeti',
+            ...INCLUDED_CORE.slice(0, 2),
+            'Luxury accommodation as listed',
+            'All meals shown in the itinerary',
+            'Private game drives',
+            'Park and conservation fees, and the Ngorongoro Crater service fee',
+            'Airport transfers',
+            'Bottled drinking water on game drives',
+            'Beer, wine, soft drinks, juice and snacks in the safari vehicle',
+        ],
+        excluded: [
+            'International flights',
+            'Travel insurance',
+            'Tanzanian visa fees',
+            'Items of a personal nature',
+            'Tips and gratuities',
+            'Optional activities not listed in the itinerary',
+        ],
+        faqs: [FAQ_PRIVATE, FAQ_CUSTOMISE],
+    },
+    {
+        slug: '7-day-luxury-fly-in-safari-from-zanzibar',
+        name: '7-Day Luxury Fly-In Tanzania Safari from Zanzibar',
+        region: 'Tarangire, Lake Manyara, Ngorongoro & Serengeti',
+        category: 'Fly-In Safari',
+        routes: ['northern-circuit', 'zanzibar'],
+        duration: '7 Days / 6 Nights',
+        days: 7,
+        nights: 6,
+        price: 'Price on request',
+        image: '/images/hero-lodge-garden-dinner-1366.webp',
+        imageSrcset:
+            '/images/hero-lodge-garden-dinner-900.webp 900w, /images/hero-lodge-garden-dinner-1366.webp 1366w',
+        imageAlt:
+            'A table laid with white linen and a candle in a hurricane glass on a brick terrace, uplit trees and lanterns in the garden behind',
+        summary:
+            'Six nights that fly from Zanzibar to Arusha and drive the whole northern circuit — Tarangire, Lake Manyara, the Ngorongoro Crater and four nights on the Serengeti — before a flight out from the Serengeti airstrip.',
+        priceFrom: 'On request',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote:
+            'The rate for this itinerary is being confirmed and is deliberately not published here. Ask us and we will quote it against your dates and your flights.',
+        bestTime: 'June – October & December – March',
+        highlights: [
+            'A scheduled flight from Zanzibar to Arusha to begin',
+            'A night inside the Tarangire wilderness at Elephant Springs',
+            'Lake Manyara, and a night at Kitela Lodge in the Karatu highlands',
+            'A game drive on the Ngorongoro Crater floor',
+            'Four nights across the Serengeti, at three different camps and lodges',
+            'A private 4×4 vehicle and a professional local guide throughout',
+            'A scheduled flight out from the Serengeti at the end',
+        ],
+        destinations: ['Zanzibar', 'Tarangire', 'Lake Manyara', 'Karatu', 'Ngorongoro', 'Serengeti'],
+        route: {
+            start: PT.zanzibarAirport,
+            points: [
+                { ...PT.arusha, label: 'Day 1' },
+                { ...PT.tarangire, label: 'Days 1–2' },
+                { ...PT.manyara, label: 'Day 2' },
+                { ...PT.karatu, label: 'Days 2–3' },
+                { ...PT.ngorongoro, label: 'Day 3' },
+                { ...PT.serengeti, label: 'Days 3–7' },
+            ],
+            end: PT.zanzibarAirport,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Fly from Zanzibar to Arusha & Tarangire',
+                paragraphs: [
+                    'After breakfast you transfer to Zanzibar Airport for the scheduled flight to Arusha, where your guide meets you and the drive to Tarangire begins.',
+                    'A game drive among the baobabs, the seasonal riverbeds and the elephant herds, with giraffe, zebra, buffalo and the predators to look for, and then the evening at Elephant Springs, inside the park.',
+                ],
+                wildlife: ['Elephant', 'Giraffe', 'Zebra', 'Buffalo', 'Lion'],
+                optional: [{ addon: 'night-game-drive' }, { addon: 'balloon' }],
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Lunch & dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Lake Manyara & the Karatu Highlands',
+                paragraphs: [
+                    'After breakfast to Lake Manyara National Park — groundwater forest, open grassland and the lake itself — for a game drive after elephant, giraffe, buffalo, hippo and the birdlife. With luck, the park’s tree-climbing lions too.',
+                    'Then up into the Karatu highlands and Kitela Lodge for a quiet evening.',
+                ],
+                wildlife: ['Elephant', 'Giraffe', 'Buffalo', 'Hippo', 'Lion'],
+                overnight: 'Kitela Lodge, Karatu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'The Ngorongoro Crater & On to the Serengeti',
+                paragraphs: [
+                    'An early breakfast and down onto the floor of the Ngorongoro Crater for a game drive after the Big Five, the endangered black rhino among them.',
+                    'Afterwards you carry on through the Ngorongoro Conservation Area as the country opens out into the Serengeti plains, and finish at Kubu Kubu Tented Lodge.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Hyena', 'Flamingo'],
+                highlight: 'A morning on the Ngorongoro Crater floor',
+                overnight: 'Kubu Kubu Tented Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'The Serengeti',
+                paragraphs: [
+                    'A morning game drive on the plains, with your guide choosing where to go by the season and where the animals have moved to.',
+                    'Later you move on to Meliá Serengeti Lodge.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Wildebeest', 'Zebra', 'Giraffe', 'Buffalo'],
+                overnight: 'Meliá Serengeti Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'A Full Day in the Serengeti',
+                paragraphs: [
+                    'A whole day out after the big cats, the elephants and the herds, with a picnic lunch in the bush between drives.',
+                    'Depending on the season, part of the Great Wildebeest Migration may be within reach. Back to Meliá Serengeti for the evening.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Wildebeest', 'Zebra', 'Hyena'],
+                overnight: 'Meliá Serengeti Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'More of the Serengeti',
+                paragraphs: [
+                    'Another day on the Serengeti, in new country. How long you stay out and where you stop for lunch depends on where the wildlife is and the pace you want.',
+                    'Later you continue to Serengeti Luxury Retreat for the last night.',
+                ],
+                wildlife: ['Lion', 'Elephant', 'Giraffe', 'Wildebeest', 'Zebra', 'Buffalo'],
+                overnight: 'Serengeti Luxury Retreat, Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'A Last Game Drive & Departure',
+                paragraphs: [
+                    'Breakfast, and a final game drive on the plains.',
+                    'Then the airstrip, and the scheduled flight back to Zanzibar or on to wherever you are going next.',
+                ],
+                meals: 'Breakfast & lunch, depending on the flight time',
+            },
+        ],
+        included: [
+            'Domestic flights',
+            ...INCLUDED_CORE.slice(0, 2),
+            'Accommodation as listed',
+            'Meals during the safari as shown in the itinerary',
+            'Game drives',
+            'Park fees',
+            'Airport transfers',
+            'Water, wine, beer, juice and soft drinks in the safari vehicle',
+            'Government taxes',
+        ],
+        excluded: [
+            'International flights',
+            'Travel insurance',
+            'Tanzanian visa fees',
+            'Items of a personal nature',
+            'Tips and gratuities',
+            'Optional activities not listed in the itinerary',
+        ],
+        faqs: [
+            {
+                question: 'Can this safari start from Zanzibar?',
+                answer:
+                    'Yes. It begins with a scheduled flight from Zanzibar to Arusha, where your guide meets you and the northern circuit starts.',
+            },
+            {
+                question: 'How many nights are in the Serengeti?',
+                answer:
+                    'Four, across three properties, which leaves time for several game drives in different parts of the park.',
+            },
+            {
+                question: 'Will we see the Great Migration?',
+                answer:
+                    'That depends on the season and where the herds are. Your guide plans the drives around the conditions at the time, but no sighting can be guaranteed.',
+            },
+            FAQ_PRIVATE,
+            FAQ_CUSTOMISE,
+        ],
+    },
+    {
+        slug: '8-day-fly-in-tanzania-luxury-safari',
+        name: '8-Day Fly-In Tanzania Luxury Safari',
+        region: 'Serengeti, Ngorongoro & Tarangire',
+        category: 'Fly-In Safari',
+        routes: ['northern-circuit'],
+        duration: '8 Days / 7 Nights',
+        days: 8,
+        nights: 7,
+        price: 'From US$ 4,335 pp',
+        image: '/images/hero-baobab-bush-brunch-1400.webp',
+        imageSrcset:
+            '/images/hero-baobab-bush-brunch-900.webp 900w, /images/hero-baobab-bush-brunch-1400.webp 1400w',
+        imageAlt:
+            'Guests standing with drinks around long tables laid for brunch in the shade of a baobab, a game drive vehicle parked behind them',
+        summary:
+            'Seven nights at an easy pace: a flight straight into the Serengeti for three nights, then the Ngorongoro Crater, a coffee walk in the Karatu highlands, Mto wa Mbu and Tarangire, with Shanga on the way out.',
+        priceFrom: 'US$ 4,335',
+        priceUnit: 'Per person sharing',
+        priceLines: [],
+        priceNote: 'Rates move with the season and with lodge availability.',
+        bestTime: 'June – October & December – March',
+        highlights: [
+            'A scheduled flight from Arusha straight into the Serengeti',
+            'Three nights in the central Serengeti, with two full days there',
+            'A game drive on the floor of the Ngorongoro Crater, a UNESCO World Heritage site',
+            'A guided walk through the coffee plantation at Kitela Lodge',
+            'A cultural visit in Mto wa Mbu',
+            'Tarangire in the quieter evening hours, after most vehicles have left',
+            'Shanga, the Arusha social enterprise, on the way to the airport',
+            'A private 4×4 Land Cruiser and an experienced guide throughout',
+        ],
+        destinations: ['Arusha', 'Serengeti', 'Ngorongoro', 'Karatu', 'Mto wa Mbu', 'Tarangire'],
+        route: {
+            start: PT.jro,
+            points: [
+                { ...PT.arusha, label: 'Day 1' },
+                { ...PT.serengeti, label: 'Days 2–5' },
+                { ...PT.ngorongoro, label: 'Days 5–6' },
+                { ...PT.karatu, label: 'Day 6' },
+                { ...PT.mtoWaMbu, label: 'Day 7' },
+                { ...PT.tarangire, label: 'Days 7–8' },
+            ],
+            end: PT.jro,
+        },
+        itinerary: [
+            {
+                n: 1,
+                label: 'Day 1',
+                title: 'Arrival in Arusha',
+                paragraphs: [
+                    'You are met at Kilimanjaro International Airport and driven to Hamerkop House by Lemala, a quiet boutique house near Arusha.',
+                    'The evening is for settling in and getting over the journey.',
+                ],
+                overnight: 'Hamerkop House by Lemala, Arusha',
+                meals: 'Dinner',
+            },
+            {
+                n: 2,
+                label: 'Day 2',
+                title: 'Fly to the Serengeti',
+                paragraphs: [
+                    'After breakfast you transfer to Arusha Airport for the scheduled flight into the Serengeti — far less time on the road, and more of it on game drives.',
+                    'Your guide meets you on arrival and the first drive starts across the plains, home to the Big Five, the Great Wildebeest Migration and some of the densest predator populations in Africa.',
+                ],
+                wildlife: ['Lion', 'Elephant', 'Wildebeest', 'Zebra', 'Giraffe', 'Cheetah', 'Hyena'],
+                overnight: 'Kubu Kubu Tented Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 3,
+                label: 'Day 3',
+                title: 'A Full Day in the Central Serengeti',
+                paragraphs: [
+                    'A full day in the central Serengeti, around the Seronera Valley, where permanent water keeps the game in place all year and the predator sightings are some of the best in the park.',
+                    'Morning and afternoon drives after lion, leopard, cheetah and elephant, and the herds moving across the plains.',
+                ],
+                wildlife: ['Lion', 'Leopard', 'Cheetah', 'Elephant', 'Hippo', 'Buffalo', 'Wildebeest', 'Zebra'],
+                overnight: 'Kubu Kubu Tented Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 4,
+                label: 'Day 4',
+                title: 'Another Full Day in the Serengeti',
+                paragraphs: [
+                    'A second full day, which lets your guide follow the animals and try different parts of the park.',
+                    'Depending on the season, that may mean part of the Great Wildebeest Migration, predators at work, or big gatherings of game out on the plains.',
+                ],
+                wildlife: ['Wildebeest', 'Lion', 'Leopard', 'Cheetah', 'Elephant', 'Giraffe', 'Hyena', 'Hippo'],
+                overnight: 'Kubu Kubu Tented Lodge, Central Serengeti',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 5,
+                label: 'Day 5',
+                title: 'The Serengeti to the Ngorongoro Highlands',
+                paragraphs: [
+                    'A last morning game drive in the Serengeti, then the drive south-east through the Ngorongoro Conservation Area as the plains give way to the highlands around the crater.',
+                    'You finish at Lion’s Paw Camp, near the rim and looking over it.',
+                ],
+                overnight: 'Lion’s Paw Camp, Ngorongoro Crater rim',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 6,
+                label: 'Day 6',
+                title: 'The Ngorongoro Crater & Karatu',
+                paragraphs: [
+                    'Down more than 600 metres onto the floor of the Ngorongoro Crater, a UNESCO World Heritage site, which holds a remarkable concentration of animals and good odds on the Big Five — the endangered black rhino among them.',
+                    'Afterwards you drive on to the Karatu highlands and Kitela Lodge, where a guided walk through the coffee plantation is part of the stay.',
+                ],
+                wildlife: ['Black rhino', 'Lion', 'Elephant', 'Buffalo', 'Hippo', 'Flamingo'],
+                highlight: 'A guided coffee plantation walk at Kitela Lodge',
+                overnight: 'Kitela Lodge, Karatu',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 7,
+                label: 'Day 7',
+                title: 'Mto wa Mbu & an Evening in Tarangire',
+                paragraphs: [
+                    'After breakfast to Mto wa Mbu, one of the most culturally mixed communities in Tanzania, for a visit that covers its traditions, its farming and the way people live there.',
+                    'Then on to Tarangire for an afternoon and evening game drive among the elephant herds and the old baobabs. As the other vehicles head out of the park you stay on, and have it far more to yourselves.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo', 'Greater kudu'],
+                highlight: 'Tarangire in the quieter hours, after most vehicles have left',
+                overnight: 'Elephant Springs by Karibu Camps, Tarangire',
+                meals: 'Breakfast, lunch & dinner',
+            },
+            {
+                n: 8,
+                label: 'Day 8',
+                title: 'Tarangire, Shanga & Departure',
+                paragraphs: [
+                    'A morning game drive in Tarangire, in the best hours of the day for it.',
+                    'Then the road towards Kilimanjaro International Airport, stopping in Arusha at Shanga, a social enterprise where Tanzanian artisans make glassware, jewellery, textiles and other handcrafted work.',
+                    'Then the airport, and your onward flight.',
+                ],
+                wildlife: ['Elephant', 'Lion', 'Giraffe', 'Zebra', 'Buffalo', 'Warthog', 'Impala'],
+                highlight: 'Shanga, on the way to the airport',
+                meals: 'Breakfast & lunch',
+            },
+        ],
+        included: [
+            'The domestic flight to the Serengeti',
+            'A private 4×4 Land Cruiser with a pop-up roof, for your party alone',
+            INCLUDED_CORE[1],
+            'Luxury accommodation throughout',
+            'All meals shown in the itinerary',
+            'Unlimited game drives, including the Ngorongoro Crater and Tarangire',
+            'The guided coffee plantation walk at Kitela Lodge',
+            'The visit to Shanga',
+            'Park entrance and conservation fees',
+            'Airport transfers',
+            'Bottled drinking water throughout',
+        ],
+        excluded: [
+            'International flights',
+            'Tanzanian visa fees',
+            'Travel insurance',
+            'Alcoholic and premium drinks unless stated',
+            'Items of a personal nature',
+            'Tips and gratuities',
+            'Optional activities not listed in the itinerary',
+        ],
+        faqs: [
+            FAQ_PRIVATE,
+            {
+                question: 'Why fly in?',
+                answer:
+                    'Flying straight to the Serengeti takes most of a day off the road, and that day goes on game drives instead.',
+            },
+            {
+                question: 'Will we see the Great Migration?',
+                answer:
+                    'The herds are somewhere in the Serengeti all year, and your guide takes you to the best of the game viewing for the season you travel in.',
+            },
+            {
+                question: 'Does it suit families?',
+                answer:
+                    'Yes. The pace is relaxed, the lodges take families properly, and the long Serengeti stay means fewer days in the vehicle moving between camps.',
+            },
+            FAQ_CUSTOMISE,
+        ],
     },
     /* -------------------------------------------------------- Kilimanjaro */
     {

@@ -15,24 +15,23 @@ import SectionHeading from './SectionHeading.astro'
 import { TRAVEL_STYLES } from '../content/home'
 
 /*
- * Both the title and the copy are white over the photograph, so the frame
- * needs a scrim at each end and can stay open in the middle.
+ * Both the title and the copy are white over the photograph, so each sits on
+ * its own band of scrim, sized to the text rather than to the card: solid
+ * under the text and fading out over the 3rem beyond it. The middle of the
+ * photograph has no scrim at all — a wash over the whole card used to grey
+ * every picture out.
  *
  * Measured, not guessed: scripts/style-card-scrim.py takes the brightest pixel
  * under each band of each of the five images and solves for the least alpha
  * that clears WCAG AA — 3:1 for the 24px title, 4.5:1 for the 14px copy. The
- * worst case across the five is 0.48 under the title and 0.61 under the copy
- * (three of the five put a pure white pixel under both), and the stops below
- * hold 0.50 through the title band and reach 0.64 before the copy band starts.
- * Re-run the script after changing a photograph.
+ * worst case across the five is 0.47 under the title and 0.61 under the copy,
+ * so the bands hold 0.50 and 0.64. The script's bands are deliberately wider
+ * than the text sits at any breakpoint. Re-run it after changing a photograph.
  */
-const SCRIM =
-    'background: linear-gradient(180deg,' +
-    ' rgba(35,32,27,0.54) 0%,' +
-    ' rgba(35,32,27,0.50) 24%,' +
-    ' rgba(35,32,27,0.24) 44%,' +
-    ' rgba(35,32,27,0.64) 60%,' +
-    ' rgba(35,32,27,0.74) 100%)'
+const fade = (direction: string, alpha: number) =>
+    `background: linear-gradient(${direction}, rgba(35,32,27,${alpha}) 0%, rgba(35,32,27,${alpha}) calc(100% - 3rem), rgba(35,32,27,0) 100%)`
+const TITLE_SCRIM = fade('180deg', 0.5)
+const COPY_SCRIM = fade('0deg', 0.64)
 ---
 
 <section class="gutter flex flex-col items-center bg-cream pt-18 pb-18 lg:pt-24 lg:pb-26">
@@ -84,12 +83,15 @@ const SCRIM =
                                 wide ? 'aspect-[3/2]' : 'aspect-[5/7]',
                             ]}
                         />
-                        <div class="absolute inset-0" style={SCRIM} aria-hidden="true"></div>
-                        <div class="absolute inset-0 flex flex-col justify-between gap-5 p-5 text-center lg:p-6">
-                            <h3 class="font-display text-[24px] leading-8 font-light text-white lg:text-[26px] lg:leading-9">
-                                {style.title}
-                            </h3>
-                            <p class="text-[14px] leading-6 text-white">{style.blurb}</p>
+                        <div class="absolute inset-0 flex flex-col justify-between text-center">
+                            <div class="px-5 pt-5 pb-12 lg:px-6 lg:pt-6" style={TITLE_SCRIM}>
+                                <h3 class="font-display text-[24px] leading-8 font-light text-white lg:text-[26px] lg:leading-9">
+                                    {style.title}
+                                </h3>
+                            </div>
+                            <div class="px-5 pt-12 pb-5 lg:px-6 lg:pb-6" style={COPY_SCRIM}>
+                                <p class="text-[14px] leading-6 text-white">{style.blurb}</p>
+                            </div>
                         </div>
                     </a>
                 </li>

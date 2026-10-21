@@ -2,25 +2,36 @@
 /**
  * The five routes up Kilimanjaro.
  *
+ * Laid out after the trekking page on ~/web/mufasa_new, at the client's
+ * request: one card per route carrying what a climber compares routes on —
+ * length, the route in a paragraph, three reasons to pick it, the price — and
+ * an Enquire button, then the support every climb shares. Enquire opens the
+ * planner with the route named (`/enquire/?itinerary=<slug>`), so a climb
+ * enquiry arrives the same way as every other one; there is still one form.
+ * The photograph and the name link through to the route's day-by-day at
+ * /safari-packages/<slug>/, for whoever wants the detail first.
+ *
  * These are also listed in a band of their own at the foot of
  * /safari-packages, which is the page that carries the whole catalogue. This
  * one stays because it is not a filtered view of that: the two product lines
- * are sold to different people — one is looking for lodges and game drives,
- * the other for an acclimatisation profile — and "Kilimanjaro climb" is a far
- * bigger search term than anything on the safari side, so it is worth a page
- * with its own title, standfirst and detail rather than an anchor.
- *
- * The cards link to /safari-packages/<slug>/, where the itineraries have
- * lived since they were written. See SAFARIS and TREKS at the foot of
+ * are sold to different people, and "Kilimanjaro climb" is a far bigger search
+ * term than anything on the safari side. See SAFARIS and TREKS at the foot of
  * src/content/packages.ts.
  */
 import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import Newsletter from '../components/Newsletter.astro'
-import PackageCard from '../components/PackageCard.astro'
 import SectionHeading from '../components/SectionHeading.astro'
-import { TREKS } from '../content/packages'
+import { TREKS, TREK_INCLUDED_HEAD, TREK_INCLUDED_TAIL } from '../content/packages'
+
+/* Same widths as PackageCard: three across the 1336px shell, then two, then one. */
+const SIZES =
+    '(min-width: 1440px) 428px, (min-width: 1024px) 30vw, (min-width: 640px) 46vw, calc(100vw - 48px)'
+
+/* What every climb shares, whatever the route. The camping or hut fee and the
+   accommodation line differ per route, so they are left to the itinerary. */
+const INCLUDED = [...TREK_INCLUDED_HEAD, ...TREK_INCLUDED_TAIL]
 ---
 
 <Layout
@@ -36,20 +47,78 @@ import { TREKS } from '../content/packages'
                 body="Africa’s highest mountain, and the highest free-standing mountain in the world. You do not need to be a mountaineer to stand on Uhuru Peak — what you need is a good level of fitness and enough days on the mountain to acclimatise, which is why every route below is the longer version of itself."
             />
 
-            <ul class="shell mt-10 grid grid-cols-1 gap-6.5 sm:grid-cols-2 lg:mt-11.5 lg:grid-cols-3">
+            <ul class="shell mt-10 grid grid-cols-1 gap-x-6.5 gap-y-12 sm:grid-cols-2 lg:mt-11.5 lg:grid-cols-3">
                 {
                     TREKS.map((pkg, index) => (
-                        <PackageCard pkg={pkg} loading={index < 3 ? 'eager' : 'lazy'} />
+                        <li class="flex flex-col">
+                            <a href={`/safari-packages/${pkg.slug}/`} class="group block overflow-hidden" tabindex="-1" aria-hidden="true">
+                                <img
+                                    src={pkg.image}
+                                    srcset={pkg.imageSrcset}
+                                    sizes={SIZES}
+                                    alt=""
+                                    loading={index < 3 ? 'eager' : 'lazy'}
+                                    decoding="async"
+                                    class="aspect-[4/5] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                                />
+                            </a>
+                            <p class="pt-5 text-[11px] leading-3.5 tracking-[0.16em] text-primary uppercase">
+                                Kilimanjaro · {pkg.days} Days
+                            </p>
+                            <h2 class="font-display pt-2.5 text-[27px] leading-8.5 text-ink">
+                                <a href={`/safari-packages/${pkg.slug}/`} class="transition-colors hover:text-primary">
+                                    {pkg.name}
+                                </a>
+                            </h2>
+                            <p class="pt-2.5 text-[15px] leading-6.5 text-muted">{pkg.summary}</p>
+                            <ul class="flex flex-col gap-2 pt-4">
+                                {pkg.highlights.slice(0, 3).map((highlight) => (
+                                    <li class="relative pl-5 text-[14px] leading-5.5 text-ink before:absolute before:top-2 before:left-0 before:size-1.5 before:rounded-full before:bg-primary">
+                                        {highlight}
+                                    </li>
+                                ))}
+                            </ul>
+                            <div class="mt-auto flex items-end justify-between gap-4 border-t border-line pt-5">
+                                <p class="flex flex-col gap-1 pt-6">
+                                    <span class="text-[10px] leading-3.5 tracking-[0.16em] text-muted uppercase">
+                                        From / person
+                                    </span>
+                                    <span class="text-[18px] leading-6 text-ink">{pkg.priceFrom}</span>
+                                </p>
+                                <a
+                                    href={`/enquire/?itinerary=${pkg.slug}`}
+                                    class="border border-primary px-6 py-3 text-[12px] leading-4 font-medium tracking-[0.18em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
+                                    aria-label={`Enquire about the ${pkg.name}`}
+                                >
+                                    Enquire
+                                </a>
+                            </div>
+                        </li>
                     ))
                 }
             </ul>
+        </section>
 
-            <p class="shell mt-14 max-w-180 text-center text-[16px] leading-7.25 text-muted">
-                Every climb is private and priced at US$ 360 per person per day on the mountain.
-                Not sure which route? Tell us how long you have and how you want to spend it, and
-                we will say honestly which one gives you the best chance of the summit — and add a
-                safari or Zanzibar on the end if you want one.
-            </p>
+        <section class="gutter flex flex-col items-center bg-white py-18 lg:py-24">
+            <div class="shell flex flex-col gap-8">
+                <h2 class="font-display text-[30px] leading-10 font-light text-ink lg:text-[38px] lg:leading-12">
+                    Every climb includes
+                </h2>
+                <ul class="grid max-w-225 grid-cols-1 gap-x-12 gap-y-3.5 sm:grid-cols-2">
+                    {
+                        INCLUDED.map((item) => (
+                            <li class="relative pl-7 text-[15px] leading-6 text-ink before:absolute before:left-0 before:font-medium before:text-primary before:content-['+']">
+                                {item}
+                            </li>
+                        ))
+                    }
+                </ul>
+                <p class="max-w-180 text-[15px] leading-6.5 text-muted">
+                    Not sure which route? Tell us how long you have and how you want to spend it,
+                    and we will say honestly which one gives you the best chance of the summit — and
+                    add a safari or Zanzibar at the end if you want one.
+                </p>
+            </div>
         </section>
 
         <Newsletter />

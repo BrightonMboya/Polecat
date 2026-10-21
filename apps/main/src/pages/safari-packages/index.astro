@@ -22,6 +22,14 @@
  * climb" is a far bigger search term than anything on the safari side, and it
  * carries the acclimatisation and crew detail that a trekker is actually
  * reading for. The group below is the listing, not a replacement for it.
+ *
+ * Paged, not all at once. With two dozen safaris the grid was a wall, so each
+ * group shows PAGE cards and a "Show more" button adds the next PAGE. Every
+ * card is still in the HTML — crawlers and visitors without JavaScript get the
+ * full list, and the script below only hides the rest — and because hidden
+ * cards' images are lazy, none of them is fetched until its card is shown.
+ * The route filter and the paging are one pass: a filtered view pages through
+ * the matching cards only.
  */
 import Layout from '../../layouts/Layout.astro'
 import Header from '../../components/Header.astro'
@@ -41,21 +49,24 @@ const GROUPS = [
     {
         id: 'safaris',
         label: 'Safaris',
-        note: 'Ten itineraries · Northern Tanzania & Zanzibar',
+        note: `${SAFARIS.length} itineraries · Northern Tanzania & Zanzibar`,
         items: SAFARIS,
     },
     {
         id: 'trekking',
         label: 'Kilimanjaro climbs',
-        note: 'Five routes · Six to nine days on the mountain',
+        note: `${TREKS.length} routes · Six to nine days on the mountain`,
         items: TREKS,
     },
 ]
+
+/** Cards per page: three full rows of the desktop grid. */
+const PAGE = 9
 ---
 
 <Layout
     title="Safari Packages — Tanzania Safaris and Kilimanjaro Climbs | Polecat Safaris"
-    description="Every itinerary we sell: ten private safaris across northern Tanzania and Zanzibar — honeymoon, family and Great Migration, six to thirteen days — and five routes up Kilimanjaro, each with day-by-day detail and rates."
+    description={`Every itinerary we sell: ${SAFARIS.length} private safaris across northern Tanzania and Zanzibar — honeymoon, family and Great Migration, six to thirteen days — and ${TREKS.length} routes up Kilimanjaro, each with day-by-day detail and rates.`}
 >
     <Header />
     <main>
@@ -104,6 +115,18 @@ const GROUPS = [
                                 />
                             ))}
                         </ul>
+
+                        {/* Revealed by the script when this group has more
+                            matching cards than it is showing. */}
+                        <div class="mt-10 flex justify-center" data-more-wrap hidden>
+                            <button
+                                type="button"
+                                data-more
+                                class="flex cursor-pointer items-center justify-center border border-primary px-9 py-4 text-[12px] leading-4 font-medium tracking-[0.2em] text-primary uppercase transition-colors hover:bg-primary hover:text-white"
+                            >
+                                Show more
+                            </button>
+                        </div>
                     </div>
                 ))
             }
@@ -122,13 +145,16 @@ const GROUPS = [
     <Footer />
 </Layout>
 
-<script define:vars={{ ROUTE_LABELS }}>
+<script define:vars={{ ROUTE_LABELS, PAGE }}>
     // /safari-packages/#<route> — from the homepage pills, the destination
     // cards and the footer — shows only the itineraries on that route, and
     // drops any band left empty. Any other hash, or none, shows everything.
-    const groups = document.querySelectorAll('[data-group]')
+    // Either way each group shows `PAGE` matching cards per press of its
+    // "Show more", and a new filter starts every group back at one page.
+    const groups = [...document.querySelectorAll('[data-group]')]
     const note = document.querySelector('[data-route-note]')
     const noteText = document.querySelector('[data-route-note-text]')
+    const limits = new Map(groups.map((group) => [group, PAGE]))
 
     const apply = () => {
         const route = location.hash.slice(1)
@@ -136,14 +162,22 @@ const GROUPS = [
         let total = 0
 
         for (const group of groups) {
-            let shown = 0
+            const matching = [...group.querySelectorAll('li[data-routes]')].filter(
+                (card) => !label || card.dataset.routes.split(' ').includes(route)
+            )
+            const limit = limits.get(group)
             for (const card of group.querySelectorAll('li[data-routes]')) {
-                const match = !label || card.dataset.routes.split(' ').includes(route)
-                card.hidden = !match
-                if (match) shown++
+                const index = matching.indexOf(card)
+                card.hidden = index === -1 || index >= limit
             }
-            group.hidden = shown === 0
-            total += shown
+            const rest = matching.length - limit
+            group.querySelector('[data-more-wrap]').hidden = rest <= 0
+            if (rest > 0) {
+                group.querySelector('[data-more]').textContent =
+                    `Show ${Math.min(rest, PAGE)} more of ${matching.length}`
+            }
+            group.hidden = matching.length === 0
+            total += matching.length
         }
 
         note.hidden = !label
@@ -152,13 +186,28 @@ const GROUPS = [
         }
     }
 
+    for (const group of groups) {
+        group.querySelector('[data-more]').addEventListener('click', () => {
+            const before = limits.get(group)
+            limits.set(group, before + PAGE)
+            apply()
+            // Keyboard focus would otherwise fall back to the body once the
+            // button is hidden; put it on the first card the press revealed.
+            group.querySelectorAll('li[data-routes]:not([hidden]) a')[before]?.focus()
+        })
+    }
+
     apply()
-    addEventListener('hashchange', apply)
+    addEventListener('hashchange', () => {
+        for (const group of groups) limits.set(group, PAGE)
+        apply()
+    })
 </script>
 
 <style is:global>
     /* A card's own display:flex would beat the hidden attribute. */
     [data-group] li[data-routes][hidden],
+    [data-group] [data-more-wrap][hidden],
     [data-group][hidden] {
         display: none;
     }

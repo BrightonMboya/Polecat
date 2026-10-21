@@ -5,7 +5,7 @@
  *
  * Nothing on this page is typed in. Every figure and every line comes from
  * src/content/packages.ts (the itinerary prices, the inclusion and exclusion
- * lists, the Kilimanjaro day rate) or src/content/addons.ts (the add-on
+ * lists) or src/content/addons.ts (the add-on
  * prices), so a price changed there changes here too. Do not add a figure to
  * this file that the operator has not supplied; there is no "average safari
  * cost" or per-day safari rate, because none has been given.
@@ -25,7 +25,6 @@ import {
     TREK_INCLUDED_HEAD,
     TREK_INCLUDED_TAIL,
     TREK_EXCLUDED,
-    TREK_DAY_RATE,
 } from '../content/packages'
 
 const GROUPS = [
@@ -133,7 +132,6 @@ const pageSchema = {
             <SectionHeading
                 eyebrow="Itinerary Prices"
                 heading="Every journey we publish"
-                body={`Safaris are priced per itinerary. Kilimanjaro is priced at US$ ${TREK_DAY_RATE} per person for each day on the mountain.`}
             />
             <div class="shell mt-10 grid grid-cols-1 gap-12 lg:mt-12 lg:grid-cols-2 lg:gap-16">
                 {
