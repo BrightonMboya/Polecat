@@ -23,16 +23,9 @@ import {
     ZANZIBAR_SEASONS,
     ZANZIBAR_TASTE,
     ZANZIBAR_THOUGHTFUL,
-    type GuidePhoto,
 } from '../content/zanzibar'
 
 const intro = ZANZIBAR_INTRO
-
-/* Every Commons photograph on the page, in the order it appears, for the
-   credits line its licence asks for. */
-const credited = [...ZANZIBAR_REASONS.map((r) => r.image), ...ZANZIBAR_BEYOND.items.map((i) => i.image)].filter(
-    (image): image is GuidePhoto & { credit: NonNullable<GuidePhoto['credit']> } => !!image?.credit
-)
 
 const whatsapp = whatsappLink('Hello Polecat Safaris — I would like to plan a trip to Zanzibar.')
 
@@ -336,28 +329,6 @@ const BEYOND_SIZES = '(min-width: 1440px) 428px, (min-width: 1024px) 30vw, (min-
             </div>
         </section>
 
-        {
-            credited.length > 0 && (
-                <section class="gutter flex flex-col items-center bg-cream py-8">
-                    <p class="shell text-[12px] leading-5 text-muted">
-                        Photographs from Wikimedia Commons:{' '}
-                        {credited.map((image, i) => (
-                            <>
-                                {i > 0 && '; '}
-                                <a href={image.credit.pageUrl} class="underline underline-offset-2 hover:text-primary">
-                                    {image.alt.split(',')[0]}
-                                </a>{' '}
-                                by {image.credit.author},{' '}
-                                <a href={image.credit.licenceUrl} class="underline underline-offset-2 hover:text-primary">
-                                    {image.credit.licence}
-                                </a>
-                            </>
-                        ))}
-                        . All other photographs are our own or our partners’.
-                    </p>
-                </section>
-            )
-        }
     </main>
     <Footer />
 </Layout>

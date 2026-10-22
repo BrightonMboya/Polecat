@@ -12,8 +12,12 @@
  *     copied into public/images as zanzibar-*.webp and cropped. Every one was
  *     chosen for the beach, not the hotel, and checked for logos;
  *   - the places no hotel shoot covers — Mnemba, Chumbe, Jozani and the rest —
- *     are openly licensed photographs from Wikimedia Commons, credited at the
- *     foot of the page as their licences require. See `credit` below.
+ *     are openly licensed photographs from Wikimedia Commons. Each one's
+ *     author, licence and source page are kept in its `credit` below. The page
+ *     no longer prints them: the credits line was removed at the user's
+ *     request on 2026-10-22, as the add-on page's were on 2026-10-04. Most of
+ *     these are CC BY or CC BY-SA, which ask for that credit — swap in the
+ *     operator's own photographs when they exist.
  *
  * Two of the document's own images are deliberately not used: a "map" that
  * labels Kendwa, Nungwi and Paje in the wrong places, and a composite of
@@ -25,7 +29,7 @@ export interface GuidePhoto {
     src: string
     srcset: string
     alt: string
-    /** Set on the Commons photographs; printed in the credits at the foot. */
+    /** Set on the Commons photographs: where each came from and under what licence. */
     credit?: { author: string; licence: string; licenceUrl: string; pageUrl: string }
 }
 
@@ -58,8 +62,79 @@ export const ZANZIBAR_INTRO = {
     ],
 }
 
-/** Filled in from the photographs on disk once each is sourced; see the header. */
-export const ZANZIBAR_REASONS: { n: string; place: string; theme: string; body: string; image: GuidePhoto }[] = []
+export const ZANZIBAR_REASONS: { n: string; place: string; theme: string; body: string; image: GuidePhoto }[] = [
+    {
+        n: '01',
+        place: 'Nungwi',
+        theme: 'Beach Life & Sunsets',
+        body: 'One of Zanzibar’s liveliest beach destinations, known for beautiful sunsets, restaurants, swimming and a vibrant atmosphere.',
+        image: photo('zanzibar-nungwi', [900], 'Thatched beach hotels along the shore at Nungwi on the northern tip of Zanzibar, turquoise water lapping the sand below them'),
+    },
+    {
+        n: '02',
+        place: 'Paje',
+        theme: 'Kitesurfing & Barefoot Living',
+        body: 'A long stretch of white sand with a laid-back atmosphere, popular with kitesurfers, adventurous travellers and those who enjoy beach cafés.',
+        image: photo('zanzibar-paje', [900, 1400], 'Looking out between palms over the white beach and shallow turquoise lagoon at Paje, kites out on the water'),
+    },
+    {
+        n: '03',
+        place: 'Mnemba Atoll',
+        theme: 'Underwater Wonders',
+        body: 'Discover colourful marine life through snorkelling and diving excursions in the waters around Mnemba Atoll.',
+        image: photo('zanzibar-mnemba', [900, 1400], 'A half-underwater view at Mnemba Atoll, with striped sergeant fish in turquoise water below and the island’s white beach and trees above the waterline', {
+                author: 'Jorge Láscar from Melbourne, Australia',
+                licence: 'CC BY-SA 2.0',
+                licenceUrl: 'https://creativecommons.org/licenses/by-sa/2.0',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:Mnemba_Island_-_Zanzibar_-_Flickr_-_Jorge_Lascar.jpg',
+            }),
+    },
+    {
+        n: '04',
+        place: 'Kendwa',
+        theme: 'White Sand & Ocean Views',
+        body: 'Famous for its beautiful beach, sunset views and swimming conditions that are generally less affected by tides than Zanzibar’s east coast.',
+        image: photo('zanzibar-kendwa', [900, 1400], 'Looking down on the wide white beach at Kendwa, swimmers in the clear shallows and parasols under the palms'),
+    },
+    {
+        n: '05',
+        place: 'Matemwe',
+        theme: 'Peaceful Island Escapes',
+        body: 'A quieter stretch of coastline with ocean views, intimate stays and access to excursions around Mnemba.',
+        image: photo('zanzibar-matemwe', [900, 1400], 'Thatched roofs among the palms behind a long, quiet beach at Matemwe on the north-east coast'),
+    },
+    {
+        n: '06',
+        place: 'Bwejuu',
+        theme: 'Secluded Luxury',
+        body: 'A peaceful east-coast setting for travellers seeking refined accommodation, tropical surroundings and a slower pace.',
+        image: photo('zanzibar-bwejuu', [900, 1400], 'A wooden outrigger canoe resting in the low-tide shallows on the east coast near Bwejuu, with a palm-lined beach behind', {
+                author: 'Chris huh',
+                licence: 'CC BY-SA 4.0',
+                licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:Bwejuu,_Zanzibar.JPG',
+            }),
+    },
+    {
+        n: '07',
+        place: 'Jambiani',
+        theme: 'Authentic Coastal Culture',
+        body: 'Experience a more traditional side of Zanzibar, with village life, fishing culture and long, peaceful beach walks.',
+        image: photo('zanzibar-jambiani', [900, 1200], 'Four canvas deck chairs on the sand at Jambiani facing turquoise water, wooden fishing boats moored offshore'),
+    },
+    {
+        n: '08',
+        place: 'Chumbe Island',
+        theme: 'Nature & Conservation',
+        body: 'A special choice for travellers interested in responsible tourism, coral reefs and protecting Zanzibar’s marine environment.',
+        image: photo('zanzibar-chumbe', [900, 1400], 'An aerial view of Chumbe Island, a small wooded island ringed by pale reef in the deep blue Indian Ocean', {
+                author: 'Rob from United Kingdom',
+                licence: 'CC BY 2.0',
+                licenceUrl: 'https://creativecommons.org/licenses/by/2.0',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:Approaching_Zanzibar.jpg',
+            }),
+    },
+]
 
 export const ZANZIBAR_BEACHES = {
     heading: 'Choose Your Zanzibar Beach',
@@ -78,7 +153,68 @@ export const ZANZIBAR_BEACHES = {
 export const ZANZIBAR_BEYOND: { heading: string; body: string; items: { title: string; body: string; image?: GuidePhoto }[] } = {
     heading: 'Beyond the Beach',
     body: 'Zanzibar rewards travellers who take time to explore beyond the shoreline.',
-    items: [],
+    items: [
+        {
+            title: 'Stone Town',
+            body: 'Walk through narrow historic streets, admire intricately carved doors, visit lively markets and discover the Swahili, Arab, Indian and European influences that have shaped the island.',
+            image: photo('zanzibar-stone-town', [900, 1400], 'A close-up of a carved wooden Zanzibar door in Stone Town, with ornate floral frames and rows of brass studs', {
+                author: 'Adam Jones from Kelowna, BC, Canada',
+                licence: 'CC BY-SA 2.0',
+                licenceUrl: 'https://creativecommons.org/licenses/by-sa/2.0',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:Detail_of_Carved_Wooden_Door_-_Stone_Town_-_Zanzibar_-_Tanzania_(8841700340).jpg',
+            }),
+        },
+        {
+            title: 'Spice Farms',
+            body: 'Discover the aromas and flavours of cloves, cinnamon, cardamom, vanilla and other spices that helped make Zanzibar famous.',
+            image: photo('zanzibar-spice', [900, 1400], 'Cupped hands holding a fresh sprig of clove buds and glossy leaves on a Zanzibar spice farm', {
+                author: 'Freestylerob',
+                licence: 'Public domain',
+                licenceUrl: 'https://creativecommons.org/publicdomain/mark/1.0/',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:ZanCloves.JPG',
+            }),
+        },
+        {
+            title: 'Mnemba Atoll',
+            body: 'Head out onto the Indian Ocean for a snorkelling or diving excursion, with opportunities to discover colourful reefs and marine life.',
+            image: photo('zanzibar-mnemba-reef', [900, 1400], 'A lionfish fanning its striped fins over the coral on the reef at Mnemba Atoll', {
+                author: 'I’ve Got It On Film!',
+                licence: 'CC BY 2.0',
+                licenceUrl: 'https://creativecommons.org/licenses/by/2.0',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:Mnemba_Atoll_-_51861330922.jpg',
+            }),
+        },
+        {
+            title: 'Jozani Forest',
+            body: 'Explore Zanzibar’s natural side on a forest walk, with the chance to see the island’s famous red colobus monkeys.',
+            image: photo('zanzibar-jozani', [900, 1400], 'A Zanzibar red colobus monkey sitting among the leaves of the Jozani Forest canopy, looking out from a pale ruff of fur', {
+                author: 'Diego Delso',
+                licence: 'CC BY-SA 4.0',
+                licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:Colobo_rojo_de_Zanz%C3%ADbar_(Piliocolobus_kirkii),_parque_nacional_de_la_Bah%C3%ADa_Jozani_Chwaka,_Zanz%C3%ADbar,_Tanzania,_2024-06-02,_DD_26.jpg',
+            }),
+        },
+        {
+            title: 'Safari Blue',
+            body: 'Spend a day sailing, swimming and snorkelling, with opportunities to relax on sandbanks and enjoy the beauty of the ocean.',
+            image: photo('zanzibar-safari-blue', [900, 1400], 'A traditional wooden outrigger boat moored in clear turquoise shallows near Kwale Island off Zanzibar', {
+                author: 'lazyweaver',
+                licence: 'CC BY 3.0',
+                licenceUrl: 'https://creativecommons.org/licenses/by/3.0',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:Small_island_near_Kwale_island_-_panoramio.jpg',
+            }),
+        },
+        {
+            title: 'Prison Island',
+            body: 'Take a boat trip from Stone Town to explore the island’s history and see its resident Aldabra giant tortoises.',
+            image: photo('zanzibar-prison-island', [900, 1400], 'An Aldabra giant tortoise walking over tree roots and red earth on Prison Island (Changuu)', {
+                author: 'Diego Delso',
+                licence: 'CC BY-SA 4.0',
+                licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+                pageUrl: 'https://commons.wikimedia.org/wiki/File:Tortuga_gigante_de_Aldabra_(Aldabrachelys_gigantea),_isla_Changuu,_Tanzania,_2024-05-31,_DD_09.jpg',
+            }),
+        },
+    ],
 }
 
 export const ZANZIBAR_COMBINE = {
