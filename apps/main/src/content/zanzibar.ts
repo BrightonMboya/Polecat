@@ -136,20 +136,6 @@ export const ZANZIBAR_REASONS: { n: string; place: string; theme: string; body: 
     },
 ]
 
-export const ZANZIBAR_BEACHES = {
-    heading: 'Choose Your Zanzibar Beach',
-    body: 'Every part of Zanzibar has its own personality. Choosing the right coast can make a real difference to your holiday.',
-    items: [
-        { place: 'Nungwi', note: 'Lively beach life, restaurants, swimming and sunsets.' },
-        { place: 'Kendwa', note: 'Beautiful white sand, swimming and relaxed evenings.' },
-        { place: 'Matemwe', note: 'Peace, ocean views, snorkelling and diving excursions.' },
-        { place: 'Kiwengwa', note: 'Resort-style stays suited to couples and families.' },
-        { place: 'Paje', note: 'Kitesurfing, beach cafés and a youthful atmosphere.' },
-        { place: 'Jambiani', note: 'Traditional village life and a slower, more authentic feel.' },
-    ],
-    tip: 'Tides are more noticeable along much of Zanzibar’s east coast. If easy access to deeper swimming water throughout the day is important, consider Nungwi or Kendwa.',
-}
-
 export const ZANZIBAR_BEYOND: { heading: string; body: string; items: { title: string; body: string; image?: GuidePhoto }[] } = {
     heading: 'Beyond the Beach',
     body: 'Zanzibar rewards travellers who take time to explore beyond the shoreline.',
@@ -218,19 +204,10 @@ export const ZANZIBAR_BEYOND: { heading: string; body: string; items: { title: s
 }
 
 export const ZANZIBAR_COMBINE = {
-    eyebrow: 'Safari + Zanzibar',
     heading: 'Combine Your Safari with Zanzibar',
     paragraphs: [
         'Imagine spending your days tracking wildlife across Tanzania’s golden plains, watching elephants beneath ancient baobabs and exploring the Ngorongoro Crater — then exchanging the savannah for warm ocean water and peaceful beach evenings.',
         'After your safari, fly to Zanzibar to enjoy Stone Town, beautiful beaches and the Indian Ocean at your own pace.',
-    ],
-    route: ['Tarangire', 'Ngorongoro Crater', 'Serengeti', 'Zanzibar'],
-    combinations: [
-        'Tanzania safari and Zanzibar beach holiday',
-        'Serengeti safari and Zanzibar',
-        'Kilimanjaro adventure and Zanzibar',
-        'Honeymoon safari and Zanzibar',
-        'Family safari and Zanzibar',
     ],
     closing:
         'At Polecat Safaris, we can help bring these experiences together into one thoughtfully planned journey, with accommodation and travel arrangements suited to your preferences.',
@@ -344,12 +321,8 @@ export const ZANZIBAR_FAQS = [
 ]
 
 export const ZANZIBAR_CLOSING = {
-    heading: 'The Zanzibar Feeling',
-    lines: ['Come for the beaches.', 'Stay for the feeling.'],
-    body: 'The warmth of the ocean. The scent of spices drifting through old streets. A dhow sailing across the horizon. Golden sunsets and mornings with nowhere urgent to be. Zanzibar is a place to stop rushing, reconnect with the moment and enjoy the journey.',
     ctaHeading: 'Plan Your Zanzibar Escape with Polecat Safaris',
     ctaBody: 'Whether you dream of a peaceful beach retreat, a cultural island adventure or a luxury safari followed by the Indian Ocean, we can help you create a journey that feels right for you.',
-    signoff: 'Explore Tanzania. Discover Zanzibar. Travel at your own pace.',
     planHref: `/enquire/?plan=${ZANZIBAR_PLAN.slug}`,
 }
 
